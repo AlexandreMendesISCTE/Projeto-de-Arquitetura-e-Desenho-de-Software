@@ -1,0 +1,43 @@
+# Ignorar ficheiros desnecessários no contexto Docker
+target/
+!target/*.jar
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Logs
+logs/
+*.log
+
+# Documentação temporária
+*.tmp
+*.temp
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore

@@ -1,16 +1,11 @@
-# Compiled class file
+# Compiled class files
 *.class
 
-# Log file
+# Log files
 *.log
+logs/
 
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# Package Files
 *.jar
 *.war
 *.nar
@@ -18,10 +13,6 @@
 *.zip
 *.tar.gz
 *.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
 
 # Maven
 target/
@@ -37,31 +28,32 @@ buildNumber.properties
 
 # IDE
 .idea/
-*.iws
 *.iml
+*.iws
 *.ipr
 .vscode/
 .settings/
-.project
 .classpath
+.project
+.metadata/
+bin/
 
 # OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
+*.swp
+*.swo
+*~
 
-# Logs
-logs/
-*.log
+# Build artifacts
+build/
+dist/
+out/
 
-# Docker
-.dockerignore
+# Temporary files
+*.tmp
+*.bak
+*.cache
 
 # Application specific
-data/
-cache/
-temp/
+application-local.properties
