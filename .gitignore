@@ -57,3 +57,6 @@ out/
 
 # Application specific
 application-local.properties
+
+# Documentation
+README.md

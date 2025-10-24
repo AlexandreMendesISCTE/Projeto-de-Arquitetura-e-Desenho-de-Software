@@ -38,7 +38,42 @@
         <mockito.version>5.14.2</mockito.version>
         <slf4j.version>2.0.16</slf4j.version>
         <logback.version>1.5.15</logback.version>
+        
+        <!-- Bibliotecas para mapas e OpenStreetMap -->
+        <jmapviewer.version>2.16</jmapviewer.version>
+        <geotools.version>32.1</geotools.version>
+        <jts.version>1.20.0</jts.version>
+        
+        <!-- Bibliotecas para interface gráfica -->
+        <flatlaf.version>3.5.2</flatlaf.version>
+        <jgoodies.version>1.9.0</jgoodies.version>
+        
+        <!-- Bibliotecas para cálculos geográficos -->
+        <geodesy.version>1.1.4</geodesy.version>
+        <commons-math3.version>3.6.1</commons-math3.version>
     </properties>
+
+    <repositories>
+        <!-- Repositório do GeoTools -->
+        <repository>
+            <id>osgeo</id>
+            <name>OSGeo Release Repository</name>
+            <url>https://repo.osgeo.org/repository/release/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        
+        <!-- JCenter para JMapViewer -->
+        <repository>
+            <id>jcenter</id>
+            <name>JCenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <!-- Jackson para parsing JSON -->
@@ -99,6 +134,104 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JMapViewer para mapas OpenStreetMap -->
+        <!-- NOTA: JMapViewer não está disponível no Maven Central -->
+        <!-- Pode ser adicionado manualmente baixando de: https://josm.openstreetmap.de/svn/trunk/dist/jmapviewer.jar -->
+        <!--
+        <dependency>
+            <groupId>org.openstreetmap</groupId>
+            <artifactId>jmapviewer</artifactId>
+            <version>${jmapviewer.version}</version>
+        </dependency>
+        -->
+
+        <!-- GeoTools para processamento de dados geográficos -->
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-main</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-shapefile</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geojson</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+
+        <!-- JTS para geometria espacial -->
+        <dependency>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>${jts.version}</version>
+        </dependency>
+
+        <!-- FlatLaf para interface gráfica moderna -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>${flatlaf.version}</version>
+        </dependency>
+
+        <!-- JGoodies para componentes Swing avançados -->
+        <dependency>
+            <groupId>com.jgoodies</groupId>
+            <artifactId>jgoodies-forms</artifactId>
+            <version>${jgoodies.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jgoodies</groupId>
+            <artifactId>jgoodies-common</artifactId>
+            <version>1.8.1</version>
+        </dependency>
+
+        <!-- Apache Commons Math para cálculos matemáticos -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>${commons-math3.version}</version>
+        </dependency>
+
+        <!-- Apache Commons Lang para utilitários -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.14.0</version>
+        </dependency>
+
+        <!-- Apache Commons IO para operações de ficheiro -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.15.1</version>
+        </dependency>
+
+        <!-- Apache Commons Validator para validações -->
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+
+        <!-- JUnit Pioneer para testes avançados -->
+        <dependency>
+            <groupId>org.junit-pioneer</groupId>
+            <artifactId>junit-pioneer</artifactId>
+            <version>2.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- AssertJ para assertions mais expressivas -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.25.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
