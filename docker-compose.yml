@@ -1,27 +1,47 @@
-version: '3.8'
-
 services:
-  # Aplicação principal
+  # Aplicação principal Map Route Explorer
   map-route-explorer:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: map-route-explorer-app
     environment:
-      - JAVA_OPTS=-Xmx512m -Xms256m
-      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xmx1g -Xms512m -Djava.awt.headless=false
+      - DISPLAY=:0
+      - APP_HOME=/app
+      - LOGS_DIR=/app/logs
     volumes:
       - ./logs:/app/logs
       - ./data:/app/data
+      - ./config:/app/config
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
     ports:
-      - "8080:8080"
+      - "5900:5900"  # VNC port para acesso remoto à interface gráfica
     networks:
       - map-network
-    depends_on:
-      - redis
+    restart: unless-stopped
+    privileged: true  # Necessário para aplicações gráficas
+    stdin_open: true
+    tty: true
+
+  # Servidor VNC para acesso remoto à interface gráfica
+  vnc-server:
+    image: consol/ubuntu-xfce-vnc:latest
+    container_name: map-route-explorer-vnc
+    environment:
+      - VNC_PW=maproute123
+      - VNC_RESOLUTION=1024x768
+    ports:
+      - "5901:5900"
+    volumes:
+      - vnc-data:/home/ubuntu
+    networks:
+      - map-network
     restart: unless-stopped
 
-  # Redis para cache de dados
+  # Redis para cache de dados (opcional)
   redis:
-    image: redis:7.4-alpine
+    image: redis:7.4.1-alpine
     container_name: map-route-explorer-redis
     ports:
       - "6379:6379"
@@ -31,6 +51,8 @@ services:
       - map-network
     restart: unless-stopped
     command: redis-server --appendonly yes
+    profiles:
+      - cache  # Apenas inicia se especificado
 
   # Nginx para proxy reverso (opcional para interface web futura)
   nginx:
@@ -47,9 +69,13 @@ services:
     depends_on:
       - map-route-explorer
     restart: unless-stopped
+    profiles:
+      - web  # Apenas inicia se especificado
 
 volumes:
   redis-data:
+    driver: local
+  vnc-data:
     driver: local
 
 networks:
