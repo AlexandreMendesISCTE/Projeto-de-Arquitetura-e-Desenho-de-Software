@@ -1,40 +1,21 @@
 services:
-  # Aplicação principal Map Route Explorer
+  # Aplicação principal Map Route Explorer com VNC
   map-route-explorer:
     build: 
       context: .
       dockerfile: Dockerfile
     container_name: map-route-explorer-app
     environment:
-      - JAVA_OPTS=-Xmx1g -Xms512m -Djava.awt.headless=false
-      - DISPLAY=:0
-      - APP_HOME=/app
-      - LOGS_DIR=/app/logs
+      - JAVA_OPTS=-Xmx1g -Xms512m
+      - DISPLAY=:1
+      - VNC_PASSWORD=maproute123
     volumes:
       - ./logs:/app/logs
       - ./data:/app/data
-      - ./config:/app/config
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
     ports:
-      - "5900:5900"  # VNC port para acesso remoto à interface gráfica
-    networks:
-      - map-network
-    restart: unless-stopped
-    privileged: true  # Necessário para aplicações gráficas
-    stdin_open: true
-    tty: true
-
-  # Servidor VNC para acesso remoto à interface gráfica
-  vnc-server:
-    image: consol/ubuntu-xfce-vnc:latest
-    container_name: map-route-explorer-vnc
-    environment:
-      - VNC_PW=maproute123
-      - VNC_RESOLUTION=1024x768
-    ports:
-      - "5901:5900"
-    volumes:
-      - vnc-data:/home/ubuntu
+      - "5901:5901"  # VNC Server - Use VNC Viewer para conectar
+      - "6080:6080"  # noVNC - Acesso via Browser (http://localhost:6080)
+      - "8080:8080"  # HTTP - APIs futuras
     networks:
       - map-network
     restart: unless-stopped
@@ -74,8 +55,6 @@ services:
 
 volumes:
   redis-data:
-    driver: local
-  vnc-data:
     driver: local
 
 networks:

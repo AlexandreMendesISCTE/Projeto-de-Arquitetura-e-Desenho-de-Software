@@ -3,7 +3,8 @@
 
 # Log files
 *.log
-logs/
+logs/*.log
+!logs/.gitkeep
 
 # Package Files
 *.jar
@@ -57,6 +58,7 @@ out/
 
 # Application specific
 application-local.properties
-
-# Documentation
-README.md
+data/*
+!data/.gitkeep
+config/*
+!config/.gitkeep

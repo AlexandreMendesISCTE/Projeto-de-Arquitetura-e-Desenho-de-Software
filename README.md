@@ -4,12 +4,38 @@
 
 [![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://openjdk.java.net/)
 [![Maven](https://img.shields.io/badge/Maven-3.9+-blue.svg)](https://maven.apache.org/)
-[![Docker](https://img.shields.io/badge/Docker-Compatible-blue.svg)](https://www.docker.com/)
+[![Docker](https://img.shields.io/badge/Docker-VNC_Ready-blue.svg)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Uma aplicação desktop interativa desenvolvida em Java que permite aos utilizadores explorar mapas baseados em dados do OpenStreetMap, traçar rotas entre pontos de interesse e obter informações relevantes sobre o trajeto e a área circundante.
 
-> **⚠️ Nota**: Esta é uma **aplicação desktop com interface gráfica (Swing)** que requer execução local com ambiente gráfico. Embora o build seja suportado por Docker, a execução requer uma máquina com display gráfico.
+## 🚀 Início Rápido
+
+### **Execução via Docker (Recomendado)** 🐳
+
+```bash
+# Clone o repositório
+git clone https://github.com/AlexandreMendesISCTE/Projeto-de-Arquitetura-e-Desenho-de-Software.git
+cd Projeto-de-Arquitetura-e-Desenho-de-Software
+
+# Inicie com Docker Compose
+docker compose up -d
+
+# Acesse via Browser (noVNC)
+# Abra: http://localhost:6080
+```
+
+**Credenciais VNC:**
+- 🌐 **Browser (noVNC)**: http://localhost:6080 (sem senha)
+- 🖥️ **VNC Viewer**: `localhost:5901` | Senha: `maproute123`
+
+### **Execução Local**
+
+```bash
+# Compile e execute
+mvn clean package -DskipTests
+java -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
+```
 
 ## 📋 Índice
 
@@ -440,7 +466,34 @@ Este projeto está licenciado sob a Licença MIT - veja o ficheiro [LICENSE](LIC
 - [GeoTools](https://geotools.org/)
 - [JMapViewer](https://josm.openstreetmap.de/wiki/Help/Plugin/JMapViewer)
 
-## 🔗 Links Úteis
+## � Estrutura do Projeto
+
+```
+Projeto-de-Arquitetura-e-Desenho-de-Software/
+├── src/                    # Código fonte
+│   ├── main/
+│   │   ├── java/          # Código Java
+│   │   └── resources/     # Recursos (config, logs)
+│   └── test/              # Testes unitários
+├── docs/                   # Documentação
+│   ├── INSTALACAO.md      # Guia de instalação
+│   └── Enunciado.md       # Enunciado do projeto
+├── scripts/                # Scripts de automação
+│   ├── build.sh           # Build para Linux/Mac
+│   ├── build.ps1          # Build para Windows
+│   ├── docker-start.sh    # Docker start Linux/Mac
+│   └── docker-start.ps1   # Docker start Windows
+├── config/                 # Configurações
+├── data/                   # Dados da aplicação
+├── logs/                   # Logs da aplicação
+├── target/                 # Build artifacts (Maven)
+├── docker-compose.yml      # Configuração Docker
+├── Dockerfile              # Imagem Docker
+├── pom.xml                # Configuração Maven
+└── README.md              # Este arquivo
+```
+
+## �🔗 Links Úteis
 
 - [Documentação da API OSRM](http://project-osrm.org/docs/v5.24.0/api/)
 - [Documentação da API Nominatim](https://nominatim.org/release-docs/develop/api/Overview/)

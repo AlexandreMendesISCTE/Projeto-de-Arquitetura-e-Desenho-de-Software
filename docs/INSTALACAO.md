@@ -47,7 +47,14 @@ git version 2.43.x (ou superior)
 
 ## 🐳 Instalação com Docker (Recomendado)
 
-> **⚠️ Nota Importante**: A instalação com Docker requer que o Docker Desktop esteja instalado no sistema. Se o Docker não estiver disponível, siga as [instruções de instalação manual](#-instalação-manual-alternativa).
+> **✨ Novidade**: A aplicação agora inclui **VNC Server e noVNC** para acesso à interface gráfica via browser ou VNC Viewer!
+
+### Vantagens do Docker
+- ✅ Instalação em 1 comando
+- ✅ Não requer instalação de Java localmente
+- ✅ Acesso via browser (sem instalar VNC Viewer)
+- ✅ Isolamento completo do sistema
+- ✅ Funciona em Windows, Linux e macOS
 
 ### Instalação do Docker
 
@@ -149,6 +156,60 @@ docker-compose down
 ```
 
 #### 4. Acesso à Aplicação
+
+**A aplicação oferece 2 formas de acesso:**
+
+##### **Opção 1: Via Browser (noVNC) - Mais Fácil** 🌐
+
+1. Abra o seu browser
+2. Acesse: **http://localhost:6080**
+3. Clique em **"Connect"**
+4. A interface gráfica aparecerá no browser! ✨
+
+**Vantagens:**
+- ✅ Sem instalação adicional
+- ✅ Funciona em qualquer browser moderno
+- ✅ Sem necessidade de senha
+- ✅ Acesso de qualquer lugar da rede local
+
+##### **Opção 2: Via VNC Viewer - Melhor Desempenho** 🖥️
+
+1. **Instale um VNC Viewer:**
+   - **TigerVNC** (Recomendado): https://github.com/TigerVNC/tigervnc/releases
+   - **RealVNC Viewer**: https://www.realvnc.com/en/connect/download/viewer/
+   - **UltraVNC** (Windows): https://uvnc.com/downloads/ultravnc.html
+
+2. **Conecte ao servidor:**
+   - Servidor: `localhost:5901`
+   - Senha: `maproute123`
+
+3. **Desfrute da melhor qualidade visual!** 🎨
+
+**Vantagens:**
+- ✅ Melhor desempenho gráfico
+- ✅ Menor latência
+- ✅ Suporte a tela cheia
+- ✅ Maior resolução
+
+##### **Portas Expostas**
+
+| Serviço | Porta | Descrição |
+|---------|-------|-----------|
+| **noVNC (Browser)** | 6080 | Acesso via http://localhost:6080 |
+| **VNC Server** | 5901 | Conexão VNC Viewer (senha: maproute123) |
+| **HTTP API** | 8080 | APIs futuras (reservado) |
+
+##### **Credenciais**
+
+```
+🌐 Browser (noVNC):
+   URL: http://localhost:6080
+   Senha: Não necessária
+
+🖥️ VNC Viewer:
+   Servidor: localhost:5901
+   Senha: maproute123
+```
 
 - **Interface Gráfica**: A aplicação abrirá automaticamente
 - **Acesso Remoto VNC**: 
