@@ -33,79 +33,44 @@ LABEL description="Sistema Interativo de Rotas e Exploração de Locais com Open
 LABEL org.opencontainers.image.source="https://github.com/AlexandreMendesISCTE/Projeto-de-Arquitetura-e-Desenho-de-Software"
 
 # Define variáveis de ambiente
-ENV JAVA_OPTS="-Xmx1g -Xms512m -Djava.awt.headless=false" \
+ENV JAVA_OPTS="-Xmx1g -Xms512m" \
     APP_HOME=/app \
     LOGS_DIR=/app/logs \
-    DISPLAY=:0 \
     LANG=pt_PT.UTF-8 \
     TZ=Europe/Lisbon
 
 # Cria diretório da aplicação
 WORKDIR $APP_HOME
 
-# Instala dependências do sistema (Alpine Linux usa apk)
+# Instala dependências básicas do sistema (Alpine Linux)
 RUN apk add --no-cache \
     bash \
     curl \
     wget \
-    xvfb \
-    x11vnc \
-    fluxbox \
     ttf-dejavu \
     fontconfig \
-    libxrender \
-    libxtst \
-    libxi \
-    libxrandr \
-    mesa-gl \
-    # Bibliotecas adicionais para Java AWT/Swing
-    libx11 \
-    libxext \
-    libxt \
-    libxcursor \
-    libxmu \
-    libxi6-compat \
-    freetype \
     tzdata && \
     # Configura timezone
     cp /usr/share/zoneinfo/$TZ /etc/localtime && \
-    echo $TZ > /etc/timezone && \
-    # Fix permissões do X11
-    chmod 1777 /tmp/.X11-unix || true
+    echo $TZ > /etc/timezone
 
 # Cria diretórios necessários
-RUN mkdir -p $LOGS_DIR /tmp/.X11-unix
+RUN mkdir -p $LOGS_DIR
 
 # Copia o JAR compilado da etapa de build
 COPY --from=builder /build/target/map-route-explorer-*-jar-with-dependencies.jar $APP_HOME/app.jar
-
-# Cria script de inicialização (usando múltiplos RUN para garantir funcionamento)
-RUN echo '#!/bin/bash' > $APP_HOME/start.sh && \
-    echo '# Inicia servidor X virtual' >> $APP_HOME/start.sh && \
-    echo 'Xvfb :0 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &' >> $APP_HOME/start.sh && \
-    echo 'export DISPLAY=:0' >> $APP_HOME/start.sh && \
-    echo '' >> $APP_HOME/start.sh && \
-    echo '# Inicia window manager' >> $APP_HOME/start.sh && \
-    echo 'fluxbox &' >> $APP_HOME/start.sh && \
-    echo '' >> $APP_HOME/start.sh && \
-    echo '# Aguarda o X server estar pronto' >> $APP_HOME/start.sh && \
-    echo 'sleep 2' >> $APP_HOME/start.sh && \
-    echo '' >> $APP_HOME/start.sh && \
-    echo '# Inicia a aplicação Java' >> $APP_HOME/start.sh && \
-    echo 'java $JAVA_OPTS -jar $APP_HOME/app.jar' >> $APP_HOME/start.sh && \
-    chmod +x $APP_HOME/start.sh
 
 # Define o utilizador não-root para segurança e ajusta permissões
 RUN addgroup -S appuser && adduser -S appuser -G appuser && \
     chown -R appuser:appuser $APP_HOME
 USER appuser
 
-# Expõe portas (para VNC se necessário)
-EXPOSE 5900
+# Expõe portas (para APIs futuras)
+EXPOSE 8080
 
 # Health check para monitorar estado da aplicação
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -f "java.*app.jar" > /dev/null || exit 1
 
-# Comando de inicialização
-ENTRYPOINT ["/app/start.sh"]
+# Comando de inicialização - Executa Java diretamente
+CMD ["java", "-jar", "/app/app.jar"]
