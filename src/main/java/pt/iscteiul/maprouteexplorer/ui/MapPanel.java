@@ -1,12 +1,8 @@
 package pt.iscteiul.maprouteexplorer.ui;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -14,6 +10,14 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+
+import org.openstreetmap.gui.jmapviewer.Coordinate;
+import org.openstreetmap.gui.jmapviewer.JMapViewer;
+import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
+import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
+import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
+import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
+import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import pt.iscteiul.maprouteexplorer.model.Location;
 import pt.iscteiul.maprouteexplorer.model.Route;
@@ -30,6 +34,9 @@ import pt.iscteiul.maprouteexplorer.model.Route;
  * @since 1.0.0
  */
 public class MapPanel extends JPanel {
+    
+    /** Componente JMapViewer para renderização do mapa */
+    private JMapViewer mapViewer;
     
     /** Lista de pontos selecionados no mapa */
     private List<Location> selectedPoints;
@@ -64,16 +71,25 @@ public class MapPanel extends JPanel {
      * Inicializa o painel do mapa com configurações básicas.
      */
     private void initializeMap() {
+        setLayout(new java.awt.BorderLayout());
         setPreferredSize(new Dimension(800, 600));
-        setBackground(Color.WHITE);
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        
+        // Inicializar JMapViewer
+        mapViewer = new JMapViewer();
+        mapViewer.setTileSource(new OsmTileSource.Mapnik());
+        mapViewer.setZoomControlsVisible(true);
+        mapViewer.setScrollWrapEnabled(false);
+        mapViewer.setDisplayPosition(new Coordinate(mapCenter.getLatitude(), mapCenter.getLongitude()), zoomLevel);
+        
+        add(mapViewer, java.awt.BorderLayout.CENTER);
     }
     
     /**
      * Configura os listeners de mouse para interação com o mapa.
      */
     private void setupMouseListeners() {
-        addMouseListener(new MouseAdapter() {
+        mapViewer.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 handleMapClick(e.getX(), e.getY());
@@ -88,35 +104,28 @@ public class MapPanel extends JPanel {
      * @param y coordenada Y do clique
      */
     private void handleMapClick(int x, int y) {
-        Location clickedLocation = screenToLocation(x, y);
+        Coordinate coord = mapViewer.getPosition(x, y);
+        Location clickedLocation = new Location(coord.getLat(), coord.getLon());
         
-        if (clickedLocation != null) {
-            selectedPoints.add(clickedLocation);
-            
-            if (pointSelectionListener != null) {
-                pointSelectionListener.onPointSelected(clickedLocation);
-            }
-            
-            repaint();
+        selectedPoints.add(clickedLocation);
+        
+        if (pointSelectionListener != null) {
+            pointSelectionListener.onPointSelected(clickedLocation);
         }
+        
+        // Adicionar marcador no mapa
+        addMarkerToMap(clickedLocation);
     }
     
     /**
-     * Converte coordenadas de tela para coordenadas geográficas.
+     * Adiciona um marcador no mapa para uma localização específica.
      * 
-     * @param screenX coordenada X da tela
-     * @param screenY coordenada Y da tela
-     * @return localização geográfica correspondente
+     * @param location localização para adicionar marcador
      */
-    private Location screenToLocation(int screenX, int screenY) {
-        // TODO: Implementar conversão de coordenadas de tela para geográficas
-        // Esta implementação dependeria da biblioteca de mapas utilizada
-        
-        // Implementação temporária - seria substituída pela conversão real
-        double lat = mapCenter.getLatitude() + (getHeight() / 2 - screenY) * 0.001;
-        double lon = mapCenter.getLongitude() + (screenX - getWidth() / 2) * 0.001;
-        
-        return new Location(lat, lon);
+    private void addMarkerToMap(Location location) {
+        Coordinate coord = new Coordinate(location.getLatitude(), location.getLongitude());
+        MapMarker marker = new MapMarkerDot(coord);
+        mapViewer.addMapMarker(marker);
     }
     
     /**
@@ -126,14 +135,8 @@ public class MapPanel extends JPanel {
      * @return ponto na tela correspondente
      */
     private Point locationToScreen(Location location) {
-        // TODO: Implementar conversão de coordenadas geográficas para tela
-        // Esta implementação dependeria da biblioteca de mapas utilizada
-        
-        // Implementação temporária
-        int x = (int) ((location.getLongitude() - mapCenter.getLongitude()) * 1000 + getWidth() / 2);
-        int y = (int) (getHeight() / 2 - (location.getLatitude() - mapCenter.getLatitude()) * 1000);
-        
-        return new Point(x, y);
+        Coordinate coord = new Coordinate(location.getLatitude(), location.getLongitude());
+        return mapViewer.getPoint(coord);
     }
     
     /**
@@ -143,7 +146,7 @@ public class MapPanel extends JPanel {
      */
     public void setRoute(Route route) {
         this.currentRoute = route;
-        repaint();
+        drawRouteOnMap(route);
     }
     
     /**
@@ -151,7 +154,8 @@ public class MapPanel extends JPanel {
      */
     public void clearRoute() {
         this.currentRoute = null;
-        repaint();
+        // Remover polígonos de rota do mapa
+        mapViewer.removeAllMapPolygons();
     }
     
     /**
@@ -159,7 +163,8 @@ public class MapPanel extends JPanel {
      */
     public void clearSelectedPoints() {
         this.selectedPoints.clear();
-        repaint();
+        // Remover todos os marcadores do mapa
+        mapViewer.removeAllMapMarkers();
     }
     
     /**
@@ -178,7 +183,8 @@ public class MapPanel extends JPanel {
      */
     public void setMapCenter(Location center) {
         this.mapCenter = center;
-        repaint();
+        Coordinate coord = new Coordinate(center.getLatitude(), center.getLongitude());
+        mapViewer.setDisplayPosition(coord, zoomLevel);
     }
     
     /**
@@ -187,7 +193,8 @@ public class MapPanel extends JPanel {
      * @return localização central do mapa
      */
     public Location getMapCenter() {
-        return mapCenter;
+        Coordinate coord = mapViewer.getPosition(mapViewer.getWidth()/2, mapViewer.getHeight()/2);
+        return new Location(coord.getLat(), coord.getLon());
     }
     
     /**
@@ -197,7 +204,7 @@ public class MapPanel extends JPanel {
      */
     public void setZoomLevel(int zoomLevel) {
         this.zoomLevel = Math.max(1, Math.min(18, zoomLevel));
-        repaint();
+        mapViewer.setZoom(zoomLevel);
     }
     
     /**
@@ -206,7 +213,7 @@ public class MapPanel extends JPanel {
      * @return nível de zoom
      */
     public int getZoomLevel() {
-        return zoomLevel;
+        return mapViewer.getZoom();
     }
     
     /**
@@ -219,100 +226,27 @@ public class MapPanel extends JPanel {
     }
     
     /**
-     * Desenha o componente do mapa.
+     * Desenha uma rota no mapa.
      * 
-     * @param g contexto gráfico
+     * @param route rota para desenhar
      */
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g.create();
-        
-        try {
-            // Configurar anti-aliasing para melhor qualidade
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            
-            // Desenhar mapa base
-            drawMapBase(g2d);
-            
-            // Desenhar pontos selecionados
-            drawSelectedPoints(g2d);
-            
-            // Desenhar rota atual
-            drawCurrentRoute(g2d);
-            
-        } finally {
-            g2d.dispose();
-        }
-    }
-    
-    /**
-     * Desenha o mapa base.
-     * 
-     * @param g2d contexto gráfico 2D
-     */
-    private void drawMapBase(Graphics2D g2d) {
-        // TODO: Implementar renderização do mapa base
-        // Esta implementação seria feita com uma biblioteca de mapas como JMapViewer
-        
-        // Implementação temporária - fundo simples
-        g2d.setColor(Color.LIGHT_GRAY);
-        g2d.fillRect(0, 0, getWidth(), getHeight());
-        
-        // Desenhar grade simples
-        g2d.setColor(Color.GRAY);
-        g2d.setStroke(new BasicStroke(1));
-        for (int x = 0; x < getWidth(); x += 50) {
-            g2d.drawLine(x, 0, x, getHeight());
-        }
-        for (int y = 0; y < getHeight(); y += 50) {
-            g2d.drawLine(0, y, getWidth(), y);
-        }
-    }
-    
-    /**
-     * Desenha os pontos selecionados no mapa.
-     * 
-     * @param g2d contexto gráfico 2D
-     */
-    private void drawSelectedPoints(Graphics2D g2d) {
-        g2d.setColor(Color.RED);
-        g2d.setStroke(new BasicStroke(2));
-        
-        for (Location point : selectedPoints) {
-            Point screenPoint = locationToScreen(point);
-            int radius = 8;
-            g2d.fillOval(screenPoint.x - radius, screenPoint.y - radius, radius * 2, radius * 2);
-            g2d.setColor(new Color(139, 0, 0)); // DARK_RED
-            g2d.drawOval(screenPoint.x - radius, screenPoint.y - radius, radius * 2, radius * 2);
-            g2d.setColor(Color.RED);
-        }
-    }
-    
-    /**
-     * Desenha a rota atual no mapa.
-     * 
-     * @param g2d contexto gráfico 2D
-     */
-    private void drawCurrentRoute(Graphics2D g2d) {
-        if (currentRoute == null || currentRoute.isEmpty()) {
+    private void drawRouteOnMap(Route route) {
+        if (route == null || route.isEmpty()) {
             return;
         }
         
-        g2d.setColor(Color.BLUE);
-        g2d.setStroke(new BasicStroke(3));
-        
-        List<Location> waypoints = currentRoute.getWaypoints();
+        List<Location> waypoints = route.getWaypoints();
         if (waypoints.size() >= 2) {
-            Point prevPoint = locationToScreen(waypoints.get(0));
-            
-            for (int i = 1; i < waypoints.size(); i++) {
-                Point currentPoint = locationToScreen(waypoints.get(i));
-                g2d.drawLine(prevPoint.x, prevPoint.y, currentPoint.x, currentPoint.y);
-                prevPoint = currentPoint;
+            List<Coordinate> coordinates = new ArrayList<>();
+            for (Location waypoint : waypoints) {
+                coordinates.add(new Coordinate(waypoint.getLatitude(), waypoint.getLongitude()));
             }
+            
+            MapPolygon routePolygon = new MapPolygonImpl(coordinates);
+            mapViewer.addMapPolygon(routePolygon);
         }
     }
+    
 }
 
 

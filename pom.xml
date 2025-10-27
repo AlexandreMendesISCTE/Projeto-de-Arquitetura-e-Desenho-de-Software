@@ -41,7 +41,7 @@
         <logback.version>1.5.15</logback.version>
         
         <!-- Bibliotecas para mapas e OpenStreetMap -->
-        <jmapviewer.version>2.16</jmapviewer.version>
+        <jmapviewer.version>2.15</jmapviewer.version>
         <geotools.version>32.1</geotools.version>
         <jts.version>1.20.0</jts.version>
         
@@ -73,6 +73,13 @@
             <id>jcenter</id>
             <name>JCenter</name>
             <url>https://jcenter.bintray.com/</url>
+        </repository>
+        
+        <!-- Repositório alternativo para JMapViewer -->
+        <repository>
+            <id>maven-repo-central</id>
+            <name>Maven Central Repository</name>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
     </repositories>
 
@@ -139,15 +146,11 @@
         </dependency>
 
         <!-- JMapViewer para mapas OpenStreetMap -->
-        <!-- NOTA: JMapViewer não está disponível no Maven Central -->
-        <!-- Pode ser adicionado manualmente baixando de: https://josm.openstreetmap.de/svn/trunk/dist/jmapviewer.jar -->
-        <!--
         <dependency>
             <groupId>org.openstreetmap</groupId>
             <artifactId>jmapviewer</artifactId>
             <version>${jmapviewer.version}</version>
         </dependency>
-        -->
 
         <!-- GeoTools para processamento de dados geográficos -->
         <dependency>
