@@ -42,6 +42,9 @@ import pt.iscteiul.maprouteexplorer.model.Route;
  */
 public class MapPanel extends JPanel {
 
+    /** Habilita seleção de pontos por clique (desativado para manter escopo) */
+    private static final boolean ENABLE_POINT_SELECTION = false;
+
     /** Componente JXMapViewer para renderização do mapa */
     private JXMapViewer mapViewer;
 
@@ -71,7 +74,9 @@ public class MapPanel extends JPanel {
         this.pointSelectionListener = null;
 
         initializeMap();
-        setupMouseListeners();
+        if (ENABLE_POINT_SELECTION) {
+            setupMouseListeners();
+        }
     }
 
     /**
@@ -86,9 +91,34 @@ public class MapPanel extends JPanel {
             // Inicializar JXMapViewer
             mapViewer = new JXMapViewer();
 
-            // Configurar tile factory para OpenStreetMap
-            TileFactoryInfo info = new OSMTileFactoryInfo();
+            // Configurar tile factory para OpenStreetMap (usar servidor alternativo)
+            TileFactoryInfo info = new OSMTileFactoryInfo() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public String getBaseURL() {
+                    return "https://a.tile.openstreetmap.org"; // Usar subdomínio específico
+                }
+
+                @Override
+                public String getTileUrl(int x, int y, int zoom) {
+                    String url = getBaseURL() + "/" + zoom + "/" + x + "/" + y + ".png";
+                    System.out.println("Tentando carregar tile: " + url);
+                    return url;
+                }
+            };
             DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+            // Aumentar paralelismo de download de tiles
+            tileFactory.setThreadPoolSize(8);
+            // Definir User-Agent conforme política da OSM
+            System.setProperty("http.agent", "MapRouteExplorer/2.0 (OSM tiles) contact: dev@example.com");
+            // Configurações de rede para melhor conectividade
+            System.setProperty("java.net.useSystemProxies", "true");
+            System.setProperty("https.protocols", "TLSv1.2,TLSv1.3");
+            System.setProperty("http.maxConnections", "20");
+            // Adicionar timeout para evitar travamentos
+            System.setProperty("sun.net.client.defaultConnectTimeout", "10000");
+            System.setProperty("sun.net.client.defaultReadTimeout", "10000");
             mapViewer.setTileFactory(tileFactory);
 
             // Configurar o centro do mapa
