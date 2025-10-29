@@ -145,11 +145,11 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- JMapViewer para mapas OpenStreetMap -->
+        <!-- JXMapViewer2 para mapas OpenStreetMap -->
         <dependency>
-            <groupId>org.openstreetmap</groupId>
-            <artifactId>jmapviewer</artifactId>
-            <version>${jmapviewer.version}</version>
+            <groupId>org.jxmapviewer</groupId>
+            <artifactId>jxmapviewer2</artifactId>
+            <version>2.6</version>
         </dependency>
 
         <!-- GeoTools para processamento de dados geográficos -->
