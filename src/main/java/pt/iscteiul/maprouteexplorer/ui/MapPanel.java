@@ -66,8 +66,10 @@ public class MapPanel extends JPanel implements MapPanelInterface {
 
     /** Estado de pan e zoom */
     private Point panStartPoint;
+    private Point originalPressPoint; // Track original press point for click detection
     private Point currentPanOffset = new Point(0, 0);
     private boolean isPanning = false;
+    private boolean hasDragged = false; // Track if user actually dragged
 
     /**
      * Construtor que inicializa o painel do mapa.
@@ -119,7 +121,9 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e)) {
                     isPanning = true;
+                    hasDragged = false;
                     panStartPoint = e.getPoint();
+                    originalPressPoint = e.getPoint(); // Store original press point
                 }
             }
 
@@ -127,22 +131,23 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             public void mouseReleased(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e) && isPanning) {
                     Point releasePoint = e.getPoint();
-                    // Check if mouse moved significantly (more than 5 pixels = pan, otherwise =
-                    // click)
-                    int dx = Math.abs(releasePoint.x - panStartPoint.x);
-                    int dy = Math.abs(releasePoint.y - panStartPoint.y);
+                    // Check if mouse moved significantly from ORIGINAL press point
+                    int dx = Math.abs(releasePoint.x - originalPressPoint.x);
+                    int dy = Math.abs(releasePoint.y - originalPressPoint.y);
 
-                    if (dx > 5 || dy > 5) {
-                        // This was a pan operation
+                    if (hasDragged || dx > 5 || dy > 5) {
+                        // This was a pan operation (user dragged or moved significantly)
                         isPanning = false;
+                        hasDragged = false;
                         // After panning, reload visible tiles to fill any gaps
                         SwingUtilities.invokeLater(() -> {
                             loadVisibleTiles();
                             repaint();
                         });
                     } else {
-                        // This was a click (minimal movement) - select point
+                        // This was a click (no drag, minimal movement) - select point
                         isPanning = false;
+                        hasDragged = false;
                         logger.info("Point selected at screen coordinates: " + releasePoint.x + ", " + releasePoint.y);
                         handleMapClick(releasePoint.x, releasePoint.y);
                     }
@@ -164,6 +169,12 @@ public class MapPanel extends JPanel implements MapPanelInterface {
                 if (isPanning && panStartPoint != null) {
                     int dx = e.getX() - panStartPoint.x;
                     int dy = e.getY() - panStartPoint.y;
+
+                    // Mark that user has dragged (any movement counts as drag)
+                    if (dx != 0 || dy != 0) {
+                        hasDragged = true;
+                    }
+
                     currentPanOffset.translate(dx, dy);
                     panStartPoint = e.getPoint();
                     repaint();
