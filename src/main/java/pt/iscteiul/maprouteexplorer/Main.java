@@ -5,8 +5,6 @@ import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 
-import javafx.application.Platform;
-
 import pt.iscteiul.maprouteexplorer.ui.MainWindow;
 import pt.iscteiul.maprouteexplorer.util.ConfigManager;
 
@@ -37,17 +35,6 @@ public class Main {
         logger.info("Iniciando aplicação...");
 
         try {
-            // Initialize JavaFX Platform (required for WebView)
-            // Use try-catch to handle if JavaFX is already initialized
-            try {
-                Platform.startup(() -> {
-                    logger.info("JavaFX Platform inicializado");
-                });
-            } catch (IllegalStateException e) {
-                // JavaFX Platform already initialized
-                logger.info("JavaFX Platform já estava inicializado");
-            }
-
             // Carregar configurações
             ConfigManager.loadConfig();
             logger.info("Configurações carregadas com sucesso");

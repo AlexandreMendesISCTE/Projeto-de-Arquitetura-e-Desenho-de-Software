@@ -112,20 +112,12 @@ public class MainWindow extends JFrame implements PointSelectionListener {
         routeInfoArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         routeInfoArea.setToolTipText("Informações sobre a rota calculada");
         
-        // Painel do mapa - escolher implementação baseado em system property
-        String mapType = System.getProperty("map.implementation", "webview");
-        if ("native".equalsIgnoreCase(mapType)) {
-            mapPanel = new MapPanel();
-            System.out.println("Using Pure Java map implementation");
-        } else {
-            mapPanel = new MapPanelWebView();
-            System.out.println("Using WebView map implementation");
-        }
+        // Painel do mapa - Pure Java implementation
+        mapPanel = new MapPanel();
+        System.out.println("Using Pure Java map implementation");
         
         // Configura listener após criar o painel
-        if (mapPanel != null) {
-            mapPanel.setPointSelectionListener(this);
-        }
+        mapPanel.setPointSelectionListener(this);
     }
     
     /**

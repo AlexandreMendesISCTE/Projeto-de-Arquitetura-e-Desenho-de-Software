@@ -91,13 +91,13 @@ public class MapPanel extends JPanel implements MapPanelInterface {
         logger.info(
                 "Map center: " + mapCenter.getLatitude() + ", " + mapCenter.getLongitude() + " | Zoom: " + zoomLevel);
 
-        // Thread pool para carregar tiles - increased for better performance when
-        // zooming out
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(15);
+        // Thread pool para carregar tiles - 6 threads for balanced performance and
+        // request limiting
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(6);
         executor.setKeepAliveTime(60, TimeUnit.SECONDS);
         executor.allowCoreThreadTimeOut(false);
         this.tileLoaderService = executor;
-        logger.info("Tile loader thread pool initialized with 15 threads");
+        logger.info("Tile loader thread pool initialized with 6 threads");
 
         setLayout(null);
         setPreferredSize(new Dimension(800, 600));

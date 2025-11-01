@@ -31,21 +31,14 @@ docker compose up -d
 
 ### **Execução Local**
 
-O projeto suporta **duas implementações** de mapa diferentes:
+A aplicação utiliza uma **implementação nativa em Java puro** para renderização de mapas, sem necessidade de JavaFX ou dependências externas de navegador.
 
-#### WebView Implementation (Leaflet.js)
-**Requires JavaFX SDK** - see `JAVAFX-INSTALL.md` for setup
+#### Pré-requisitos
 
-```bash
-# Linux/Mac/Git Bash
-./run-webview.sh
+- **Java 17+** (compilado com Java 17, roda em Java 23+)
+- **Maven 3.6+** para compilação
 
-# Windows
-run-webview.bat
-```
-
-#### Pure Java Implementation
-**No JavaFX required** - uses direct tile loading
+#### Execução Rápida
 
 ```bash
 # Linux/Mac/Git Bash
@@ -55,18 +48,54 @@ run-webview.bat
 run-native.bat
 ```
 
-#### Compile and Run Manually
+Os scripts verificam automaticamente se o JAR está construído e compilam o projeto se necessário.
+
+#### Compilar e Executar Manualmente
 
 ```bash
-# Compile
+# Compilar projeto
 mvn clean package -DskipTests
 
-# Run WebView implementation
-java -Dmap.implementation=webview --module-path <JAVAFX_PATH> --add-modules javafx.controls,javafx.web,javafx.swing -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
-
-# Run Pure Java implementation (no JavaFX needed)
-java -Dmap.implementation=native -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
+# Executar aplicação
+java -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
 ```
+
+## 🎯 Sprint - Implementação de Mapa Nativo
+
+### Objetivos Alcançados
+
+Este sprint focou na implementação de um sistema de renderização de mapas totalmente nativo em Java, eliminando dependências externas e melhorando o desempenho.
+
+#### ✅ Funcionalidades Implementadas
+
+1. **Renderização de Mapas Nativa**
+   - Carregamento direto de tiles do OpenStreetMap
+   - Sistema de cache eficiente para tiles
+   - Renderização usando Swing e Graphics2D
+   - Suporte completo para zoom (1-19) e pan (arrastar)
+
+2. **Interação com o Mapa**
+   - Zoom com roda do mouse (mantém ponto do cursor como centro)
+   - Zoom com duplo clique
+   - Pan (arrastar mapa) com botão esquerdo do mouse
+   - **Seleção de pontos** diferenciada de arrastar (detecção inteligente de drag vs click)
+
+3. **Otimizações de Performance**
+   - Thread pool de 6 threads para download concorrente de tiles
+   - Sistema de priorização: tiles visíveis primeiro, depois tiles de buffer
+   - Prevenção de requisições duplicadas
+   - Cache inteligente que preserva tiles úteis durante zoom
+
+4. **Gestão de Requisições**
+   - Rate limiting amigável aos servidores OSM
+   - Tratamento de erros HTTP (429 Too Many Requests, 503 Service Unavailable)
+   - Retry automático com diferentes servidores de tiles
+   - Placeholders durante carregamento
+
+5. **Testes**
+   - Testes unitários para funcionalidades do mapa
+   - Testes de integração para navegação e carregamento de tiles
+   - Cobertura de código para validação de qualidade
 
 ## 📋 Índice
 
@@ -155,10 +184,10 @@ Este projeto foi desenvolvido seguindo a metodologia **SCRUM** para gestão de p
 ## 🛠️ Tecnologias
 
 ### Linguagem e Framework
-- **Java 17+** - Linguagem de programação principal (compiled with Java 17, runs on Java 23)
+- **Java 17+** - Linguagem de programação principal (compilado com Java 17, roda em Java 23+)
 - **Maven** - Gestão de dependências e build
 - **Swing** - Interface gráfica principal
-- **JavaFX** - Para implementação WebView (opcional)
+- **Graphics2D** - Renderização de mapas e tiles
 
 ### APIs Externas
 - **OpenStreetMap (OSM)** - Dados cartográficos
@@ -167,10 +196,9 @@ Este projeto foi desenvolvido seguindo a metodologia **SCRUM** para gestão de p
 - **Overpass API** - Pontos de interesse (opcional)
 
 ### Bibliotecas Principais
-- **OkHttp** - Cliente HTTP para APIs REST e download de tiles
+- **OkHttp** - Cliente HTTP para APIs REST e download de tiles do OpenStreetMap
 - **Jackson** - Parsing e serialização JSON
-- **JavaFX** - WebView para renderização de mapas HTML/JavaScript (implementação alternativa)
-- **Leaflet.js** - Biblioteca JavaScript para mapas interativos (usada na implementação WebView)
+- **Swing/Graphics2D** - Renderização nativa de tiles e elementos do mapa
 
 ### Ferramentas de Desenvolvimento
 - **JUnit 5** - Framework de testes
@@ -231,17 +259,31 @@ docker-compose up
 ### Instalação Manual (Alternativa)
 
 #### Pré-requisitos Adicionais
-- **Java 17** ou superior
-- **Maven 3.6** ou superior
+- **Java 17+** (testado com Java 17, 21, 23)
+- **Maven 3.6+**
+- **Conexão à Internet** (para download de tiles do OpenStreetMap)
 
 #### Compilação e Execução
 
 ```bash
-# Compilar projeto
-mvn clean package
+# Compilar projeto (sem testes para build mais rápido)
+mvn clean package -DskipTests
 
 # Executar aplicação
-java -jar target/map-route-explorer-1.0.0-jar-with-dependencies.jar
+java -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
+```
+
+#### Verificação da Instalação
+
+```bash
+# Verificar Java
+java -version  # Deve mostrar Java 17 ou superior
+
+# Verificar Maven
+mvn -version  # Deve mostrar Maven 3.6 ou superior
+
+# Testar compilação
+mvn compile
 ```
 
 ## ⚙️ Configuração
@@ -293,34 +335,36 @@ export MAP_CENTER_LON=-9.1393
 2. A janela principal será aberta com o mapa carregado
 3. O mapa estará centrado em Lisboa por defeito
 
-### Navegação Básica
+### Navegação no Mapa
+
+#### Interação com o Mapa
+- **Zoom In**: Gire a roda do mouse para frente ou dê duplo clique
+- **Zoom Out**: Gire a roda do mouse para trás
+- **Pan (Arrastar)**: Clique e arraste com o botão esquerdo do mouse
+- **Selecionar Ponto**: Clique simples no mapa (sem arrastar)
+  - O sistema diferencia automaticamente entre arrastar e clicar
+  - Se mover o mouse mais de 5 pixels, é considerado arrastar
+  - Caso contrário, é registrado como seleção de ponto
 
 #### Selecionar Pontos
 - **Clique no mapa** para selecionar pontos de origem e destino
-- Os pontos selecionados aparecerão marcados no mapa
+- Os pontos selecionados aparecerão marcados no mapa com marcadores vermelhos
 - Selecione pelo menos 2 pontos para calcular uma rota
 
 #### Calcular Rota
 1. Selecione o **modo de transporte** (automóvel, bicicleta, a pé)
 2. Clique no botão **"Calcular Rota"**
-3. A rota será desenhada no mapa
-4. As informações aparecerão no painel lateral
+3. A rota será desenhada no mapa como uma linha conectando os pontos
+4. As informações detalhadas aparecerão no painel lateral
 
 #### Pesquisar Localização
-1. Digite um endereço no campo de pesquisa
-2. Clique em **"Pesquisar"**
-3. O mapa será centralizado na localização encontrada
+1. Digite um endereço no campo de pesquisa (ex: "Lisboa, Portugal")
+2. Clique em **"Pesquisar"** ou pressione Enter
+3. O mapa será centralizado e ampliado na localização encontrada
 
 #### Limpar Seleção
-- Clique em **"Limpar"** para remover todos os pontos e rotas
-- O mapa voltará ao estado inicial
-
-### Atalhos de Teclado
-
-- **Ctrl + Z** - Desfazer última ação
-- **Ctrl + R** - Recarregar mapa
-- **Ctrl + L** - Limpar seleção
-- **Ctrl + S** - Salvar rota atual
+- Clique em **"Limpar"** para remover todos os pontos selecionados e rotas
+- O mapa voltará ao estado inicial, mantendo a visualização atual
 
 ## 🏗️ Arquitetura
 
@@ -408,8 +452,11 @@ graph TD
 # Todos os testes
 mvn test
 
-# Testes específicos
-mvn test -Dtest=LocationTest
+# Testes específicos do mapa
+mvn test -Dtest=MapPanelTest
+
+# Testes de integração
+mvn test -Dtest=MapPanelIntegrationTest
 
 # Testes com cobertura
 mvn jacoco:report
@@ -417,14 +464,24 @@ mvn jacoco:report
 
 ### Tipos de Testes
 
-- **Testes Unitários** - Classes individuais
-- **Testes de Integração** - APIs externas
-- **Testes de Interface** - Componentes UI
-- **Testes de Performance** - Tempo de resposta
+- **Testes Unitários** - Funcionalidades individuais do mapa (zoom, pan, seleção de pontos)
+- **Testes de Integração** - Navegação completa, carregamento de tiles, interações múltiplas
+- **Testes de Validação** - Coordenadas, limites de zoom, gestão de cache
 
 ### Cobertura de Código
 
 O projeto mantém uma cobertura de código superior a 80%, garantindo qualidade e confiabilidade.
+
+### Testar a Aplicação Manualmente
+
+Após executar a aplicação, teste:
+
+1. **Zoom**: Use a roda do mouse em diferentes pontos do mapa
+2. **Pan**: Arraste o mapa em diferentes direções
+3. **Seleção de Pontos**: Clique em vários locais (sem arrastar)
+4. **Seleção vs Arrastar**: Tente arrastar o mapa - não deve selecionar pontos
+5. **Carregamento de Tiles**: Observe os tiles carregando durante zoom/pan
+6. **Cálculo de Rotas**: Selecione 2+ pontos e calcule uma rota
 
 ## 📊 Métricas do Projeto
 
