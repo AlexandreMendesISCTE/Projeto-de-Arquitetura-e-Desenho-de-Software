@@ -126,15 +126,26 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e) && isPanning) {
-                    isPanning = false;
-                    // After panning, reload visible tiles to fill any gaps
-                    SwingUtilities.invokeLater(() -> {
-                        loadVisibleTiles();
-                        repaint();
-                    });
-                } else if (SwingUtilities.isLeftMouseButton(e)) {
-                    // Clique para selecionar ponto
-                    handleMapClick(e.getX(), e.getY());
+                    Point releasePoint = e.getPoint();
+                    // Check if mouse moved significantly (more than 5 pixels = pan, otherwise =
+                    // click)
+                    int dx = Math.abs(releasePoint.x - panStartPoint.x);
+                    int dy = Math.abs(releasePoint.y - panStartPoint.y);
+
+                    if (dx > 5 || dy > 5) {
+                        // This was a pan operation
+                        isPanning = false;
+                        // After panning, reload visible tiles to fill any gaps
+                        SwingUtilities.invokeLater(() -> {
+                            loadVisibleTiles();
+                            repaint();
+                        });
+                    } else {
+                        // This was a click (minimal movement) - select point
+                        isPanning = false;
+                        logger.info("Point selected at screen coordinates: " + releasePoint.x + ", " + releasePoint.y);
+                        handleMapClick(releasePoint.x, releasePoint.y);
+                    }
                 }
             }
 
@@ -615,6 +626,9 @@ public class MapPanel extends JPanel implements MapPanelInterface {
         Location location = screenToLocation(x, y);
         selectedPoints.add(location);
 
+        logger.info("Point selected: " + location.getLatitude() + ", " + location.getLongitude() +
+                " (Total points: " + selectedPoints.size() + ")");
+
         if (pointSelectionListener != null) {
             pointSelectionListener.onPointSelected(location);
         }
@@ -702,9 +716,6 @@ public class MapPanel extends JPanel implements MapPanelInterface {
         tilesLoading.clear();
 
         logger.info("Cleared old zoom tiles, cache now has " + tileCache.size() + " tiles");
-
-        // Pre-create placeholders to prevent blank screen
-        createPlaceholdersForVisibleTiles();
 
         loadVisibleTiles();
         repaint();

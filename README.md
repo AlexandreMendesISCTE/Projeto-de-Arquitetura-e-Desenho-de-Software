@@ -31,10 +31,41 @@ docker compose up -d
 
 ### **Execução Local**
 
+O projeto suporta **duas implementações** de mapa diferentes:
+
+#### WebView Implementation (Leaflet.js)
+**Requires JavaFX SDK** - see `JAVAFX-INSTALL.md` for setup
+
 ```bash
-# Compile e execute
+# Linux/Mac/Git Bash
+./run-webview.sh
+
+# Windows
+run-webview.bat
+```
+
+#### Pure Java Implementation
+**No JavaFX required** - uses direct tile loading
+
+```bash
+# Linux/Mac/Git Bash
+./run-native.sh
+
+# Windows
+run-native.bat
+```
+
+#### Compile and Run Manually
+
+```bash
+# Compile
 mvn clean package -DskipTests
-java -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
+
+# Run WebView implementation
+java -Dmap.implementation=webview --module-path <JAVAFX_PATH> --add-modules javafx.controls,javafx.web,javafx.swing -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
+
+# Run Pure Java implementation (no JavaFX needed)
+java -Dmap.implementation=native -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
 ```
 
 ## 📋 Índice
@@ -124,9 +155,10 @@ Este projeto foi desenvolvido seguindo a metodologia **SCRUM** para gestão de p
 ## 🛠️ Tecnologias
 
 ### Linguagem e Framework
-- **Java 17** - Linguagem de programação principal
+- **Java 17+** - Linguagem de programação principal (compiled with Java 17, runs on Java 23)
 - **Maven** - Gestão de dependências e build
-- **Swing** - Interface gráfica
+- **Swing** - Interface gráfica principal
+- **JavaFX** - Para implementação WebView (opcional)
 
 ### APIs Externas
 - **OpenStreetMap (OSM)** - Dados cartográficos
@@ -135,11 +167,10 @@ Este projeto foi desenvolvido seguindo a metodologia **SCRUM** para gestão de p
 - **Overpass API** - Pontos de interesse (opcional)
 
 ### Bibliotecas Principais
-- **JMapViewer** - Visualização de mapas OpenStreetMap
-- **GeoTools** - Processamento de dados geográficos
+- **OkHttp** - Cliente HTTP para APIs REST e download de tiles
 - **Jackson** - Parsing e serialização JSON
-- **OkHttp** - Cliente HTTP para APIs REST
-- **FlatLaf** - Interface gráfica moderna
+- **JavaFX** - WebView para renderização de mapas HTML/JavaScript (implementação alternativa)
+- **Leaflet.js** - Biblioteca JavaScript para mapas interativos (usada na implementação WebView)
 
 ### Ferramentas de Desenvolvimento
 - **JUnit 5** - Framework de testes
