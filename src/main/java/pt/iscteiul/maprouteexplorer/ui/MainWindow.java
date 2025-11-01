@@ -26,8 +26,8 @@ import java.util.List;
  */
 public class MainWindow extends JFrame implements PointSelectionListener {
     
-    /** Painel do mapa */
-    private MapPanel mapPanel;
+    /** Painel do mapa (interface comum) */
+    private MapPanelInterface mapPanel;
     
     /** Campo de pesquisa de endereços */
     private JTextField searchField;
@@ -52,6 +52,9 @@ public class MainWindow extends JFrame implements PointSelectionListener {
     
     /** Serviço Nominatim para geocodificação */
     private NominatimService nominatimService;
+    
+    /** Rota atual (para preservar ao trocar implementação) */
+    private Route currentRoute;
     
     /**
      * Construtor que inicializa a janela principal.
@@ -80,10 +83,7 @@ public class MainWindow extends JFrame implements PointSelectionListener {
      * Inicializa todos os componentes da interface.
      */
     private void initializeComponents() {
-        // Painel do mapa
-        mapPanel = new MapPanel();
-        mapPanel.setPointSelectionListener(this);
-        
+        // Inicializar componentes da UI primeiro
         // Campo de pesquisa
         searchField = new JTextField(30);
         searchField.setToolTipText("Digite um endereço para pesquisar");
@@ -111,6 +111,21 @@ public class MainWindow extends JFrame implements PointSelectionListener {
         routeInfoArea.setEditable(false);
         routeInfoArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         routeInfoArea.setToolTipText("Informações sobre a rota calculada");
+        
+        // Painel do mapa - escolher implementação baseado em system property
+        String mapType = System.getProperty("map.implementation", "webview");
+        if ("native".equalsIgnoreCase(mapType)) {
+            mapPanel = new MapPanel();
+            System.out.println("Using Pure Java map implementation");
+        } else {
+            mapPanel = new MapPanelWebView();
+            System.out.println("Using WebView map implementation");
+        }
+        
+        // Configura listener após criar o painel
+        if (mapPanel != null) {
+            mapPanel.setPointSelectionListener(this);
+        }
     }
     
     /**
@@ -124,7 +139,7 @@ public class MainWindow extends JFrame implements PointSelectionListener {
         add(topPanel, BorderLayout.NORTH);
         
         // Painel central com mapa
-        JScrollPane mapScrollPane = new JScrollPane(mapPanel);
+        JScrollPane mapScrollPane = new JScrollPane((JPanel) mapPanel);
         mapScrollPane.setPreferredSize(new Dimension(800, 600));
         add(mapScrollPane, BorderLayout.CENTER);
         
@@ -253,6 +268,9 @@ public class MainWindow extends JFrame implements PointSelectionListener {
             TransportMode transportMode = (TransportMode) transportModeCombo.getSelectedItem();
             Route route = osrmService.calculateRoute(selectedPoints, transportMode);
             
+            // Salvar rota para preservar ao trocar implementação
+            this.currentRoute = route;
+            
             mapPanel.setRoute(route);
             displayRouteInfo(route);
             
@@ -268,6 +286,7 @@ public class MainWindow extends JFrame implements PointSelectionListener {
     private void clearAll() {
         mapPanel.clearSelectedPoints();
         mapPanel.clearRoute();
+        this.currentRoute = null; // Limpar rota salva também
         calculateRouteButton.setEnabled(false);
         updateRouteInfo("Selecione pontos no mapa para calcular uma rota");
     }
@@ -303,8 +322,10 @@ public class MainWindow extends JFrame implements PointSelectionListener {
      * @param info informações a exibir
      */
     private void updateRouteInfo(String info) {
-        routeInfoArea.setText(info);
-        routeInfoArea.setCaretPosition(0);
+        if (routeInfoArea != null) {
+            routeInfoArea.setText(info);
+            routeInfoArea.setCaretPosition(0);
+        }
     }
     
     /**

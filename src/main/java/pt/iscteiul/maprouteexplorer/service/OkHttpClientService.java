@@ -4,9 +4,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.MediaType;
 
+import javax.imageio.ImageIO;
+import java.awt.Image;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -22,13 +26,13 @@ import java.util.concurrent.TimeUnit;
  * @since 1.0.0
  */
 public class OkHttpClientService implements HttpClientService {
-    
+
     /** Cliente HTTP OkHttp */
     private final OkHttpClient client;
-    
+
     /** Timeout padrão para requisições em segundos */
     private static final int DEFAULT_TIMEOUT = 30;
-    
+
     /**
      * Construtor que inicializa o cliente HTTP com configurações padrão.
      */
@@ -39,7 +43,7 @@ public class OkHttpClientService implements HttpClientService {
                 .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
                 .build();
     }
-    
+
     /**
      * Construtor que permite configurar o cliente HTTP.
      * 
@@ -48,7 +52,7 @@ public class OkHttpClientService implements HttpClientService {
     public OkHttpClientService(OkHttpClient client) {
         this.client = client;
     }
-    
+
     /**
      * Realiza uma requisição HTTP GET para a URL especificada.
      * 
@@ -61,24 +65,24 @@ public class OkHttpClientService implements HttpClientService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        
+
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Erro HTTP: " + response.code() + " - " + response.message());
             }
-            
+
             if (response.body() == null) {
                 throw new IOException("Resposta vazia do servidor");
             }
-            
+
             return response.body().string();
         }
     }
-    
+
     /**
      * Realiza uma requisição HTTP POST para a URL especificada.
      * 
-     * @param url URL para a qual fazer a requisição
+     * @param url  URL para a qual fazer a requisição
      * @param body corpo da requisição
      * @return resposta da requisição como string
      * @throws IOException se ocorrer erro na comunicação
@@ -87,29 +91,29 @@ public class OkHttpClientService implements HttpClientService {
     public String post(String url, String body) throws IOException {
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
         RequestBody requestBody = RequestBody.create(body, mediaType);
-        
+
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)
                 .build();
-        
+
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Erro HTTP: " + response.code() + " - " + response.message());
             }
-            
+
             if (response.body() == null) {
                 throw new IOException("Resposta vazia do servidor");
             }
-            
+
             return response.body().string();
         }
     }
-    
+
     /**
      * Realiza uma requisição HTTP GET com cabeçalhos personalizados.
      * 
-     * @param url URL para a qual fazer a requisição
+     * @param url     URL para a qual fazer a requisição
      * @param headers cabeçalhos HTTP personalizados
      * @return resposta da requisição como string
      * @throws IOException se ocorrer erro na comunicação
@@ -117,28 +121,28 @@ public class OkHttpClientService implements HttpClientService {
     @Override
     public String get(String url, Map<String, String> headers) throws IOException {
         Request.Builder requestBuilder = new Request.Builder().url(url);
-        
+
         if (headers != null) {
             for (Map.Entry<String, String> entry : headers.entrySet()) {
                 requestBuilder.addHeader(entry.getKey(), entry.getValue());
             }
         }
-        
+
         Request request = requestBuilder.build();
-        
+
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Erro HTTP: " + response.code() + " - " + response.message());
             }
-            
+
             if (response.body() == null) {
                 throw new IOException("Resposta vazia do servidor");
             }
-            
+
             return response.body().string();
         }
     }
-    
+
     /**
      * Verifica se o serviço está disponível e configurado corretamente.
      * 
@@ -148,7 +152,7 @@ public class OkHttpClientService implements HttpClientService {
     public boolean isAvailable() {
         return client != null;
     }
-    
+
     /**
      * Obtém o cliente HTTP subjacente.
      * 
@@ -157,6 +161,34 @@ public class OkHttpClientService implements HttpClientService {
     public OkHttpClient getClient() {
         return client;
     }
+
+    /**
+     * Downloads a tile image from the specified URL.
+     * 
+     * @param url URL of the tile image
+     * @return Image object or null if download fails
+     */
+    public Image downloadTileImage(String url) {
+        try {
+            Request request = new Request.Builder()
+                    .url(url)
+                    .header("User-Agent", "MapRouteExplorer/2.0 (Contact: dev@example.com)")
+                    .header("Accept", "image/png,image/*;q=0.8")
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    return null;
+                }
+
+                ResponseBody body = response.body();
+                try (InputStream is = body.byteStream()) {
+                    return ImageIO.read(is);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error downloading tile: " + url + " - " + e.getMessage());
+            return null;
+        }
+    }
 }
-
-
