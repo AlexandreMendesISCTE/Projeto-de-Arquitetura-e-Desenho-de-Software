@@ -262,6 +262,9 @@
                     <target>17</target>
                     <release>17</release>
                     <encoding>UTF-8</encoding>
+                    <!-- Ensure test code is also compiled with Java 17 target -->
+                    <testSource>17</testSource>
+                    <testTarget>17</testTarget>
                 </configuration>
             </plugin>
 
@@ -275,6 +278,23 @@
                         <include>**/*Test.java</include>
                         <include>**/*Tests.java</include>
                     </includes>
+                    <!-- Exclude integration tests (they need more time and Swing setup) -->
+                    <excludes>
+                        <exclude>**/*IntegrationTest.java</exclude>
+                    </excludes>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <!-- Show detailed test output -->
+                    <printSummary>true</printSummary>
+                    <reportFormat>brief</reportFormat>
+                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
+                    <useSystemClassLoader>false</useSystemClassLoader>
+                    <!-- Show test names as they run -->
+                    <statelessTestsetReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
+                        <disable>false</disable>
+                    </statelessTestsetReporter>
+                    <consoleOutputReporter>
+                        <disable>false</disable>
+                    </consoleOutputReporter>
                 </configuration>
             </plugin>
 
