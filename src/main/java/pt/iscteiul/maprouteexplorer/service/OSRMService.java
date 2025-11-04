@@ -1,10 +1,13 @@
 package pt.iscteiul.maprouteexplorer.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import pt.iscteiul.maprouteexplorer.model.Location;
 import pt.iscteiul.maprouteexplorer.model.Route;
 import pt.iscteiul.maprouteexplorer.model.TransportMode;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -143,18 +146,81 @@ public class OSRMService {
      * @throws OSRMException se a resposta não for válida
      */
     private Route parseRouteResponse(String response, TransportMode transportMode) throws OSRMException {
-        // TODO: Implementar parsing do JSON da resposta OSRM
-        // Esta implementação seria feita com Jackson ou Gson
-        
-        Route route = new Route();
-        route.setTransportMode(transportMode);
-        
-        // Implementação temporária - seria substituída pelo parsing real
-        if (response == null || response.trim().isEmpty()) {
-            throw new OSRMException("Resposta vazia da API OSRM");
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response);
+            
+            // Verifica o status da resposta
+            String status = root.get("code").asText();
+            if (!"Ok".equals(status)) {
+                throw new OSRMException("Erro na resposta da API OSRM: " + status);
+            }
+            
+            // Obtém o primeiro resultado da rota
+            JsonNode route = root.get("routes").get(0);
+            
+            // Cria o objeto Route
+            Route result = new Route();
+            result.setTransportMode(transportMode);
+            result.setDistance(route.get("distance").asDouble());
+            result.setDuration(route.get("duration").asDouble());
+            
+            // Parse das coordenadas da rota
+            String geometry = route.get("geometry").asText();
+            List<Location> coordinates = decodePolyline(geometry);
+            result.setCoordinates(coordinates);
+            
+            return result;
+        } catch (IOException e) {
+            throw new OSRMException("Erro ao processar resposta da API OSRM", e);
         }
-        
-        return route;
+    }
+    
+    /**
+     * Decodifica a string de geometria polyline para uma lista de coordenadas.
+     * 
+     * @param encoded string encoded polyline
+     * @return lista de localizações
+     */
+    private List<Location> decodePolyline(String encoded) {
+        List<Location> poly = new ArrayList<>();
+        int index = 0;
+        int len = encoded.length();
+        int lat = 0;
+        int lng = 0;
+
+        while (index < len) {
+            int b;
+            int shift = 0;
+            int result = 0;
+            
+            // Decodifica latitude
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lat += dlat;
+
+            // Decodifica longitude
+            shift = 0;
+            result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lng += dlng;
+
+            Location location = new Location();
+            location.setLatitude(lat * 1e-5);
+            location.setLongitude(lng * 1e-5);
+            poly.add(location);
+        }
+
+        return poly;
     }
     
     /**
@@ -165,15 +231,28 @@ public class OSRMService {
      * @throws OSRMException se a resposta não for válida
      */
     private double[] parseDistanceAndDurationResponse(String response) throws OSRMException {
-        // TODO: Implementar parsing do JSON para distância e tempo
-        // Esta implementação seria feita com Jackson ou Gson
-        
-        if (response == null || response.trim().isEmpty()) {
-            throw new OSRMException("Resposta vazia da API OSRM");
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response);
+            
+            // Verifica o status da resposta
+            String status = root.get("code").asText();
+            if (!"Ok".equals(status)) {
+                throw new OSRMException("Erro na resposta da API OSRM: " + status);
+            }
+            
+            // Obtém o primeiro resultado da rota
+            JsonNode route = root.get("routes").get(0);
+            
+            // Retorna array com [distância em metros, tempo em segundos]
+            return new double[]{
+                route.get("distance").asDouble(),
+                route.get("duration").asDouble()
+            };
+            
+        } catch (IOException e) {
+            throw new OSRMException("Erro ao processar resposta da API OSRM", e);
         }
-        
-        // Implementação temporária
-        return new double[]{0.0, 0.0};
     }
 }
 
