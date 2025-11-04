@@ -111,6 +111,9 @@ public class MainWindow extends JFrame implements PointSelectionListener {
         routeInfoArea.setEditable(false);
         routeInfoArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         routeInfoArea.setToolTipText("Informações sobre a rota calculada");
+        routeInfoArea.setBackground(new Color(248, 248, 248)); // Fundo levemente cinza para melhor legibilidade
+        routeInfoArea.setLineWrap(true);
+        routeInfoArea.setWrapStyleWord(true);
         
         // Painel do mapa - Pure Java implementation
         mapPanel = new MapPanel();
@@ -284,22 +287,71 @@ public class MainWindow extends JFrame implements PointSelectionListener {
     }
     
     /**
-     * Exibe as informações da rota calculada.
+     * Exibe as informações da rota calculada de forma clara e intuitiva.
      * 
      * @param route rota calculada
      */
     private void displayRouteInfo(Route route) {
         StringBuilder info = new StringBuilder();
-        info.append("ROTA CALCULADA\n");
-        info.append("==============\n\n");
-        info.append("Modo de transporte: ").append(route.getTransportMode().getDisplayName()).append("\n");
-        info.append("Distância total: ").append(route.getFormattedDistance()).append("\n");
-        info.append("Tempo estimado: ").append(route.getFormattedDuration()).append("\n");
-        info.append("Número de pontos: ").append(route.getWaypointCount()).append("\n\n");
         
+        // Cabeçalho destacado
+        info.append("═══════════════════════════════\n");
+        info.append("   INFORMAÇÕES DA ROTA\n");
+        info.append("═══════════════════════════════\n\n");
+        
+        // Modo de transporte em destaque
+        info.append("🚗 Modo de Transporte:\n");
+        info.append("   ").append(route.getTransportMode().getDisplayName()).append("\n\n");
+        
+        // Distância formatada de forma clara
+        info.append("📏 Distância Total:\n");
+        info.append("   ").append(route.getFormattedDistance()).append("\n");
+        info.append("   (").append(String.format("%.0f m", route.getTotalDistance())).append(")\n\n");
+        
+        // Tempo estimado formatado de forma clara
+        info.append("⏱️  Tempo Estimado:\n");
+        info.append("   ").append(route.getFormattedDuration()).append("\n");
+        info.append("   (").append(String.format("%.0f segundos", route.getTotalDuration())).append(")\n");
+        
+        // Aviso se o modo não for carro (a API pública pode não suportar todos os modos)
+        if (route.getTransportMode() != TransportMode.DRIVING) {
+            double distanceKm = route.getTotalDistance() / 1000.0;
+            double expectedDuration = (distanceKm / route.getTransportMode().getAverageSpeed()) * 3600;
+            double actualDuration = route.getTotalDuration();
+            
+            // Calcular duração esperada para carro (50 km/h) para comparação
+            double expectedCarDuration = (distanceKm / 50.0) * 3600;
+            double ratioToExpected = actualDuration / expectedDuration;
+            double ratioToCar = actualDuration / expectedCarDuration;
+            
+            // Se a duração está muito próxima da duração de carro (dentro de 30%),
+            // mas deveria ser diferente, então a API provavelmente está retornando valores de carro
+            // Para bicicleta (15 km/h vs 50 km/h), a duração deveria ser ~3.3x maior que carro
+            // Para a pé (5 km/h vs 50 km/h), a duração deveria ser ~10x maior que carro
+            boolean tooCloseToCar = Math.abs(ratioToCar - 1.0) < 0.3;
+            
+            // Se está muito próxima do carro OU muito longe do esperado, é problema
+            if (tooCloseToCar || ratioToExpected < 0.4 || ratioToExpected > 2.5) {
+                info.append("   ⚠️  Nota: A API pública pode estar retornando valores de carro.\n");
+                info.append("   Tempo esperado para ").append(route.getTransportMode().getDisplayName().toLowerCase())
+                    .append(": ~").append(String.format("%.0f min", expectedDuration / 60)).append("\n");
+                info.append("   Tempo retornado pela API: ~").append(String.format("%.0f min", actualDuration / 60))
+                    .append(" (similar ao carro: ~").append(String.format("%.0f min", expectedCarDuration / 60)).append(")\n");
+            }
+        }
+        info.append("\n");
+        
+        // Informações adicionais
+        info.append("📍 Informações Adicionais:\n");
+        info.append("   • Número de pontos: ").append(route.getWaypointCount()).append("\n");
+        info.append("   • Velocidade média: ").append(String.format("%.1f km/h", 
+                route.getTransportMode().getAverageSpeed())).append("\n\n");
+        
+        // Instruções de navegação (se disponíveis)
         if (!route.getInstructions().isEmpty()) {
-            info.append("INSTRUÇÕES DE NAVEGAÇÃO\n");
-            info.append("=======================\n");
+            info.append("═══════════════════════════════\n");
+            info.append("   INSTRUÇÕES DE NAVEGAÇÃO\n");
+            info.append("═══════════════════════════════\n\n");
             for (int i = 0; i < route.getInstructions().size(); i++) {
                 info.append(String.format("%d. %s\n", i + 1, route.getInstructions().get(i)));
             }

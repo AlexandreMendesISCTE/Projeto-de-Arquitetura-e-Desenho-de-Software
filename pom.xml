@@ -262,9 +262,9 @@
                     <target>17</target>
                     <release>17</release>
                     <encoding>UTF-8</encoding>
-                    <!-- Ensure test code is also compiled with Java 17 target -->
-                    <testSource>17</testSource>
-                    <testTarget>17</testTarget>
+                    <!-- Force Maven to use Java 17+ for compilation -->
+                    <fork>true</fork>
+                    <executable>C:/Program Files/Java/jdk-23/bin/javac</executable>
                 </configuration>
             </plugin>
 
@@ -282,7 +282,8 @@
                     <excludes>
                         <exclude>**/*IntegrationTest.java</exclude>
                     </excludes>
-                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <argLine>-Dfile.encoding=UTF-8 -Xmx512m</argLine>
+                    <jvm>C:/Program Files/Java/jdk-23/bin/java</jvm>
                     <!-- Show detailed test output -->
                     <printSummary>true</printSummary>
                     <reportFormat>brief</reportFormat>
@@ -308,6 +309,7 @@
                         <include>**/*IT.java</include>
                         <include>**/*IntegrationTest.java</include>
                     </includes>
+                    <jvm>C:/Program Files/Java/jdk-23/bin/java</jvm>
                 </configuration>
                 <executions>
                     <execution>

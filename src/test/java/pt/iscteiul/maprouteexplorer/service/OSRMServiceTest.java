@@ -53,9 +53,9 @@ class OSRMServiceTest {
         
         assertNotNull(route);
         assertEquals(TransportMode.DRIVING, route.getTransportMode());
-        assertEquals(1000.0, route.getDistance());
-        assertEquals(300.0, route.getDuration());
-        assertFalse(route.getCoordinates().isEmpty());
+        assertEquals(1000.0, route.getTotalDistance());
+        assertEquals(300.0, route.getTotalDuration());
+        assertFalse(route.getWaypoints().isEmpty());
     }
 
     @Test
@@ -80,9 +80,9 @@ class OSRMServiceTest {
         Route route = osrmService.calculateRoute(waypoints, TransportMode.DRIVING);
         
         assertNotNull(route);
-        assertEquals(2000.0, route.getDistance());
-        assertEquals(600.0, route.getDuration());
-        assertFalse(route.getCoordinates().isEmpty());
+        assertEquals(2000.0, route.getTotalDistance());
+        assertEquals(600.0, route.getTotalDuration());
+        assertFalse(route.getWaypoints().isEmpty());
     }
 
     @Test
@@ -148,5 +148,109 @@ class OSRMServiceTest {
 
         assertThrows(OSRMException.class, () -> 
             osrmService.calculateRoute(origin, destination, TransportMode.DRIVING));
+    }
+
+    @Test
+    void testInvalidCoordinates() {
+        Location invalidLat = new Location(100.0, -9.1393); // Latitude inválida
+        Location invalidLon = new Location(38.7223, 200.0);  // Longitude inválida
+        Location valid = new Location(38.7223, -9.1393);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            osrmService.calculateRoute(invalidLat, valid, TransportMode.DRIVING);
+        }, "Deve lançar exceção para latitude inválida");
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            osrmService.calculateRoute(invalidLon, valid, TransportMode.DRIVING);
+        }, "Deve lançar exceção para longitude inválida");
+    }
+
+    @Test
+    void testNullCoordinates() {
+        Location valid = new Location(38.7223, -9.1393);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            osrmService.calculateRoute(null, valid, TransportMode.DRIVING);
+        }, "Deve lançar exceção para origem nula");
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            osrmService.calculateRoute(valid, null, TransportMode.DRIVING);
+        }, "Deve lançar exceção para destino nulo");
+    }
+
+    @Test
+    void testMissingFieldsInResponse() throws IOException {
+        // Teste com resposta sem campo "code"
+        String responseWithoutCode = "{\"routes\":[{\"distance\":1000.0,\"duration\":300.0}]}";
+        when(httpClient.get(anyString())).thenReturn(responseWithoutCode);
+
+        Location origin = new Location(38.7223, -9.1393);
+        Location destination = new Location(41.1579, -8.6291);
+
+        assertThrows(OSRMException.class, () -> 
+            osrmService.calculateRoute(origin, destination, TransportMode.DRIVING),
+            "Deve lançar exceção quando campo 'code' está ausente");
+    }
+
+    @Test
+    void testEmptyRoutesArray() throws IOException {
+        // Teste com resposta com array de rotas vazio
+        String responseEmptyRoutes = "{\"code\":\"Ok\",\"routes\":[]}";
+        when(httpClient.get(anyString())).thenReturn(responseEmptyRoutes);
+
+        Location origin = new Location(38.7223, -9.1393);
+        Location destination = new Location(41.1579, -8.6291);
+
+        assertThrows(OSRMException.class, () -> 
+            osrmService.calculateRoute(origin, destination, TransportMode.DRIVING),
+            "Deve lançar exceção quando array de rotas está vazio");
+    }
+
+    @Test
+    void testMissingDistanceField() throws IOException {
+        // Teste com resposta sem campo "distance"
+        String responseWithoutDistance = "{\"code\":\"Ok\",\"routes\":[{\"duration\":300.0,\"geometry\":\"_p~iF~ps|U_ulLnnqC_mqNvxq`@\"}]}";
+        when(httpClient.get(anyString())).thenReturn(responseWithoutDistance);
+
+        Location origin = new Location(38.7223, -9.1393);
+        Location destination = new Location(41.1579, -8.6291);
+
+        assertThrows(OSRMException.class, () -> 
+            osrmService.calculateRoute(origin, destination, TransportMode.DRIVING),
+            "Deve lançar exceção quando campo 'distance' está ausente");
+    }
+
+    @Test
+    void testNegativeDistance() throws IOException {
+        // Teste com resposta com distância negativa
+        String responseNegativeDistance = "{\"code\":\"Ok\",\"routes\":[{\"distance\":-1000.0,\"duration\":300.0,\"geometry\":\"_p~iF~ps|U_ulLnnqC_mqNvxq`@\"}]}";
+        when(httpClient.get(anyString())).thenReturn(responseNegativeDistance);
+
+        Location origin = new Location(38.7223, -9.1393);
+        Location destination = new Location(41.1579, -8.6291);
+
+        assertThrows(OSRMException.class, () -> 
+            osrmService.calculateRoute(origin, destination, TransportMode.DRIVING),
+            "Deve lançar exceção quando distância é negativa");
+    }
+
+    @Test
+    void testErrorCodeHandling() throws IOException {
+        // Teste com diferentes códigos de erro
+        String responseNoRoute = "{\"code\":\"NoRoute\",\"message\":\"No route found\"}";
+        when(httpClient.get(anyString())).thenReturn(responseNoRoute);
+
+        Location origin = new Location(38.7223, -9.1393);
+        Location destination = new Location(41.1579, -8.6291);
+
+        OSRMException exception = assertThrows(OSRMException.class, () -> 
+            osrmService.calculateRoute(origin, destination, TransportMode.DRIVING));
+        
+        String errorMessage = exception.getMessage();
+        // A mensagem deve conter o código de erro ou a mensagem da API
+        assertTrue(errorMessage.contains("NoRoute") || 
+                   errorMessage.contains("No route found") || 
+                   errorMessage.contains("Erro na resposta da API OSRM"),
+            "Mensagem de erro deve conter informações sobre o erro: " + errorMessage);
     }
 }

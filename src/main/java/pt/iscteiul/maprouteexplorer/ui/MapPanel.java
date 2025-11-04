@@ -94,7 +94,7 @@ public class MapPanel extends JPanel implements MapPanelInterface {
 
         // Thread pool para carregar tiles - 6 threads for balanced performance and
         // request limiting
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(6);
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
         executor.setKeepAliveTime(60, TimeUnit.SECONDS);
         executor.allowCoreThreadTimeOut(false);
         this.tileLoaderService = executor;
@@ -663,7 +663,6 @@ public class MapPanel extends JPanel implements MapPanelInterface {
 
         Color routeColor = getRouteColor(currentRoute.getTransportMode());
 
-    
         g2d.setColor(Color.WHITE);
         g2d.setStroke(new BasicStroke(8, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
@@ -674,7 +673,6 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             prevPoint = currentPoint;
         }
 
-    
         g2d.setColor(routeColor);
         g2d.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
@@ -695,9 +693,9 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             case DRIVING:
                 return new Color(65, 105, 225); // Azul para carro
             case WALKING:
-                return new Color(50, 205, 50);  // Verde para caminhada
+                return new Color(50, 205, 50); // Verde para caminhada
             case CYCLING:
-                return new Color(255, 140, 0);  // Laranja para bicicleta
+                return new Color(255, 140, 0); // Laranja para bicicleta
             default:
                 return new Color(65, 105, 225); // Azul padrão
         }
@@ -726,8 +724,8 @@ public class MapPanel extends JPanel implements MapPanelInterface {
     /**
      * Desenha um marcador de localização no mapa.
      */
-    private void drawLocationMarker(Graphics2D g2d, Location location, String label, 
-                               Color color, char symbol) {
+    private void drawLocationMarker(Graphics2D g2d, Location location, String label,
+            Color color, char symbol) {
         Point screenPoint = locationToScreen(location);
 
         g2d.setColor(color);
@@ -743,9 +741,9 @@ public class MapPanel extends JPanel implements MapPanelInterface {
         FontMetrics fm = g2d.getFontMetrics();
         int textWidth = fm.stringWidth(symbolStr);
         int textHeight = fm.getHeight();
-        g2d.drawString(symbolStr, 
-                  screenPoint.x - textWidth / 2, 
-                  screenPoint.y + textHeight / 4);
+        g2d.drawString(symbolStr,
+                screenPoint.x - textWidth / 2,
+                screenPoint.y + textHeight / 4);
 
         if (label != null && !label.isEmpty()) {
             g2d.setColor(Color.BLACK);
@@ -753,18 +751,19 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             FontMetrics labelFm = g2d.getFontMetrics();
             int labelWidth = labelFm.stringWidth(label);
 
-            g2d.setColor(new Color(255, 255, 255, 200)); 
-            g2d.fillRect(screenPoint.x - labelWidth / 2 - 3, 
-                    screenPoint.y + 20, 
-                    labelWidth + 6, 
+            g2d.setColor(new Color(255, 255, 255, 200));
+            g2d.fillRect(screenPoint.x - labelWidth / 2 - 3,
+                    screenPoint.y + 20,
+                    labelWidth + 6,
                     labelFm.getHeight() + 2);
 
             g2d.setColor(Color.BLACK);
-            g2d.drawString(label, 
-                      screenPoint.x - labelWidth / 2, 
-                      screenPoint.y + 20 + labelFm.getAscent());
+            g2d.drawString(label,
+                    screenPoint.x - labelWidth / 2,
+                    screenPoint.y + 20 + labelFm.getAscent());
         }
     }
+
     /**
      * Desenha os pontos selecionados no mapa.
      */
@@ -840,7 +839,7 @@ public class MapPanel extends JPanel implements MapPanelInterface {
         this.currentRoute = route;
 
         if (route != null && !route.isEmpty()) {
-        centerMapOnRoute(route);
+            centerMapOnRoute(route);
         }
         repaint();
     }
@@ -857,54 +856,63 @@ public class MapPanel extends JPanel implements MapPanelInterface {
      * Centraliza o mapa na rota completa
      */
     private void centerMapOnRoute(Route route) {
-    if (route == null || route.isEmpty()) {
-        return;
-    }
+        if (route == null || route.isEmpty()) {
+            return;
+        }
 
-    List<Location> waypoints = route.getWaypoints();
+        List<Location> waypoints = route.getWaypoints();
 
-    double minLat = waypoints.get(0).getLatitude();
-    double maxLat = waypoints.get(0).getLatitude();
-    double minLon = waypoints.get(0).getLongitude();
-    double maxLon = waypoints.get(0).getLongitude();
+        double minLat = waypoints.get(0).getLatitude();
+        double maxLat = waypoints.get(0).getLatitude();
+        double minLon = waypoints.get(0).getLongitude();
+        double maxLon = waypoints.get(0).getLongitude();
 
-    for (Location point : waypoints) {
-        minLat = Math.min(minLat, point.getLatitude());
-        maxLat = Math.max(maxLat, point.getLatitude());
-        minLon = Math.min(minLon, point.getLongitude());
-        maxLon = Math.max(maxLon, point.getLongitude());
-    }
+        for (Location point : waypoints) {
+            minLat = Math.min(minLat, point.getLatitude());
+            maxLat = Math.max(maxLat, point.getLatitude());
+            minLon = Math.min(minLon, point.getLongitude());
+            maxLon = Math.max(maxLon, point.getLongitude());
+        }
 
-    double centerLat = (minLat + maxLat) / 2;
-    double centerLon = (minLon + maxLon) / 2;
+        double centerLat = (minLat + maxLat) / 2;
+        double centerLon = (minLon + maxLon) / 2;
 
-    setMapCenter(new Location(centerLat, centerLon));
+        setMapCenter(new Location(centerLat, centerLon));
 
-    double latSpan = maxLat - minLat;
-    double lonSpan = maxLon - minLon;
-    double maxSpan = Math.max(latSpan, lonSpan);
+        double latSpan = maxLat - minLat;
+        double lonSpan = maxLon - minLon;
+        double maxSpan = Math.max(latSpan, lonSpan);
 
-    int targetZoom = calculateOptimalZoom(maxSpan);
-    setZoomLevel(targetZoom);
+        int targetZoom = calculateOptimalZoom(maxSpan);
+        setZoomLevel(targetZoom);
     }
 
     /**
      * Calcula o nível de zoom ótimo para mostrar uma área específica.
      */
     private int calculateOptimalZoom(double span) {
-    if (span > 20) return 6;
-    if (span > 10) return 7;
-    if (span > 5) return 8;
-    if (span > 2) return 9;
-    if (span > 1) return 10;
-    if (span > 0.5) return 11;
-    if (span > 0.2) return 12;
-    if (span > 0.1) return 13;
-    if (span > 0.05) return 14;
-    if (span > 0.02) return 15;
-    return 16; 
+        if (span > 20)
+            return 6;
+        if (span > 10)
+            return 7;
+        if (span > 5)
+            return 8;
+        if (span > 2)
+            return 9;
+        if (span > 1)
+            return 10;
+        if (span > 0.5)
+            return 11;
+        if (span > 0.2)
+            return 12;
+        if (span > 0.1)
+            return 13;
+        if (span > 0.05)
+            return 14;
+        if (span > 0.02)
+            return 15;
+        return 16;
     }
-
 
     /**
      * Limpa todos os pontos selecionados.

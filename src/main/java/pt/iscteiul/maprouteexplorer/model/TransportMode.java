@@ -15,20 +15,23 @@ public enum TransportMode {
     /**
      * Modo de transporte em automóvel.
      * Permite uso de todas as vias públicas e tem maior velocidade.
+     * Perfil OSRM: "car" (conforme documentação oficial)
      */
-    DRIVING("driving", "Automóvel", 50.0),
+    DRIVING("car", "Automóvel", 50.0),
     
     /**
      * Modo de transporte a pé.
      * Restrito a vias pedonais e tem menor velocidade.
+     * Perfil OSRM: "foot" (conforme documentação oficial)
      */
-    WALKING("walking", "A pé", 5.0),
+    WALKING("foot", "A pé", 5.0),
     
     /**
      * Modo de transporte de bicicleta.
      * Permite ciclovias e vias com menor tráfego.
+     * Perfil OSRM: "bike" (conforme documentação oficial)
      */
-    CYCLING("cycling", "Bicicleta", 15.0);
+    CYCLING("bike", "Bicicleta", 15.0);
     
     /** Código utilizado pela API OSRM */
     private final String apiCode;
