@@ -2,6 +2,7 @@ package pt.iscteiul.maprouteexplorer.ui;
 
 import pt.iscteiul.maprouteexplorer.model.Location;
 import pt.iscteiul.maprouteexplorer.model.Route;
+import pt.iscteiul.maprouteexplorer.model.TransportMode;
 import pt.iscteiul.maprouteexplorer.service.OkHttpClientService;
 
 import javax.swing.*;
@@ -660,8 +661,11 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             return;
         }
 
-        g2d.setColor(Color.BLUE);
-        g2d.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        Color routeColor = getRouteColor(currentRoute.getTransportMode());
+
+    
+        g2d.setColor(Color.WHITE);
+        g2d.setStroke(new BasicStroke(8, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
         Point prevPoint = locationToScreen(waypoints.get(0));
         for (int i = 1; i < waypoints.size(); i++) {
@@ -669,8 +673,98 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             g2d.drawLine(prevPoint.x, prevPoint.y, currentPoint.x, currentPoint.y);
             prevPoint = currentPoint;
         }
+
+    
+        g2d.setColor(routeColor);
+        g2d.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
+        prevPoint = locationToScreen(waypoints.get(0));
+        for (int i = 1; i < waypoints.size(); i++) {
+            Point currentPoint = locationToScreen(waypoints.get(i));
+            g2d.drawLine(prevPoint.x, prevPoint.y, currentPoint.x, currentPoint.y);
+            prevPoint = currentPoint;
+        }
+        drawRouteMarkers(g2d);
     }
 
+    /**
+     * Define cores diferentes baseadas no modo de transporte.
+     */
+    private Color getRouteColor(TransportMode mode) {
+        switch (mode) {
+            case DRIVING:
+                return new Color(65, 105, 225); // Azul para carro
+            case WALKING:
+                return new Color(50, 205, 50);  // Verde para caminhada
+            case CYCLING:
+                return new Color(255, 140, 0);  // Laranja para bicicleta
+            default:
+                return new Color(65, 105, 225); // Azul padrão
+        }
+    }
+
+    /**
+     * Desenha marcadores especiais para a origem e destino
+     */
+    private void drawRouteMarkers(Graphics2D g2d) {
+        if (currentRoute == null || currentRoute.isEmpty()) {
+            return;
+        }
+
+        List<Location> waypoints = currentRoute.getWaypoints();
+        if (waypoints.size() < 2) {
+            return;
+        }
+
+        Location origin = waypoints.get(0);
+        drawLocationMarker(g2d, origin, "ORIGEM", new Color(34, 139, 34), 'A');
+
+        Location destination = waypoints.get(waypoints.size() - 1);
+        drawLocationMarker(g2d, destination, "DESTINO", new Color(220, 20, 60), 'B');
+    }
+
+    /**
+     * Desenha um marcador de localização no mapa.
+     */
+    private void drawLocationMarker(Graphics2D g2d, Location location, String label, 
+                               Color color, char symbol) {
+        Point screenPoint = locationToScreen(location);
+
+        g2d.setColor(color);
+        g2d.fillOval(screenPoint.x - 12, screenPoint.y - 12, 24, 24);
+
+        g2d.setColor(Color.WHITE);
+        g2d.setStroke(new BasicStroke(2));
+        g2d.drawOval(screenPoint.x - 12, screenPoint.y - 12, 24, 24);
+
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Arial", Font.BOLD, 12));
+        String symbolStr = String.valueOf(symbol);
+        FontMetrics fm = g2d.getFontMetrics();
+        int textWidth = fm.stringWidth(symbolStr);
+        int textHeight = fm.getHeight();
+        g2d.drawString(symbolStr, 
+                  screenPoint.x - textWidth / 2, 
+                  screenPoint.y + textHeight / 4);
+
+        if (label != null && !label.isEmpty()) {
+            g2d.setColor(Color.BLACK);
+            g2d.setFont(new Font("Arial", Font.BOLD, 10));
+            FontMetrics labelFm = g2d.getFontMetrics();
+            int labelWidth = labelFm.stringWidth(label);
+
+            g2d.setColor(new Color(255, 255, 255, 200)); 
+            g2d.fillRect(screenPoint.x - labelWidth / 2 - 3, 
+                    screenPoint.y + 20, 
+                    labelWidth + 6, 
+                    labelFm.getHeight() + 2);
+
+            g2d.setColor(Color.BLACK);
+            g2d.drawString(label, 
+                      screenPoint.x - labelWidth / 2, 
+                      screenPoint.y + 20 + labelFm.getAscent());
+        }
+    }
     /**
      * Desenha os pontos selecionados no mapa.
      */
@@ -744,6 +838,10 @@ public class MapPanel extends JPanel implements MapPanelInterface {
      */
     public void setRoute(Route route) {
         this.currentRoute = route;
+
+        if (route != null && !route.isEmpty()) {
+        centerMapOnRoute(route);
+        }
         repaint();
     }
 
@@ -754,6 +852,59 @@ public class MapPanel extends JPanel implements MapPanelInterface {
         this.currentRoute = null;
         repaint();
     }
+
+    /**
+     * Centraliza o mapa na rota completa
+     */
+    private void centerMapOnRoute(Route route) {
+    if (route == null || route.isEmpty()) {
+        return;
+    }
+
+    List<Location> waypoints = route.getWaypoints();
+
+    double minLat = waypoints.get(0).getLatitude();
+    double maxLat = waypoints.get(0).getLatitude();
+    double minLon = waypoints.get(0).getLongitude();
+    double maxLon = waypoints.get(0).getLongitude();
+
+    for (Location point : waypoints) {
+        minLat = Math.min(minLat, point.getLatitude());
+        maxLat = Math.max(maxLat, point.getLatitude());
+        minLon = Math.min(minLon, point.getLongitude());
+        maxLon = Math.max(maxLon, point.getLongitude());
+    }
+
+    double centerLat = (minLat + maxLat) / 2;
+    double centerLon = (minLon + maxLon) / 2;
+
+    setMapCenter(new Location(centerLat, centerLon));
+
+    double latSpan = maxLat - minLat;
+    double lonSpan = maxLon - minLon;
+    double maxSpan = Math.max(latSpan, lonSpan);
+
+    int targetZoom = calculateOptimalZoom(maxSpan);
+    setZoomLevel(targetZoom);
+    }
+
+    /**
+     * Calcula o nível de zoom ótimo para mostrar uma área específica.
+     */
+    private int calculateOptimalZoom(double span) {
+    if (span > 20) return 6;
+    if (span > 10) return 7;
+    if (span > 5) return 8;
+    if (span > 2) return 9;
+    if (span > 1) return 10;
+    if (span > 0.5) return 11;
+    if (span > 0.2) return 12;
+    if (span > 0.1) return 13;
+    if (span > 0.05) return 14;
+    if (span > 0.02) return 15;
+    return 16; 
+    }
+
 
     /**
      * Limpa todos os pontos selecionados.
