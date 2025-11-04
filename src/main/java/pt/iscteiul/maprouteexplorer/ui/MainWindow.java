@@ -324,14 +324,21 @@ public class MainWindow extends JFrame implements PointSelectionListener {
             double ratioToExpected = actualDuration / expectedDuration;
             double ratioToCar = actualDuration / expectedCarDuration;
             
-            // Se a duração está muito próxima da duração de carro (dentro de 30%),
-            // mas deveria ser diferente, então a API provavelmente está retornando valores de carro
             // Para bicicleta (15 km/h vs 50 km/h), a duração deveria ser ~3.3x maior que carro
             // Para a pé (5 km/h vs 50 km/h), a duração deveria ser ~10x maior que carro
-            boolean tooCloseToCar = Math.abs(ratioToCar - 1.0) < 0.3;
+            // Se a duração retornada está muito próxima da duração de carro (dentro de 50%),
+            // mas deveria ser muito diferente, então a API provavelmente está retornando valores de carro
+            boolean tooCloseToCar = Math.abs(ratioToCar - 1.0) < 0.5;
+            
+            // Para bicicleta (15 km/h vs 50 km/h), a duração deveria ser ~3.3x maior que carro
+            // Se ratioToCar < 2.5, significa que está muito perto do carro (deveria ser ~3.3x)
+            // Para a pé (5 km/h vs 50 km/h), a duração deveria ser ~10x maior que carro
+            // Se ratioToCar < 7.0, significa que está muito perto do carro (deveria ser ~10x)
+            boolean shouldBeMuchDifferent = (route.getTransportMode() == TransportMode.CYCLING && ratioToCar < 2.5) ||
+                                           (route.getTransportMode() == TransportMode.WALKING && ratioToCar < 7.0);
             
             // Se está muito próxima do carro OU muito longe do esperado, é problema
-            if (tooCloseToCar || ratioToExpected < 0.4 || ratioToExpected > 2.5) {
+            if (tooCloseToCar || shouldBeMuchDifferent || ratioToExpected < 0.4 || ratioToExpected > 2.5) {
                 info.append("   ⚠️  Nota: A API pública pode estar retornando valores de carro.\n");
                 info.append("   Tempo esperado para ").append(route.getTransportMode().getDisplayName().toLowerCase())
                     .append(": ~").append(String.format("%.0f min", expectedDuration / 60)).append("\n");
