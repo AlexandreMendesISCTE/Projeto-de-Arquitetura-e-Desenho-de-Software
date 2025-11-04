@@ -2,6 +2,7 @@ package pt.iscteiul.maprouteexplorer.ui;
 
 import pt.iscteiul.maprouteexplorer.model.Location;
 import pt.iscteiul.maprouteexplorer.model.Route;
+import pt.iscteiul.maprouteexplorer.model.TransportMode;
 import pt.iscteiul.maprouteexplorer.service.OkHttpClientService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -319,6 +321,59 @@ class MapPanelTest {
                    "Latitude should remain close to original");
         assertTrue(Math.abs(finalCenter.getLongitude() - center.getLongitude()) < 1.0,
                    "Longitude should remain close to original");
+    }
+
+    @Test
+    @DisplayName("Deve desenhar rota simples entre dois pontos")
+    void testDrawSimpleRoute() {
+        Location origin = new Location(38.7223, -9.1393);
+        Location destination = new Location(38.7369, -9.1427);
+
+        Route route = new Route();
+        route.addWaypoint(origin);
+        route.addWaypoint(destination);
+        route.setTransportMode(TransportMode.DRIVING);
+
+        assertDoesNotThrow(() -> {
+            mapPanel.setRoute(route);
+            mapPanel.repaint();
+        }, "Deve desenhar rota simples sem erros");
+    }
+
+    @Test
+    @DisplayName("Deve atualizar rota dinamicamente ao alterar pontos")
+    void testDynamicRouteUpdate() {
+        Route firstRoute = new Route(Arrays.asList(
+            new Location(38.7223, -9.1393),
+            new Location(38.7369, -9.1427)
+        ));
+
+
+        mapPanel.setRoute(firstRoute);
+        Route secondRoute = new Route(Arrays.asList(
+            new Location(40.4168, -3.7038),
+            new Location(41.1579, -8.6291)
+        ));
+
+        assertDoesNotThrow(() -> {
+            mapPanel.setRoute(secondRoute);
+            mapPanel.repaint();
+        }, "Deve aceitar nova rota dinamicamente");
+    }
+
+    @Test
+    @DisplayName("Deve limpar rota quando solicitado")
+    void testClearRoute() {
+        Route route = new Route(Arrays.asList(
+            new Location(38.7223, -9.1393),
+            new Location(38.7369, -9.1427)
+        ));
+        mapPanel.setRoute(route);
+
+        mapPanel.clearRoute();
+
+        assertDoesNotThrow(() -> mapPanel.repaint(), 
+                      "Deve repintar sem erros após limpar rota");
     }
 }
 
