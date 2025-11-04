@@ -660,7 +660,7 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             return;
         }
 
-        g2d.setColor(Color.BLUE);
+        g2d.setColor(new Color(0, 100, 255));
         g2d.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
         Point prevPoint = locationToScreen(waypoints.get(0));
@@ -670,6 +670,9 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             prevPoint = currentPoint;
         }
     }
+
+    
+    
 
     /**
      * Desenha os pontos selecionados no mapa.
@@ -744,6 +747,10 @@ public class MapPanel extends JPanel implements MapPanelInterface {
      */
     public void setRoute(Route route) {
         this.currentRoute = route;
+
+        if (route != null && !route.isEmpty()) {
+        centerMapOnRoute(route);
+        }
         repaint();
     }
 
@@ -754,6 +761,59 @@ public class MapPanel extends JPanel implements MapPanelInterface {
         this.currentRoute = null;
         repaint();
     }
+
+    /**
+     * Centraliza o mapa na rota completa
+     */
+    private void centerMapOnRoute(Route route) {
+    if (route == null || route.isEmpty()) {
+        return;
+    }
+
+    List<Location> waypoints = route.getWaypoints();
+
+    double minLat = waypoints.get(0).getLatitude();
+    double maxLat = waypoints.get(0).getLatitude();
+    double minLon = waypoints.get(0).getLongitude();
+    double maxLon = waypoints.get(0).getLongitude();
+
+    for (Location point : waypoints) {
+        minLat = Math.min(minLat, point.getLatitude());
+        maxLat = Math.max(maxLat, point.getLatitude());
+        minLon = Math.min(minLon, point.getLongitude());
+        maxLon = Math.max(maxLon, point.getLongitude());
+    }
+
+    double centerLat = (minLat + maxLat) / 2;
+    double centerLon = (minLon + maxLon) / 2;
+
+    setMapCenter(new Location(centerLat, centerLon));
+
+    double latSpan = maxLat - minLat;
+    double lonSpan = maxLon - minLon;
+    double maxSpan = Math.max(latSpan, lonSpan);
+
+    int targetZoom = calculateOptimalZoom(maxSpan);
+    setZoomLevel(targetZoom);
+    }
+
+    /**
+     * Calcula o nível de zoom ótimo para mostrar uma área específica.
+     */
+    private int calculateOptimalZoom(double span) {
+    if (span > 20) return 6;
+    if (span > 10) return 7;
+    if (span > 5) return 8;
+    if (span > 2) return 9;
+    if (span > 1) return 10;
+    if (span > 0.5) return 11;
+    if (span > 0.2) return 12;
+    if (span > 0.1) return 13;
+    if (span > 0.05) return 14;
+    if (span > 0.02) return 15;
+    return 16; 
+    }
+
 
     /**
      * Limpa todos os pontos selecionados.

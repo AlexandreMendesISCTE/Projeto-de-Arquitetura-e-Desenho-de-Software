@@ -162,13 +162,13 @@ public class OSRMService {
             // Cria o objeto Route
             Route result = new Route();
             result.setTransportMode(transportMode);
-            result.setDistance(route.get("distance").asDouble());
-            result.setDuration(route.get("duration").asDouble());
+            result.setTotalDistance(route.get("distance").asDouble());
+            result.setTotalDuration(route.get("duration").asDouble());
             
             // Parse das coordenadas da rota
             String geometry = route.get("geometry").asText();
             List<Location> coordinates = decodePolyline(geometry);
-            result.setCoordinates(coordinates);
+            result.setWaypoints(coordinates);
             
             return result;
         } catch (IOException e) {
