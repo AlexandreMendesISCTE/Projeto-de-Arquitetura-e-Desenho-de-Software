@@ -9,6 +9,7 @@ import pt.iscteiul.maprouteexplorer.model.TransportMode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Serviço para integração com a API OSRM (Open Source Routing Machine).
@@ -85,7 +86,10 @@ public class OSRMService {
         StringBuilder coordinates = new StringBuilder();
         for (int i = 0; i < waypoints.size(); i++) {
             Location point = waypoints.get(i);
-            coordinates.append(String.format("%.6f,%.6f", point.getLongitude(), point.getLatitude()));
+            String lon = String.format(Locale.US, "%.6f", point.getLongitude());
+            String lat = String.format(Locale.US, "%.6f", point.getLatitude());
+
+            coordinates.append(lon).append(",").append(lat);
             if (i < waypoints.size() - 1) {
                 coordinates.append(";");
             }

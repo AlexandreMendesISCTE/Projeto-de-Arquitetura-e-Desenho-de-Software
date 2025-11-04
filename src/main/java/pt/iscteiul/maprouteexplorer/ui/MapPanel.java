@@ -2,6 +2,7 @@ package pt.iscteiul.maprouteexplorer.ui;
 
 import pt.iscteiul.maprouteexplorer.model.Location;
 import pt.iscteiul.maprouteexplorer.model.Route;
+import pt.iscteiul.maprouteexplorer.model.TransportMode;
 import pt.iscteiul.maprouteexplorer.service.OkHttpClientService;
 
 import javax.swing.*;
@@ -660,8 +661,11 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             return;
         }
 
-        g2d.setColor(new Color(0, 100, 255));
-        g2d.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        Color routeColor = getRouteColor(currentRoute.getTransportMode());
+
+    
+        g2d.setColor(Color.WHITE);
+        g2d.setStroke(new BasicStroke(8, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
         Point prevPoint = locationToScreen(waypoints.get(0));
         for (int i = 1; i < waypoints.size(); i++) {
@@ -669,10 +673,34 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             g2d.drawLine(prevPoint.x, prevPoint.y, currentPoint.x, currentPoint.y);
             prevPoint = currentPoint;
         }
-    }
 
     
-    
+        g2d.setColor(routeColor);
+        g2d.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
+        prevPoint = locationToScreen(waypoints.get(0));
+        for (int i = 1; i < waypoints.size(); i++) {
+            Point currentPoint = locationToScreen(waypoints.get(i));
+            g2d.drawLine(prevPoint.x, prevPoint.y, currentPoint.x, currentPoint.y);
+            prevPoint = currentPoint;
+        }
+    }
+
+    /**
+     * Define cores diferentes baseadas no modo de transporte.
+     */
+    private Color getRouteColor(TransportMode mode) {
+        switch (mode) {
+            case DRIVING:
+                return new Color(65, 105, 225); // Azul para carro
+            case WALKING:
+                return new Color(50, 205, 50);  // Verde para caminhada
+            case CYCLING:
+                return new Color(255, 140, 0);  // Laranja para bicicleta
+            default:
+                return new Color(65, 105, 225); // Azul padrão
+        }
+    }
 
     /**
      * Desenha os pontos selecionados no mapa.
