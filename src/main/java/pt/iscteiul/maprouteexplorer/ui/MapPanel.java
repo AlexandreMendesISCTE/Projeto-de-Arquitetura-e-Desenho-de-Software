@@ -684,6 +684,7 @@ public class MapPanel extends JPanel implements MapPanelInterface {
             g2d.drawLine(prevPoint.x, prevPoint.y, currentPoint.x, currentPoint.y);
             prevPoint = currentPoint;
         }
+        drawRouteMarkers(g2d);
     }
 
     /**
@@ -702,6 +703,68 @@ public class MapPanel extends JPanel implements MapPanelInterface {
         }
     }
 
+    /**
+     * Desenha marcadores especiais para a origem e destino
+     */
+    private void drawRouteMarkers(Graphics2D g2d) {
+        if (currentRoute == null || currentRoute.isEmpty()) {
+            return;
+        }
+
+        List<Location> waypoints = currentRoute.getWaypoints();
+        if (waypoints.size() < 2) {
+            return;
+        }
+
+        Location origin = waypoints.get(0);
+        drawLocationMarker(g2d, origin, "ORIGEM", new Color(34, 139, 34), 'A');
+
+        Location destination = waypoints.get(waypoints.size() - 1);
+        drawLocationMarker(g2d, destination, "DESTINO", new Color(220, 20, 60), 'B');
+    }
+
+    /**
+     * Desenha um marcador de localização no mapa.
+     */
+    private void drawLocationMarker(Graphics2D g2d, Location location, String label, 
+                               Color color, char symbol) {
+        Point screenPoint = locationToScreen(location);
+
+        g2d.setColor(color);
+        g2d.fillOval(screenPoint.x - 12, screenPoint.y - 12, 24, 24);
+
+        g2d.setColor(Color.WHITE);
+        g2d.setStroke(new BasicStroke(2));
+        g2d.drawOval(screenPoint.x - 12, screenPoint.y - 12, 24, 24);
+
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Arial", Font.BOLD, 12));
+        String symbolStr = String.valueOf(symbol);
+        FontMetrics fm = g2d.getFontMetrics();
+        int textWidth = fm.stringWidth(symbolStr);
+        int textHeight = fm.getHeight();
+        g2d.drawString(symbolStr, 
+                  screenPoint.x - textWidth / 2, 
+                  screenPoint.y + textHeight / 4);
+
+        if (label != null && !label.isEmpty()) {
+            g2d.setColor(Color.BLACK);
+            g2d.setFont(new Font("Arial", Font.BOLD, 10));
+            FontMetrics labelFm = g2d.getFontMetrics();
+            int labelWidth = labelFm.stringWidth(label);
+
+            g2d.setColor(new Color(255, 255, 255, 200)); 
+            g2d.fillRect(screenPoint.x - labelWidth / 2 - 3, 
+                    screenPoint.y + 20, 
+                    labelWidth + 6, 
+                    labelFm.getHeight() + 2);
+
+            g2d.setColor(Color.BLACK);
+            g2d.drawString(label, 
+                      screenPoint.x - labelWidth / 2, 
+                      screenPoint.y + 20 + labelFm.getAscent());
+        }
+    }
     /**
      * Desenha os pontos selecionados no mapa.
      */
