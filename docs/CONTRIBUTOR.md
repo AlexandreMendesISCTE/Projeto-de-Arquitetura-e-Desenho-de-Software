@@ -2,7 +2,19 @@
 
 Obrigado pelo seu interesse em contribuir para o Map Route Explorer! Este guia fornece todas as informações necessárias para contribuir de forma eficaz para o projeto.
 
-## 📋 Índice
+## � Autores
+
+Este projeto foi desenvolvido por:
+
+- **Alexandre Mendes** (111026)
+- **Manuel Santos**
+- **André Costa**
+- **Ana Valente**
+
+**Instituição**: Instituto Superior de Ciências do Trabalho e da Empresa (ISCTE-IUL)  
+**Curso**: Engenharia Informática
+
+## �📋 Índice
 
 - [Como Contribuir](#-como-contribuir)
 - [Código de Conduta](#-código-de-conduta)

@@ -1,8 +1,19 @@
 # 🐳 Containerização e Deployment - Map Route Explorer
 
 **Versão**: 2.0.0  
-**Data**: 5 de Novembro de 2025  
-**Autor**: Alexandre Mendes (111026)
+**Data**: 5 de Novembro de 2025
+
+## 👥 Autores
+
+Este projeto foi desenvolvido por:
+
+- **Alexandre Mendes** (111026)
+- **Manuel Santos**
+- **André Costa**
+- **Ana Valente**
+
+**Instituição**: Instituto Superior de Ciências do Trabalho e da Empresa (ISCTE-IUL)  
+**Curso**: Engenharia Informática
 
 ---
 

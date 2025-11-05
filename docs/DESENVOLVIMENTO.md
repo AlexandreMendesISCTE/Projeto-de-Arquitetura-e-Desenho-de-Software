@@ -2,7 +2,19 @@
 
 Este guia fornece informações detalhadas para desenvolvedores que pretendem contribuir para o projeto Map Route Explorer.
 
-## 📋 Índice
+## � Autores
+
+Este projeto foi desenvolvido por:
+
+- **Alexandre Mendes** (111026)
+- **Manuel Santos**
+- **André Costa**
+- **Ana Valente**
+
+**Instituição**: Instituto Superior de Ciências do Trabalho e da Empresa (ISCTE-IUL)  
+**Curso**: Engenharia Informática
+
+## �📋 Índice
 
 - [Configuração do Ambiente](#-configuração-do-ambiente)
 - [Estrutura do Projeto](#-estrutura-do-projeto)
@@ -179,27 +191,34 @@ src/main/java/pt/iscteiul/maprouteexplorer/
     └── ConfigManager.java             # Gestão de configuração
 ```
 
-### Estrutura de Testes (Planejado)
+### Estrutura de Testes
 
-> **📝 Nota**: Os testes foram removidos temporariamente e serão reimplementados em versão futura.
+> **✅ Implementação Atual**: O projeto possui testes unitários e de integração para funcionalidades do mapa, incluindo zoom, pan, seleção de pontos e carregamento de tiles.
 
 ```
 src/test/java/pt/iscteiul/maprouteexplorer/
 ├── model/
-│   ├── LocationTest.java              # Testes de Location
-│   ├── RouteTest.java                 # Testes de Route
-│   └── TransportModeTest.java         # Testes de TransportMode
+│   ├── LocationTest.java              # Testes de Location (planejado)
+│   ├── RouteTest.java                 # Testes de Route (planejado)
+│   └── TransportModeTest.java         # Testes de TransportMode (planejado)
 ├── service/
-│   ├── OSRMServiceTest.java           # Testes de OSRM
-│   ├── NominatimServiceTest.java      # Testes de Nominatim
-│   └── HttpClientServiceTest.java     # Testes de HTTP
+│   ├── OSRMServiceTest.java           # Testes de OSRM (planejado)
+│   ├── NominatimServiceTest.java      # Testes de Nominatim (planejado)
+│   └── HttpClientServiceTest.java     # Testes de HTTP (planejado)
 ├── ui/
-│   ├── MainWindowTest.java            # Testes de UI
-│   └── MapPanelTest.java              # Testes de mapa
+│   ├── MainWindowTest.java            # Testes de UI (planejado)
+│   ├── MapPanelTest.java              # ✅ Testes de mapa (implementado)
+│   └── MapPanelIntegrationTest.java   # ✅ Testes de integração (implementado)
 └── util/
-    ├── RouteUtilsTest.java            # Testes de utilitários
-    └── ConfigManagerTest.java         # Testes de configuração
+    ├── RouteUtilsTest.java            # Testes de utilitários (planejado)
+    └── ConfigManagerTest.java         # Testes de configuração (planejado)
 ```
+
+**Testes Implementados:**
+- ✅ `MapPanelTest`: Testes unitários de zoom, pan e seleção de pontos
+- ✅ `MapPanelIntegrationTest`: Testes de integração para navegação completa no mapa
+- ✅ Cobertura de diferenciação entre arrastar (drag) e clicar (click)
+- ✅ Validação de coordenadas e limites de zoom
 
 ## 📝 Convenções de Código
 

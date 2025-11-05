@@ -1,6 +1,18 @@
-# Scripts de Automação
+# 📜 Scripts de Automação - Map Route Explorer
 
-Esta pasta contém scripts úteis para desenvolvimento, build e deployment.
+Esta pasta contém scripts úteis para desenvolvimento, build e deployment do projeto.
+
+## 👥 Autores
+
+Este projeto foi desenvolvido por:
+
+- **Alexandre Mendes** (111026)
+- **Manuel Santos**
+- **André Costa**
+- **Ana Valente**
+
+**Instituição**: Instituto Superior de Ciências do Trabalho e da Empresa (ISCTE-IUL)  
+**Curso**: Engenharia Informática
 
 ## 📜 Scripts Disponíveis
 

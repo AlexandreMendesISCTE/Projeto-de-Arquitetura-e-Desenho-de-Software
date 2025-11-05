@@ -5,6 +5,116 @@ Todas as alterações notáveis neste projeto serão documentadas neste ficheiro
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## 👥 Autores
+
+Este projeto foi desenvolvido por:
+
+- **Alexandre Mendes** (111026)
+- **Manuel Santos**
+- **André Costa**
+- **Ana Valente**
+
+**Instituição**: Instituto Superior de Ciências do Trabalho e da Empresa (ISCTE-IUL)  
+**Curso**: Engenharia Informática
+
+---
+
+## [2.0.1] - 2025-11-05
+
+### 📚 Documentação Técnica Completa
+
+#### Adicionado
+- **Documentação Arquitetural Completa**:
+  - `DIAGRAMA_ARQUITETURA_COMPLETA.md`: Visão arquitetural em camadas com diagramas Mermaid
+  - `DIAGRAMA_CLASSES.md`: UML completo de todas as classes com atributos, métodos e relacionamentos
+  - `REQUISITOS.md`: 10 RF + 10 RNF com mindmap, matriz de rastreabilidade e roadmap
+  - `PADROES_E_BOAS_PRATICAS.md`: Todos os design patterns implementados (Singleton, Adapter, Facade, Observer, Strategy, MVC, Layered Architecture)
+  - `FLUXOS_DE_DADOS.md`: Fluxos completos do ciclo de vida, cache LRU, thread management
+  - `DOCKER_DEPLOYMENT.md`: Processo de containerização, multi-stage build, CI/CD
+
+- **Diagramas Mermaid Interativos** (~20+ diagramas):
+  - Arquitetura em camadas
+  - Sequências de operação
+  - Mindmaps de requisitos
+  - Fluxos de dados completos
+  - Ciclo de vida da aplicação
+
+- **Métricas e Estatísticas**:
+  - Performance metrics (tempos médios, utilização de recursos)
+  - Cobertura de requisitos: 75% (15/20)
+  - Métricas de código por classe
+  - Estatísticas de containerização
+
+#### Documentado
+- **Requisitos Funcionais** (RF-01 a RF-10):
+  - ✅ 6 implementados (Visualização Mapa, Seleção Rota, Informações Rota, Limpeza, Pesquisa, Modos Transporte)
+  - ⏳ 4 planejados (POIs, Múltiplos Destinos, Exportação, Estatísticas)
+
+- **Requisitos Não Funcionais** (RNF-01 a RNF-10):
+  - ✅ 9 implementados (Performance, Escalabilidade, Manutenibilidade, Portabilidade, Usabilidade, Segurança, Confiabilidade, Disponibilidade, Documentação)
+  - ⏳ 1 em progresso (Testabilidade)
+
+- **Design Patterns Implementados**:
+  - Creational: Singleton (ConfigManager)
+  - Structural: Adapter (HttpClientService), Facade (OSRMService/NominatimService)
+  - Behavioral: Observer (PointSelectionListener), Strategy (TransportMode)
+  - Architectural: MVC, Layered Architecture, Service Layer
+
+- **Princípios SOLID**:
+  - SRP, OCP, LSP, ISP, DIP (todos documentados com exemplos de código)
+
+#### Roadmap
+- **v2.1.0 (Q1 2026)**: POIs, Estatísticas Avançadas, Cobertura 80%+
+- **v2.2.0 (Q2 2026)**: Múltiplos Destinos, Exportação de Dados
+- **v3.0.0 (Q3 2026)**: Refatoração, API REST, Modo Offline
+
+---
+
+## [2.0.0] - 2025-10-30
+
+### 🗺️ Implementação Nativa de Renderização de Mapas
+
+#### Adicionado
+- **Renderização Nativa em Java Puro**:
+  - Sistema de carregamento direto de tiles do OpenStreetMap
+  - Renderização usando Swing e Graphics2D (sem dependências externas)
+  - Cache LRU inteligente para 100 tiles
+  - Thread pool de 6 threads para download concorrente
+
+- **Interação Avançada com Mapa**:
+  - Zoom com roda do mouse (mantém cursor como centro)
+  - Zoom com duplo clique
+  - Pan (arrastar) com detecção inteligente de drag vs click
+  - Seleção de pontos diferenciada de arrastar
+  - Sistema de priorização: tiles visíveis primeiro, depois buffer
+
+- **Gestão de Requisições HTTP**:
+  - Rate limiting amigável aos servidores OSM
+  - Retry automático com fallback para servidores alternativos
+  - Tratamento de erros HTTP (429, 503)
+  - Placeholders durante carregamento
+
+- **Desenho de Rotas no Mapa**:
+  - Desenho de polylines com cores por modo de transporte
+  - Marcadores visuais para origem (A - verde) e destino (B - vermelho)
+  - Suavização de linhas de rota
+  - Atualização dinâmica ao alterar pontos
+
+- **Testes Implementados**:
+  - ✅ Testes unitários para zoom, pan e seleção
+  - ✅ Testes de integração para navegação completa
+  - ✅ Validação de diferenciação drag vs click
+  - ✅ Testes de carregamento de tiles
+
+#### Técnico
+- Eliminada dependência de JMapViewer
+- Implementação 100% nativa em Java 17+
+- Compatível com Swing headless para Docker
+- Performance otimizada com cache e threads
+- Suporte a 18 níveis de zoom (0-18)
+
+---
+
 ## [2.0.0] - 2025-10-25
 
 ### 🚀 Atualização Completa para Versões Mais Recentes

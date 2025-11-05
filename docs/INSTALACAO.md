@@ -2,7 +2,19 @@
 
 Este guia fornece instruções detalhadas para instalar e configurar o Map Route Explorer usando Docker, o método recomendado para execução da aplicação.
 
-## 📋 Índice
+## � Autores
+
+Este projeto foi desenvolvido por:
+
+- **Alexandre Mendes** (111026)
+- **Manuel Santos**
+- **André Costa**
+- **Ana Valente**
+
+**Instituição**: Instituto Superior de Ciências do Trabalho e da Empresa (ISCTE-IUL)  
+**Curso**: Engenharia Informática
+
+## �📋 Índice
 
 - [Pré-requisitos](#-pré-requisitos)
 - [Instalação com Docker (Recomendado)](#-instalação-com-docker-recomendado)
@@ -283,7 +295,7 @@ sudo yum install maven
 
 ### Compilação e Execução
 
-> **📝 Nota sobre JMapViewer**: A biblioteca JMapViewer não está disponível no Maven Central e está comentada no `pom.xml`. O projeto utiliza GeoTools para funcionalidades de mapa. Se necessitar do JMapViewer, pode ser baixado manualmente de https://josm.openstreetmap.de/svn/trunk/dist/jmapviewer.jar
+> **✨ Implementação Nativa**: O projeto utiliza uma **implementação nativa em Java puro** para renderização de mapas, sem dependências externas como JMapViewer ou JavaFX. Os tiles do OpenStreetMap são carregados diretamente via HTTP e renderizados usando Swing e Graphics2D, proporcionando uma solução leve e portável.
 
 ```bash
 # Clonar repositório
@@ -294,7 +306,11 @@ cd Projeto-de-Arquitetura-e-Desenho-de-Software
 mvn clean package
 
 # Executar aplicação
-java -jar target/map-route-explorer-1.0.0-jar-with-dependencies.jar
+java -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
+
+# Ou usar scripts de execução
+./run-native.sh    # Linux/Mac
+run-native.bat     # Windows
 ```
 
 ## ✅ Verificação da Instalação

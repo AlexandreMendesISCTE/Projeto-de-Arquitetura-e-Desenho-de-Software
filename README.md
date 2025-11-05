@@ -540,11 +540,17 @@ As sugestões são bem-vindas! Utilize o sistema de issues para:
 
 Este projeto está licenciado sob a Licença MIT - veja o ficheiro [LICENSE](LICENSE) para detalhes.
 
-## 👨‍💻 Autor
+## � Autores
 
-**Alexandre Mendes** (111026)
-- Instituto Superior de Ciências do Trabalho e da Empresa
-- Curso de Engenharia Informática
+Este projeto foi desenvolvido por:
+
+- **Alexandre Mendes** (111026)
+- **Manuel Santos**
+- **André Costa**
+- **Ana Valente**
+
+**Instituição**: Instituto Superior de Ciências do Trabalho e da Empresa (ISCTE-IUL)  
+**Curso**: Engenharia Informática
 
 ## 📚 Referências
 
