@@ -1,34 +1,34 @@
-﻿# ðŸ—ºï¸ Map Route Explorer
+﻿# 🗺️ Map Route Explorer
 
-> **Sistema Interativo de Rotas e ExploraÃ§Ã£o de Locais com OpenStreetMap**
+> **Sistema Interativo de Rotas e Exploração de Locais com OpenStreetMap**
 
 [![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://openjdk.java.net/)
 [![Maven](https://img.shields.io/badge/Maven-3.9+-blue.svg)](https://maven.apache.org/)
 [![Docker](https://img.shields.io/badge/Docker-VNC_Ready-blue.svg)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Uma aplicaÃ§Ã£o desktop interativa desenvolvida em Java que permite aos utilizadores explorar mapas baseados em dados do OpenStreetMap, traÃ§ar rotas entre pontos de interesse e obter informaÃ§Ãµes relevantes sobre o trajeto e a Ã¡rea circundante.
+Uma aplicação desktop interativa desenvolvida em Java que permite aos utilizadores explorar mapas baseados em dados do OpenStreetMap, traçar rotas entre pontos de interesse e obter informações relevantes sobre o trajeto e a área circundante.
 
-**VersÃ£o**: 2.0.0 | **Status**: Em desenvolvimento ativo
+**Versão**: 2.0.0 | **Status**: Em desenvolvimento ativo
 
-## ï¿½ Autores
+## 👤 Autores
 
 Este projeto foi desenvolvido por:
 
 - **Alexandre Mendes** (111026)
 - **Manuel Santos**
-- **AndrÃ© Costa**
+- **André Costa**
 - **Ana Valente**
 
-**InstituiÃ§Ã£o**: Instituto Superior de CiÃªncias do Trabalho e da Empresa (ISCTE-IUL)  
-**Curso**: Engenharia InformÃ¡tica
+**Instituição**: Instituto Superior de Ciências do Trabalho e da Empresa (ISCTE-IUL)  
+**Curso**: Engenharia Informática
 
-## ï¿½ðŸš€ InÃ­cio RÃ¡pido
+## 🚀 Início Rápido
 
-### **ExecuÃ§Ã£o via Docker (Recomendado)** ðŸ³
+### **Execução via Docker (Recomendado)** 🐳
 
 ```bash
-# Clone o repositÃ³rio
+# Clone o repositório
 git clone https://github.com/AlexandreMendesISCTE/Projeto-de-Arquitetura-e-Desenho-de-Software.git
 cd Projeto-de-Arquitetura-e-Desenho-de-Software
 
@@ -38,15 +38,15 @@ docker compose up -d
 # Acesse via Browser (noVNC) - http://localhost:6080
 ```
 
-**Acesso Ã  AplicaÃ§Ã£o:**
-- ðŸŒ **Browser (noVNC)**: http://localhost:6080 (sem senha)
-- ðŸ–¥ï¸ **VNC Viewer**: `localhost:5901` | Senha: `maproute123`
+**Acesso à Aplicação:**
+- 🌐 **Browser (noVNC)**: http://localhost:6080 (sem senha)
+- 🖥️ **VNC Viewer**: `localhost:5901` | Senha: `maproute123`
 
-### **ExecuÃ§Ã£o Local**
+### **Execução Local**
 
-A aplicaÃ§Ã£o utiliza uma **implementaÃ§Ã£o nativa em Java puro** para renderizaÃ§Ã£o de mapas com Swing e Graphics2D.
+A aplicação utiliza uma **implementação nativa em Java puro** para renderização de mapas com Swing e Graphics2D.
 
-**PrÃ©-requisitos:** Java 17+ | Maven 3.6+
+**Pré-requisitos:** Java 17+ | Maven 3.6+
 
 ```bash
 # Usando scripts (recomendado)
@@ -58,71 +58,71 @@ mvn clean package -DskipTests
 java -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
 ```
 
-## ðŸ"‹ Ãndice
+## 📋 Índice
 
-- [VisÃ£o Geral](#-visÃ£o-geral)
+- [Visão Geral](#-visão-geral)
 - [Diagramas do Sistema](#-diagramas-do-sistema)
   - [Fluxo de Dados e Requisitos](#-fluxo-de-dados-e-requisitos)
-  - [Arquitetura em Camadas](#ï¸-arquitetura-em-camadas)
+  - [Arquitetura em Camadas](#️-arquitetura-em-camadas)
 - [Funcionalidades](#-funcionalidades)
-- [Tecnologias](#ï¸-tecnologias)
-- [UtilizaÃ§Ã£o](#-utilizaÃ§Ã£o)
-- [Arquitetura](#ï¸-arquitetura)
+- [Tecnologias](#️-tecnologias)
+- [Utilização](#-utilização)
+- [Arquitetura](#️-arquitetura)
 - [Desenvolvimento](#-desenvolvimento)
-- [DocumentaÃ§Ã£o](#-documentaÃ§Ã£o)
-- [LicenÃ§a](#-licenÃ§a)
+- [Documentação](#-documentação)
+- [Licença](#-licença)
 
-## ðŸŽ¯ VisÃ£o Geral
+## 🎯 Visão Geral
 
-O **Map Route Explorer** Ã© um projeto acadÃ©mico desenvolvido no Ã¢mbito da disciplina de Arquitetura e Desenho de Software, que demonstra a integraÃ§Ã£o de mÃºltiplas APIs REST para criar uma experiÃªncia de navegaÃ§Ã£o e exploraÃ§Ã£o geogrÃ¡fica completa.
+O **Map Route Explorer** é um projeto académico desenvolvido no âmbito da disciplina de Arquitetura e Desenho de Software, que demonstra a integração de múltiplas APIs REST para criar uma experiência de navegação e exploração geográfica completa.
 
 ### Objetivos
 
-- **ExploraÃ§Ã£o GeogrÃ¡fica**: Mapas interativos baseados no OpenStreetMap
-- **CÃ¡lculo de Rotas**: IntegraÃ§Ã£o com API OSRM para rotas otimizadas
-- **GeocodificaÃ§Ã£o**: API Nominatim para conversÃ£o de endereÃ§os
-- **VisualizaÃ§Ã£o de Dados**: ApresentaÃ§Ã£o clara de informaÃ§Ãµes de rota
+- **Exploração Geográfica**: Mapas interativos baseados no OpenStreetMap
+- **Cálculo de Rotas**: Integração com API OSRM para rotas otimizadas
+- **Geocodificação**: API Nominatim para conversão de endereços
+- **Visualização de Dados**: Apresentação clara de informações de rota
 
-### Contexto AcadÃ©mico
+### Contexto Académico
 
-Desenvolvido com metodologia **SCRUM**, utilizando Trello para gestÃ£o de projeto e documentaÃ§Ã£o com notaÃ§Ãµes **UML** e **BPMN**. Todo o cÃ³digo estÃ¡ disponÃ­vel no GitHub com documentaÃ§Ã£o completa.
+Desenvolvido com metodologia **SCRUM**, utilizando Trello para gestão de projeto e documentação com notações **UML** e **BPMN**. Todo o código está disponível no GitHub com documentação completa.
 
-### Destaques TÃ©cnicos
+### Destaques Técnicos
 
-- âœ… **RenderizaÃ§Ã£o Nativa**: ImplementaÃ§Ã£o 100% Java sem dependÃªncias externas (JMapViewer, JavaFX)
-- âœ… **Performance Otimizada**: Cache LRU, thread pool de 6 threads, download concorrente
-- âœ… **DetecÃ§Ã£o Inteligente**: DiferenciaÃ§Ã£o automÃ¡tica entre arrastar (drag) e clicar (click)
-- âœ… **Testes Completos**: UnitÃ¡rios e de integraÃ§Ã£o com cobertura >80%
+- ✅ **Renderização Nativa**: Implementação 100% Java sem dependências externas (JMapViewer, JavaFX)
+- ✅ **Performance Otimizada**: Cache LRU, thread pool de 6 threads, download concorrente
+- ✅ **Detecção Inteligente**: Diferenciação automática entre arrastar (drag) e clicar (click)
+- ✅ **Testes Completos**: Unitários e de integração com cobertura >80%
 
-## ðŸ"Š Diagramas do Sistema
+## 📊 Diagramas do Sistema
 
-### ðŸ"„ Fluxo de Dados e Requisitos
+### 🔄 Fluxo de Dados e Requisitos
 
 ```mermaid
 flowchart TB
-    subgraph USER["ðŸ'¤ Utilizador"]
+    subgraph USER["👤 Utilizador"]
         UI[Interface Swing]
     end
     
-    subgraph CORE["ðŸŽ¯ Sistema Core"]
+    subgraph CORE["🎯 Sistema Core"]
         CTRL[Controller/Main]
-        MAP[MapPanel - RenderizaÃ§Ã£o]
+        MAP[MapPanel - Renderização]
         CACHE[Cache LRU<br/>100 tiles]
     end
     
-    subgraph SERVICES["ðŸ"§ ServiÃ§os"]
+    subgraph SERVICES["🔧 Serviços"]
         HTTP[HttpClientService]
         OSRM[OSRMService]
         NOM[NominatimService]
     end
     
-    subgraph APIS["ðŸŒ APIs Externas"]
+    subgraph APIS["🌐 APIs Externas"]
         OSM[(OpenStreetMap<br/>Tiles)]
         OSRM_API[(OSRM API<br/>Rotas)]
         NOM_API[(Nominatim API<br/>Geocoding)]
     end
     
-    subgraph RF["ðŸ"‹ Requisitos Funcionais"]
+    subgraph RF["📋 Requisitos Funcionais"]
         RF1[RF01: Visualizar Mapa]
         RF2[RF02: Calcular Rota]
         RF3[RF03: Pesquisar Local]
@@ -130,14 +130,14 @@ flowchart TB
         RF5[RF05: Modos Transporte]
     end
     
-    subgraph RNF["âš¡ Requisitos NÃ£o Funcionais"]
+    subgraph RNF["⚡ Requisitos Não Funcionais"]
         RNF1[RNF01: Performance<br/>Cache + Threads]
-        RNF2[RNF02: Usabilidade<br/>DetecÃ§Ã£o Drag/Click]
+        RNF2[RNF02: Usabilidade<br/>Detecção Drag/Click]
         RNF3[RNF03: Escalabilidade<br/>Thread Pool]
-        RNF4[RNF04: Manutenibilidade<br/>PadrÃµes MVC]
+        RNF4[RNF04: Manutenibilidade<br/>Padrões MVC]
     end
     
-    UI -->|1. AÃ§Ã£o Utilizador| CTRL
+    UI -->|1. Ação Utilizador| CTRL
     CTRL -->|2. Atualizar UI| MAP
     MAP -->|3. Requisitar Tiles| CACHE
     CACHE -->|Cache Miss| HTTP
@@ -171,46 +171,46 @@ flowchart TB
 ```
 
 **Legenda:**
-- ðŸ"µ **Fluxo de Dados**: Linha sÃ³lida mostra o caminho dos dados
-- ðŸ"— **ImplementaÃ§Ã£o**: Linha tracejada conecta componentes aos requisitos
-- âš¡ **5 RF Principais**: VisualizaÃ§Ã£o, Rotas, Pesquisa, SeleÃ§Ã£o, Modos
-- ðŸ"Š **4 RNF Chave**: Performance, Usabilidade, Escalabilidade, Manutenibilidade
+- 🔵 **Fluxo de Dados**: Linha sólida mostra o caminho dos dados
+- 🔗 **Implementação**: Linha tracejada conecta componentes aos requisitos
+- ⚡ **5 RF Principais**: Visualização, Rotas, Pesquisa, Seleção, Modos
+- 📊 **4 RNF Chave**: Performance, Usabilidade, Escalabilidade, Manutenibilidade
 
-### ðŸ—ï¸ Arquitetura em Camadas
+### 🗝️ Arquitetura em Camadas
 
 ```mermaid
 graph TB
-    subgraph PRESENTATION["ðŸŽ¨ Camada de ApresentaÃ§Ã£o"]
+    subgraph PRESENTATION["🎨 Camada de Apresentação"]
         MW[MainWindow<br/>JFrame Principal]
-        MP[MapPanel<br/>RenderizaÃ§Ã£o Mapa]
-        CP[ControlPanel<br/>BotÃµes e Inputs]
+        MP[MapPanel<br/>Renderização Mapa]
+        CP[ControlPanel<br/>Botões e Inputs]
     end
     
-    subgraph CONTROLLER["ðŸŽ® Camada de Controlo"]
+    subgraph CONTROLLER["🎮 Camada de Controlo"]
         MAIN[Main<br/>Bootstrap]
         CFG[ConfigManager<br/>Singleton]
         PSL[PointSelectionListener<br/>Observer Pattern]
     end
     
-    subgraph SERVICE["ðŸ"§ Camada de ServiÃ§os"]
+    subgraph SERVICE["🔧 Camada de Serviços"]
         HTTP[HttpClientService<br/>Adapter Pattern]
         OSRM[OSRMService<br/>Facade Pattern]
         NOM[NominatimService<br/>Facade Pattern]
     end
     
-    subgraph MODEL["ðŸ"Š Camada de Modelo"]
+    subgraph MODEL["📊 Camada de Modelo"]
         LOC[Location<br/>Coordenadas]
         ROUTE[Route<br/>Dados Rota]
         TM[TransportMode<br/>Strategy Pattern]
     end
     
-    subgraph UTIL["ðŸ› ï¸ Camada UtilitÃ¡ria"]
-        RU[RouteUtils<br/>FormataÃ§Ã£o]
+    subgraph UTIL["🛠️ Camada Utilitária"]
+        RU[RouteUtils<br/>Formatação]
         TC[TileCache<br/>LRU Cache]
         TP[ThreadPool<br/>6 Threads]
     end
     
-    subgraph EXTERNAL["ðŸŒ ServiÃ§os Externos"]
+    subgraph EXTERNAL["🌐 Serviços Externos"]
         OSM_API[OpenStreetMap]
         OSRM_API[OSRM API]
         NOM_API[Nominatim API]
