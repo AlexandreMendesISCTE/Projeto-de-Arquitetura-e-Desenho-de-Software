@@ -1,4 +1,4 @@
-# 🛡️ Padrões de Projeto e Boas Práticas - Map Route Explorer
+﻿# 🛡️ Padrões de Projeto e Boas Práticas - Map Route Explorer
 
 **Versão**: 2.0.0  
 **Data**: 5 de Novembro de 2025
@@ -29,20 +29,20 @@ Este documento detalha todos os padrões de projeto e boas práticas utilizadas 
 graph TB
     subgraph "🎨 PADRÕES CRIACIONAIS (Creational Patterns)"
         SINGLETON[Singleton Pattern<br/>ConfigManager<br/>Instância única de configuração<br/>Thread-safe getInstance]
-        FACTORY[Factory Pattern Planejado<br/>ServiceFactory<br/>Criação de serviços HTTP<br/>Abstração de criação]
+        FACTORY[Factory Pattern planeado<br/>ServiceFactory<br/>Criação de serviços HTTP<br/>Abstração de criação]
     end
     
     subgraph "🔨 PADRÕES ESTRUTURAIS (Structural Patterns)"
         ADAPTER[Adapter Pattern<br/>HttpClientService → OkHttpClient<br/>Adapta biblioteca externa<br/>Interface consistente]
         FACADE[Facade Pattern<br/>OSRMService NominatimService<br/>Simplifica acesso a APIs<br/>Oculta complexidade]
-        PROXY[Proxy Pattern Planejado<br/>CachedTileService<br/>Cache transparente<br/>Lazy loading]
+        PROXY[Proxy Pattern planeado<br/>CachedTileService<br/>Cache transparente<br/>Lazy loading]
     end
     
     subgraph "⚙️ PADRÕES COMPORTAMENTAIS (Behavioral Patterns)"
         OBSERVER[Observer Pattern<br/>PointSelectionListener<br/>Comunicação UI → Controller<br/>Desacoplamento eventos]
         STRATEGY[Strategy Pattern<br/>TransportMode<br/>Diferentes algoritmos de rota<br/>Seleção em runtime]
-        TEMPLATE[Template Method Planejado<br/>BaseAPIService<br/>Fluxo comum requisições<br/>Steps customizáveis]
-        COMMAND[Command Pattern Planejado<br/>RouteCalculationCommand<br/>Encapsular requisições<br/>Undo/Redo support]
+        TEMPLATE[Template Method planeado<br/>BaseAPIService<br/>Fluxo comum requisições<br/>Steps customizáveis]
+        COMMAND[Command Pattern planeado<br/>RouteCalculationCommand<br/>Encapsular requisições<br/>Undo/Redo support]
     end
     
     subgraph "🏗️ PADRÕES ARQUITETURAIS (Architectural Patterns)"
@@ -100,7 +100,7 @@ graph LR
         
         subgraph "🛡️ Defesas (Defensive Programming)"
             VALIDATION[Validação de Entrada<br/>Coordenadas latitude -90 a 90<br/>Longitude -180 a 180<br/>URLs HTTP HTTPS válidas<br/>Fail fast em erros]
-            EXCEPTIONS[Tratamento de Exceções<br/>Exceções específicas de domínio<br/>OSRMException NominatimException<br/>Logging de erros completo<br/>Mensagens claras para usuário]
+            EXCEPTIONS[Tratamento de Exceções<br/>Exceções específicas de domínio<br/>OSRMException NominatimException<br/>Logging de erros completo<br/>Mensagens claras para utilizador]
             DEFENSIVE[Programação Defensiva<br/>Null checks obrigatórios<br/>Validações início métodos<br/>Imutabilidade quando possível<br/>Final em atributos críticos]
         end
         
@@ -503,7 +503,7 @@ HttpClientService client = new MockHttpClientService();
 ### Testes
 - [x] Testes unitários (70%)
 - [ ] Testes de integração (20%) - Em progresso
-- [ ] Testes de interface (10%) - Planejado
+- [ ] Testes de interface (10%) - planeado
 - [ ] Cobertura > 80% - Meta
 
 ### Arquitetura

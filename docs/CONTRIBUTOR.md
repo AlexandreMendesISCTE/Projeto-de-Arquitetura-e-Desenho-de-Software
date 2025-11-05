@@ -1,4 +1,4 @@
-# 🤝 Guia de Contribuição - Map Route Explorer
+﻿# 🤝 Guia de Contribuição - Map Route Explorer
 
 Obrigado pelo seu interesse em contribuir para o Map Route Explorer! Este guia fornece todas as informações necessárias para contribuir de forma eficaz para o projeto.
 

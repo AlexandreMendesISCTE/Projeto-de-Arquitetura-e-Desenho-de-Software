@@ -1,4 +1,4 @@
-# 📐 Diagrama de Classes Detalhado - Map Route Explorer
+﻿# 📐 Diagrama de Classes Detalhado - Map Route Explorer
 
 **Versão**: 2.0.0  
 **Data**: 5 de Novembro de 2025

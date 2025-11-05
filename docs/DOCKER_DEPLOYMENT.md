@@ -1,4 +1,4 @@
-# 🐳 Containerização e Deployment - Map Route Explorer
+﻿# 🐳 Containerização e Deployment - Map Route Explorer
 
 **Versão**: 2.0.0  
 **Data**: 5 de Novembro de 2025
@@ -483,7 +483,7 @@ services:
 
 ---
 
-## 🔄 Pipeline CI/CD (Planejado)
+## 🔄 Pipeline CI/CD (planeado)
 
 ```mermaid
 flowchart LR

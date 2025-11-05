@@ -1,4 +1,4 @@
-# Enunciado
+﻿# Enunciado
 
 Em qualquer dos projetos, os grupos de trabalho deverão adotar a framework **SCRUM** para a gestão do projeto, bem como alguma plataforma digital de suporte à gestão do projeto (por exemplo, <https://trello.com>). Deverão também disponibilizar na plataforma **GitHub** todos os artefactos produzidos no contexto do projeto e **documentar o projeto** usando notações habitualmente usadas na área da engenharia de software e dos processos (por exemplo, **UML**, **BPMN**).
 

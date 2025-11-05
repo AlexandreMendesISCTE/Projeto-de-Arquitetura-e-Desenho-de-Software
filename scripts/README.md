@@ -1,4 +1,4 @@
-# 📜 Scripts de Automação - Map Route Explorer
+﻿# 📜 Scripts de Automação - Map Route Explorer
 
 Esta pasta contém scripts úteis para desenvolvimento, build e deployment do projeto.
 

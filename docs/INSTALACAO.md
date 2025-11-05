@@ -1,4 +1,4 @@
-# 📦 Guia de Instalação - Map Route Explorer
+﻿# 📦 Guia de Instalação - Map Route Explorer
 
 Este guia fornece instruções detalhadas para instalar e configurar o Map Route Explorer usando Docker, o método recomendado para execução da aplicação.
 
@@ -200,7 +200,7 @@ docker-compose down
 **Vantagens:**
 - ✅ Melhor desempenho gráfico
 - ✅ Menor latência
-- ✅ Suporte a tela cheia
+- ✅ Suporte a ecrã completo
 - ✅ Maior resolução
 
 ##### **Portas Expostas**

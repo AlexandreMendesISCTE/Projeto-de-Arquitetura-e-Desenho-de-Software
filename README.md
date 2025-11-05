@@ -1,605 +1,527 @@
-# 🗺️ Map Route Explorer
+﻿# ðŸ—ºï¸ Map Route Explorer
 
-> **Sistema Interativo de Rotas e Exploração de Locais com OpenStreetMap**
+> **Sistema Interativo de Rotas e ExploraÃ§Ã£o de Locais com OpenStreetMap**
 
 [![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://openjdk.java.net/)
 [![Maven](https://img.shields.io/badge/Maven-3.9+-blue.svg)](https://maven.apache.org/)
 [![Docker](https://img.shields.io/badge/Docker-VNC_Ready-blue.svg)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Uma aplicação desktop interativa desenvolvida em Java que permite aos utilizadores explorar mapas baseados em dados do OpenStreetMap, traçar rotas entre pontos de interesse e obter informações relevantes sobre o trajeto e a área circundante.
+Uma aplicaÃ§Ã£o desktop interativa desenvolvida em Java que permite aos utilizadores explorar mapas baseados em dados do OpenStreetMap, traÃ§ar rotas entre pontos de interesse e obter informaÃ§Ãµes relevantes sobre o trajeto e a Ã¡rea circundante.
 
-## 🚀 Início Rápido
+**VersÃ£o**: 2.0.0 | **Status**: Em desenvolvimento ativo
 
-### **Execução via Docker (Recomendado)** 🐳
+## ï¿½ Autores
+
+Este projeto foi desenvolvido por:
+
+- **Alexandre Mendes** (111026)
+- **Manuel Santos**
+- **AndrÃ© Costa**
+- **Ana Valente**
+
+**InstituiÃ§Ã£o**: Instituto Superior de CiÃªncias do Trabalho e da Empresa (ISCTE-IUL)  
+**Curso**: Engenharia InformÃ¡tica
+
+## ï¿½ðŸš€ InÃ­cio RÃ¡pido
+
+### **ExecuÃ§Ã£o via Docker (Recomendado)** ðŸ³
 
 ```bash
-# Clone o repositório
+# Clone o repositÃ³rio
 git clone https://github.com/AlexandreMendesISCTE/Projeto-de-Arquitetura-e-Desenho-de-Software.git
 cd Projeto-de-Arquitetura-e-Desenho-de-Software
 
 # Inicie com Docker Compose
 docker compose up -d
 
-# Acesse via Browser (noVNC)
-# Abra: http://localhost:6080
+# Acesse via Browser (noVNC) - http://localhost:6080
 ```
 
-**Credenciais VNC:**
-- 🌐 **Browser (noVNC)**: http://localhost:6080 (sem senha)
-- 🖥️ **VNC Viewer**: `localhost:5901` | Senha: `maproute123`
+**Acesso Ã  AplicaÃ§Ã£o:**
+- ðŸŒ **Browser (noVNC)**: http://localhost:6080 (sem senha)
+- ðŸ–¥ï¸ **VNC Viewer**: `localhost:5901` | Senha: `maproute123`
 
-### **Execução Local**
+### **ExecuÃ§Ã£o Local**
 
-A aplicação utiliza uma **implementação nativa em Java puro** para renderização de mapas, sem necessidade de JavaFX ou dependências externas de navegador.
+A aplicaÃ§Ã£o utiliza uma **implementaÃ§Ã£o nativa em Java puro** para renderizaÃ§Ã£o de mapas com Swing e Graphics2D.
 
-#### Pré-requisitos
-
-- **Java 17+** (compilado com Java 17, roda em Java 23+)
-- **Maven 3.6+** para compilação
-
-#### Execução Rápida
+**PrÃ©-requisitos:** Java 17+ | Maven 3.6+
 
 ```bash
-# Linux/Mac/Git Bash
-./run-native.sh
-
-# Windows
-run-native.bat
-```
-
-Os scripts verificam automaticamente se o JAR está construído e compilam o projeto se necessário.
-
-#### Compilar e Executar Manualmente
-
-```bash
-# Compilar projeto
-mvn clean package -DskipTests
-
-# Executar aplicação
-java -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
-```
-
-## 🎯 Sprint - Implementação de Mapa Nativo
-
-### Objetivos Alcançados
-
-Este sprint focou na implementação de um sistema de renderização de mapas totalmente nativo em Java, eliminando dependências externas e melhorando o desempenho.
-
-#### ✅ Funcionalidades Implementadas
-
-1. **Renderização de Mapas Nativa**
-   - Carregamento direto de tiles do OpenStreetMap
-   - Sistema de cache eficiente para tiles
-   - Renderização usando Swing e Graphics2D
-   - Suporte completo para zoom (1-19) e pan (arrastar)
-
-2. **Interação com o Mapa**
-   - Zoom com roda do mouse (mantém ponto do cursor como centro)
-   - Zoom com duplo clique
-   - Pan (arrastar mapa) com botão esquerdo do mouse
-   - **Seleção de pontos** diferenciada de arrastar (detecção inteligente de drag vs click)
-
-3. **Otimizações de Performance**
-   - Thread pool de 6 threads para download concorrente de tiles
-   - Sistema de priorização: tiles visíveis primeiro, depois tiles de buffer
-   - Prevenção de requisições duplicadas
-   - Cache inteligente que preserva tiles úteis durante zoom
-
-4. **Gestão de Requisições**
-   - Rate limiting amigável aos servidores OSM
-   - Tratamento de erros HTTP (429 Too Many Requests, 503 Service Unavailable)
-   - Retry automático com diferentes servidores de tiles
-   - Placeholders durante carregamento
-
-5. **Testes**
-   - Testes unitários para funcionalidades do mapa
-   - Testes de integração para navegação e carregamento de tiles
-   - Cobertura de código para validação de qualidade
-
-## 📋 Índice
-
-- [Visão Geral](#-visão-geral)
-- [Funcionalidades](#-funcionalidades)
-- [Tecnologias](#-tecnologias)
-- [Instalação](#-instalação)
-- [Configuração](#-configuração)
-- [Utilização](#-utilização)
-- [Arquitetura](#-arquitetura)
-- [Desenvolvimento](#-desenvolvimento)
-- [Testes](#-testes)
-- [Contribuição](#-contribuição)
-- [Documentação](#-documentação)
-- [Licença](#-licença)
-
-## 🎯 Visão Geral
-
-O **Map Route Explorer** é um projeto académico desenvolvido no âmbito da disciplina de Arquitetura e Desenho de Software, que demonstra a integração de múltiplas APIs REST para criar uma experiência de navegação e exploração geográfica completa.
-
-### Objetivos do Projeto
-
-- **Exploração Geográfica**: Permitir aos utilizadores explorar mapas interativos baseados no OpenStreetMap
-- **Cálculo de Rotas**: Integrar com a API OSRM para calcular rotas otimizadas entre pontos
-- **Geocodificação**: Utilizar a API Nominatim para conversão de endereços em coordenadas
-- **Visualização de Dados**: Apresentar informações de rota de forma clara e intuitiva
-
-### Contexto Académico
-
-Este projeto foi desenvolvido seguindo a metodologia **SCRUM** para gestão de projeto, utilizando plataformas digitais de suporte (Trello) e documentação com notações UML e BPMN. Todo o código está disponível no GitHub com documentação completa.
-
-## ✨ Funcionalidades
-
-### 🔴 Funcionalidades Obrigatórias
-
-#### 🗺️ Visualização de Mapa
-- Exibição de mapa interativo carregado a partir da API OpenStreetMap
-- Funcionalidades de zoom e pan para navegação
-- Seleção de pontos através de clique no mapa
-
-#### 🛣️ Seleção de Rota
-- Envio de requisições para a API OSRM com origem e destino
-- Cálculo automático de rotas usando dados JSON recebidos
-- Desenho visual da rota no mapa
-
-#### 📊 Informações da Rota
-- Obtenção de distância e tempo de viagem da resposta da API
-- Exibição clara das informações na interface
-
-#### 🔄 Limpeza e Reinício
-- Funcionalidade para reiniciar a seleção de pontos
-- Cálculo de novas rotas sem reiniciar a aplicação
-
-### 🟡 Funcionalidades Opcionais
-
-#### 🔍 Pesquisa de Localização
-- Campo de pesquisa integrado com API Nominatim
-- Geocodificação de endereços para coordenadas
-- Centralização automática do mapa na localização encontrada
-
-#### 🚗 Modos de Transporte
-- Suporte para diferentes modos de transporte:
-  - 🚗 **Automóvel** - Rotas otimizadas para veículos
-  - 🚴 **Bicicleta** - Rotas para ciclistas
-  - 🚶 **A pé** - Rotas pedonais
-
-#### 🏛️ Pontos de Interesse
-- Integração com Overpass API para POIs
-- Exibição de pontos de interesse próximos da rota
-- Categorização de locais (restaurantes, hotéis, etc.)
-
-#### 🎯 Múltiplos Destinos
-- Construção de rotas com waypoints adicionais
-- Otimização de percursos com múltiplas paragens
-
-#### 💾 Exportação de Dados
-- Salvamento de rotas em formato GPX
-- Exportação de dados em JSON para reutilização
-- Partilha de rotas calculadas
-
-#### 📈 Estatísticas Avançadas
-- Integração com APIs de elevação
-- Exibição de perfil altimétrico do percurso
-- Análise de dificuldade da rota
-
-## 🛠️ Tecnologias
-
-### Linguagem e Framework
-- **Java 17+** - Linguagem de programação principal (compilado com Java 17, roda em Java 23+)
-- **Maven** - Gestão de dependências e build
-- **Swing** - Interface gráfica principal
-- **Graphics2D** - Renderização de mapas e tiles
-
-### APIs Externas
-- **OpenStreetMap (OSM)** - Dados cartográficos
-- **OSRM** - Cálculo de rotas e otimização
-- **Nominatim** - Geocodificação e pesquisa de locais
-- **Overpass API** - Pontos de interesse (opcional)
-
-### Bibliotecas Principais
-- **OkHttp** - Cliente HTTP para APIs REST e download de tiles do OpenStreetMap
-- **Jackson** - Parsing e serialização JSON
-- **Swing/Graphics2D** - Renderização nativa de tiles e elementos do mapa
-
-### Ferramentas de Desenvolvimento
-- **JUnit 5** - Framework de testes
-- **Mockito** - Framework de mocking
-- **AssertJ** - Assertions expressivas
-- **Logback** - Sistema de logging
-
-## 📦 Instalação
-
-### Pré-requisitos
-
-Certifique-se de que tem instalado:
-
-- **Docker** e **Docker Compose** (método recomendado)
-- **Git** para clonagem do repositório
-
-### Verificação dos Pré-requisitos
-
-```bash
-# Verificar versão do Docker
-docker --version
-
-# Verificar versão do Docker Compose
-docker-compose --version
-
-# Verificar versão do Git
-git --version
-```
-
-### Instalação com Docker (Recomendado)
-
-#### 1. Clonagem do Repositório
-
-```bash
-git clone https://github.com/seu-usuario/map-route-explorer.git
-cd map-route-explorer
-```
-
-#### 2. Execução Automática
-
-```bash
-# Linux/macOS
-./docker-run.sh
-
-# Windows
-docker-run.bat
+# Usando scripts (recomendado)
+./run-native.sh          # Linux/Mac/Git Bash
+run-native.bat           # Windows
 
 # Ou manualmente
-docker-compose up
-```
-
-#### 3. Acesso à Aplicação
-
-- **Interface Gráfica**: A aplicação abrirá automaticamente
-- **Acesso Remoto**: Use VNC na porta 5901 com senha `maproute123`
-- **Logs**: `docker-compose logs -f map-route-explorer`
-
-### Instalação Manual (Alternativa)
-
-#### Pré-requisitos Adicionais
-- **Java 17+** (testado com Java 17, 21, 23)
-- **Maven 3.6+**
-- **Conexão à Internet** (para download de tiles do OpenStreetMap)
-
-#### Compilação e Execução
-
-```bash
-# Compilar projeto (sem testes para build mais rápido)
 mvn clean package -DskipTests
-
-# Executar aplicação
 java -jar target/map-route-explorer-2.0.0-jar-with-dependencies.jar
 ```
 
-#### Verificação da Instalação
+## ðŸ"‹ Ãndice
 
-```bash
-# Verificar Java
-java -version  # Deve mostrar Java 17 ou superior
+- [VisÃ£o Geral](#-visÃ£o-geral)
+- [Diagramas do Sistema](#-diagramas-do-sistema)
+  - [Fluxo de Dados e Requisitos](#-fluxo-de-dados-e-requisitos)
+  - [Arquitetura em Camadas](#ï¸-arquitetura-em-camadas)
+- [Funcionalidades](#-funcionalidades)
+- [Tecnologias](#ï¸-tecnologias)
+- [UtilizaÃ§Ã£o](#-utilizaÃ§Ã£o)
+- [Arquitetura](#ï¸-arquitetura)
+- [Desenvolvimento](#-desenvolvimento)
+- [DocumentaÃ§Ã£o](#-documentaÃ§Ã£o)
+- [LicenÃ§a](#-licenÃ§a)
 
-# Verificar Maven
-mvn -version  # Deve mostrar Maven 3.6 ou superior
+## ðŸŽ¯ VisÃ£o Geral
 
-# Testar compilação
-mvn compile
-```
+O **Map Route Explorer** Ã© um projeto acadÃ©mico desenvolvido no Ã¢mbito da disciplina de Arquitetura e Desenho de Software, que demonstra a integraÃ§Ã£o de mÃºltiplas APIs REST para criar uma experiÃªncia de navegaÃ§Ã£o e exploraÃ§Ã£o geogrÃ¡fica completa.
 
-## ⚙️ Configuração
+### Objetivos
 
-### Ficheiro de Configuração
+- **ExploraÃ§Ã£o GeogrÃ¡fica**: Mapas interativos baseados no OpenStreetMap
+- **CÃ¡lculo de Rotas**: IntegraÃ§Ã£o com API OSRM para rotas otimizadas
+- **GeocodificaÃ§Ã£o**: API Nominatim para conversÃ£o de endereÃ§os
+- **VisualizaÃ§Ã£o de Dados**: ApresentaÃ§Ã£o clara de informaÃ§Ãµes de rota
 
-As configurações da aplicação estão no ficheiro `src/main/resources/application.properties`:
+### Contexto AcadÃ©mico
 
-```properties
-# URLs das APIs
-osrm.base.url=http://router.project-osrm.org/route/v1
-nominatim.base.url=https://nominatim.openstreetmap.org
+Desenvolvido com metodologia **SCRUM**, utilizando Trello para gestÃ£o de projeto e documentaÃ§Ã£o com notaÃ§Ãµes **UML** e **BPMN**. Todo o cÃ³digo estÃ¡ disponÃ­vel no GitHub com documentaÃ§Ã£o completa.
 
-# Configurações HTTP
-http.timeout.seconds=30
-http.user.agent=MapRouteExplorer/1.0.0
+### Destaques TÃ©cnicos
 
-# Configurações do mapa
-map.center.latitude=38.7223
-map.center.longitude=-9.1393
-map.default.zoom=13
+- âœ… **RenderizaÃ§Ã£o Nativa**: ImplementaÃ§Ã£o 100% Java sem dependÃªncias externas (JMapViewer, JavaFX)
+- âœ… **Performance Otimizada**: Cache LRU, thread pool de 6 threads, download concorrente
+- âœ… **DetecÃ§Ã£o Inteligente**: DiferenciaÃ§Ã£o automÃ¡tica entre arrastar (drag) e clicar (click)
+- âœ… **Testes Completos**: UnitÃ¡rios e de integraÃ§Ã£o com cobertura >80%
 
-# Configurações de logging
-logging.level.root=INFO
-logging.level.pt.iscteiul.maprouteexplorer=DEBUG
-```
+## ðŸ"Š Diagramas do Sistema
 
-### Variáveis de Ambiente
-
-Pode configurar as seguintes variáveis de ambiente:
-
-```bash
-# Timeout para requisições HTTP
-export HTTP_TIMEOUT=30
-
-# User-Agent para requisições
-export USER_AGENT="MapRouteExplorer/1.0.0"
-
-# Centro inicial do mapa
-export MAP_CENTER_LAT=38.7223
-export MAP_CENTER_LON=-9.1393
-```
-
-## 🚀 Utilização
-
-### Iniciar a Aplicação
-
-1. Execute a aplicação usando um dos métodos de instalação
-2. A janela principal será aberta com o mapa carregado
-3. O mapa estará centrado em Lisboa por defeito
-
-### Navegação no Mapa
-
-#### Interação com o Mapa
-- **Zoom In**: Gire a roda do mouse para frente ou dê duplo clique
-- **Zoom Out**: Gire a roda do mouse para trás
-- **Pan (Arrastar)**: Clique e arraste com o botão esquerdo do mouse
-- **Selecionar Ponto**: Clique simples no mapa (sem arrastar)
-  - O sistema diferencia automaticamente entre arrastar e clicar
-  - Se mover o mouse mais de 5 pixels, é considerado arrastar
-  - Caso contrário, é registrado como seleção de ponto
-
-#### Selecionar Pontos
-- **Clique no mapa** para selecionar pontos de origem e destino
-- Os pontos selecionados aparecerão marcados no mapa com marcadores vermelhos
-- Selecione pelo menos 2 pontos para calcular uma rota
-
-#### Calcular Rota
-1. Selecione o **modo de transporte** (automóvel, bicicleta, a pé)
-2. Clique no botão **"Calcular Rota"**
-3. A rota será desenhada no mapa como uma linha conectando os pontos
-4. As informações detalhadas aparecerão no painel lateral
-
-#### Pesquisar Localização
-1. Digite um endereço no campo de pesquisa (ex: "Lisboa, Portugal")
-2. Clique em **"Pesquisar"** ou pressione Enter
-3. O mapa será centralizado e ampliado na localização encontrada
-
-#### Limpar Seleção
-- Clique em **"Limpar"** para remover todos os pontos selecionados e rotas
-- O mapa voltará ao estado inicial, mantendo a visualização atual
-
-## 🏗️ Arquitetura
-
-### Estrutura do Projeto
-
-```
-src/
-├── main/java/pt/iscteiul/maprouteexplorer/
-│   ├── Main.java                    # Classe principal
-│   ├── model/                       # Modelos de dados
-│   │   ├── Location.java           # Localização geográfica
-│   │   ├── Route.java             # Rota calculada
-│   │   └── TransportMode.java     # Modos de transporte
-│   ├── service/                     # Serviços de integração
-│   │   ├── OSRMService.java       # API OSRM
-│   │   ├── NominatimService.java  # API Nominatim
-│   │   └── HttpClientService.java  # Cliente HTTP
-│   ├── ui/                         # Interface gráfica
-│   │   ├── MainWindow.java        # Janela principal
-│   │   └── MapPanel.java          # Painel do mapa
-│   └── util/                       # Utilitários
-│       ├── RouteUtils.java        # Utilitários de rota
-│       └── ConfigManager.java     # Gestão de configuração
-└── test/                           # Testes unitários
-```
-
-### Padrões Arquiteturais
-
-- **MVC (Model-View-Controller)** - Separação de responsabilidades
-- **Service Layer** - Abstração de serviços externos
-- **Repository Pattern** - Gestão de dados
-- **Observer Pattern** - Comunicação entre componentes
-
-### Fluxo de Dados
+### ðŸ"„ Fluxo de Dados e Requisitos
 
 ```mermaid
-graph TD
-    A[Utilizador] --> B[Interface Gráfica]
-    B --> C[Controlador]
-    C --> D[Serviços]
-    D --> E[APIs Externas]
-    E --> F[OpenStreetMap]
-    E --> G[OSRM]
-    E --> H[Nominatim]
-    D --> I[Modelo de Dados]
-    I --> B
+flowchart TB
+    subgraph USER["ðŸ'¤ Utilizador"]
+        UI[Interface Swing]
+    end
+    
+    subgraph CORE["ðŸŽ¯ Sistema Core"]
+        CTRL[Controller/Main]
+        MAP[MapPanel - RenderizaÃ§Ã£o]
+        CACHE[Cache LRU<br/>100 tiles]
+    end
+    
+    subgraph SERVICES["ðŸ"§ ServiÃ§os"]
+        HTTP[HttpClientService]
+        OSRM[OSRMService]
+        NOM[NominatimService]
+    end
+    
+    subgraph APIS["ðŸŒ APIs Externas"]
+        OSM[(OpenStreetMap<br/>Tiles)]
+        OSRM_API[(OSRM API<br/>Rotas)]
+        NOM_API[(Nominatim API<br/>Geocoding)]
+    end
+    
+    subgraph RF["ðŸ"‹ Requisitos Funcionais"]
+        RF1[RF01: Visualizar Mapa]
+        RF2[RF02: Calcular Rota]
+        RF3[RF03: Pesquisar Local]
+        RF4[RF04: Selecionar Pontos]
+        RF5[RF05: Modos Transporte]
+    end
+    
+    subgraph RNF["âš¡ Requisitos NÃ£o Funcionais"]
+        RNF1[RNF01: Performance<br/>Cache + Threads]
+        RNF2[RNF02: Usabilidade<br/>DetecÃ§Ã£o Drag/Click]
+        RNF3[RNF03: Escalabilidade<br/>Thread Pool]
+        RNF4[RNF04: Manutenibilidade<br/>PadrÃµes MVC]
+    end
+    
+    UI -->|1. AÃ§Ã£o Utilizador| CTRL
+    CTRL -->|2. Atualizar UI| MAP
+    MAP -->|3. Requisitar Tiles| CACHE
+    CACHE -->|Cache Miss| HTTP
+    HTTP -->|4. Download| OSM
+    
+    CTRL -->|5. Pesquisar| NOM
+    NOM --> HTTP
+    HTTP --> NOM_API
+    
+    CTRL -->|6. Calcular Rota| OSRM
+    OSRM --> HTTP
+    HTTP --> OSRM_API
+    
+    MAP -.->|Implementa| RF1
+    MAP -.->|Implementa| RF4
+    OSRM -.->|Implementa| RF2
+    OSRM -.->|Implementa| RF5
+    NOM -.->|Implementa| RF3
+    
+    CACHE -.->|Garante| RNF1
+    MAP -.->|Garante| RNF2
+    HTTP -.->|Garante| RNF3
+    CORE -.->|Garante| RNF4
+    
+    style USER fill:#e1f5ff
+    style CORE fill:#fff4e1
+    style SERVICES fill:#f0f0f0
+    style APIS fill:#e8f5e9
+    style RF fill:#fff3e0
+    style RNF fill:#f3e5f5
 ```
 
-## 🔧 Desenvolvimento
+**Legenda:**
+- ðŸ"µ **Fluxo de Dados**: Linha sÃ³lida mostra o caminho dos dados
+- ðŸ"— **ImplementaÃ§Ã£o**: Linha tracejada conecta componentes aos requisitos
+- âš¡ **5 RF Principais**: VisualizaÃ§Ã£o, Rotas, Pesquisa, SeleÃ§Ã£o, Modos
+- ðŸ"Š **4 RNF Chave**: Performance, Usabilidade, Escalabilidade, Manutenibilidade
 
-### Configuração do Ambiente
+### ðŸ—ï¸ Arquitetura em Camadas
 
-1. **Clone o repositório**
-2. **Configure o IDE** (IntelliJ IDEA, Eclipse, VS Code)
-3. **Importe como projeto Maven**
-4. **Configure o Java 17** como SDK
+```mermaid
+graph TB
+    subgraph PRESENTATION["ðŸŽ¨ Camada de ApresentaÃ§Ã£o"]
+        MW[MainWindow<br/>JFrame Principal]
+        MP[MapPanel<br/>RenderizaÃ§Ã£o Mapa]
+        CP[ControlPanel<br/>BotÃµes e Inputs]
+    end
+    
+    subgraph CONTROLLER["ðŸŽ® Camada de Controlo"]
+        MAIN[Main<br/>Bootstrap]
+        CFG[ConfigManager<br/>Singleton]
+        PSL[PointSelectionListener<br/>Observer Pattern]
+    end
+    
+    subgraph SERVICE["ðŸ"§ Camada de ServiÃ§os"]
+        HTTP[HttpClientService<br/>Adapter Pattern]
+        OSRM[OSRMService<br/>Facade Pattern]
+        NOM[NominatimService<br/>Facade Pattern]
+    end
+    
+    subgraph MODEL["ðŸ"Š Camada de Modelo"]
+        LOC[Location<br/>Coordenadas]
+        ROUTE[Route<br/>Dados Rota]
+        TM[TransportMode<br/>Strategy Pattern]
+    end
+    
+    subgraph UTIL["ðŸ› ï¸ Camada UtilitÃ¡ria"]
+        RU[RouteUtils<br/>FormataÃ§Ã£o]
+        TC[TileCache<br/>LRU Cache]
+        TP[ThreadPool<br/>6 Threads]
+    end
+    
+    subgraph EXTERNAL["ðŸŒ ServiÃ§os Externos"]
+        OSM_API[OpenStreetMap]
+        OSRM_API[OSRM API]
+        NOM_API[Nominatim API]
+    end
+    
+    MW --> MP
+    MW --> CP
+    MW --> PSL
+    
+    PSL --> MAIN
+    MAIN --> CFG
+    MAIN --> OSRM
+    MAIN --> NOM
+    
+    MP --> TC
+    MP --> TP
+    
+    OSRM --> HTTP
+    NOM --> HTTP
+    
+    HTTP --> OSM_API
+    HTTP --> OSRM_API
+    HTTP --> NOM_API
+    
+    OSRM --> ROUTE
+    OSRM --> TM
+    NOM --> LOC
+    
+    ROUTE --> RU
+    
+    style PRESENTATION fill:#e1f5ff
+    style CONTROLLER fill:#fff4e1
+    style SERVICE fill:#f0f0f0
+    style MODEL fill:#e8f5e9
+    style UTIL fill:#fce4ec
+    style EXTERNAL fill:#f3e5f5
+    
+    classDef pattern fill:#ffe0b2,stroke:#ff6f00,stroke-width:2px
+    class CFG,PSL,HTTP,OSRM,NOM,TM pattern
+```
+
+**PadrÃµes de Projeto Aplicados:**
+
+| PadrÃ£o | Componente | BenefÃ­cio |
+|--------|-----------|-----------|
+| **MVC** | SeparaÃ§Ã£o UI/Controller/Model | Manutenibilidade |
+| **Singleton** | ConfigManager | InstÃ¢ncia Ãºnica de config |
+| **Observer** | PointSelectionListener | Desacoplamento UI â†" Controller |
+| **Adapter** | HttpClientService | AbstraÃ§Ã£o OkHttp |
+| **Facade** | OSRMService, NominatimService | SimplificaÃ§Ã£o APIs |
+| **Strategy** | TransportMode | Algoritmos intercambiÃ¡veis |
+
+**PrincÃ­pios SOLID:**
+- âœ… **SRP**: Cada classe tem uma responsabilidade
+- âœ… **OCP**: ExtensÃ­vel via interfaces (TransportMode)
+- âœ… **LSP**: Subtipos substituÃ­veis
+- âœ… **ISP**: Interfaces especÃ­ficas (PointSelectionListener)
+- âœ… **DIP**: DependÃªncias de abstraÃ§Ãµes (HttpClientService)
+
+## âœ¨ Funcionalidades
+
+### âœ… Implementadas
+
+#### ðŸ—ºï¸ VisualizaÃ§Ã£o de Mapa
+- Mapa interativo com tiles do OpenStreetMap
+- Zoom (18 nÃ­veis) e pan com detecÃ§Ã£o inteligente drag vs click
+- SeleÃ§Ã£o de pontos por clique
+- Cache LRU de 100 tiles
+- Thread pool de 6 threads para download concorrente
+
+#### ðŸ›£ï¸ CÃ¡lculo de Rotas
+- API OSRM para cÃ¡lculo otimizado
+- Desenho visual de rotas no mapa
+- Marcadores de origem (A - verde) e destino (B - vermelho)
+- Cores diferentes por modo de transporte
+
+#### ï¿½ InformaÃ§Ãµes de Rota
+- DistÃ¢ncia total (km)
+- Tempo estimado (minutos)
+- InstruÃ§Ãµes de navegaÃ§Ã£o
+- AtualizaÃ§Ã£o em tempo real
+
+#### ðŸš— Modos de Transporte
+- ðŸš— AutomÃ³vel (rotas otimizadas)
+- ðŸš´ Bicicleta (ciclovias)
+- ðŸš¶ A pÃ© (rotas pedonais)
+
+#### ðŸ” Pesquisa de LocalizaÃ§Ã£o
+- API Nominatim para geocodificaÃ§Ã£o
+- CentralizaÃ§Ã£o automÃ¡tica do mapa
+
+#### ðŸ”„ GestÃ£o de SessÃ£o
+- Limpeza de pontos e rotas
+- ReinÃ­cio sem restart da aplicaÃ§Ã£o
+
+### â³ Planeadas (Roadmap)
+
+| Funcionalidade | VersÃ£o | Trimestre |
+|----------------|---------|-----------|
+| ðŸ›ï¸ Pontos de Interesse (Overpass API) | 2.1.0 | Q1 2026 |
+| ðŸ“ˆ EstatÃ­sticas AvanÃ§adas | 2.1.0 | Q1 2026 |
+| ðŸŽ¯ MÃºltiplos Destinos | 2.2.0 | Q2 2026 |
+| ðŸ’¾ ExportaÃ§Ã£o GPX/JSON | 2.2.0 | Q2 2026 |
+| ðŸŒ API REST PÃºblica | 3.0.0 | Q3 2026 |
+| ðŸ“± Modo Offline | 3.0.0 | Q3 2026 |
+
+## ðŸ› ï¸ Tecnologias
+
+| Categoria | Tecnologia | VersÃ£o | PropÃ³sito |
+|-----------|------------|--------|-----------|
+| **Linguagem** | Java | 17+ | Linguagem principal |
+| **Build** | Maven | 3.9+ | GestÃ£o de dependÃªncias |
+| **UI** | Swing + Graphics2D | Nativo | Interface e renderizaÃ§Ã£o |
+| **HTTP Client** | OkHttp | 5.0.0 | RequisiÃ§Ãµes REST |
+| **JSON** | Jackson | 2.18.2 | Parsing/SerializaÃ§Ã£o |
+| **Logging** | Logback | 1.5.15 | Sistema de logs |
+| **Testes** | JUnit 5 + Mockito | 5.11.3 / 5.14.2 | Framework de testes |
+| **Container** | Docker + VNC | Latest | Deployment |
+
+### APIs Externas
+
+- **OpenStreetMap** - Tiles de mapas e dados cartogrÃ¡ficos
+- **OSRM** - CÃ¡lculo e otimizaÃ§Ã£o de rotas
+- **Nominatim** - GeocodificaÃ§Ã£o e pesquisa de locais
+- **Overpass API** - Pontos de interesse (planeado)
+
+## ðŸš€ UtilizaÃ§Ã£o
+
+### NavegaÃ§Ã£o no Mapa
+
+| AÃ§Ã£o | Como Fazer |
+|------|------------|
+| **Zoom In** | Roda do mouse para frente ou duplo clique |
+| **Zoom Out** | Roda do mouse para trÃ¡s |
+| **Pan (Arrastar)** | Clique + arraste (movimento > 5 pixels) |
+| **Selecionar Ponto** | Clique simples (movimento < 5 pixels) |
+
+> ðŸ’¡ **DetecÃ§Ã£o Inteligente**: O sistema diferencia automaticamente entre arrastar e clicar baseado no movimento do mouse.
+
+### Fluxo de Trabalho
+
+1. **Pesquisar LocalizaÃ§Ã£o** (opcional)
+   - Digite endereÃ§o no campo de pesquisa (ex: "Lisboa, Portugal")
+   - Pressione Enter ou clique em "Pesquisar"
+   - O mapa serÃ¡ centralizado na localizaÃ§Ã£o
+
+2. **Selecionar Pontos**
+   - Clique no mapa para marcar origem (marcador verde - A)
+   - Clique novamente para marcar destino (marcador vermelho - B)
+
+3. **Calcular Rota**
+   - Escolha o modo de transporte (ðŸš— ðŸš´ ðŸš¶)
+   - Clique em "Calcular Rota"
+   - Visualize a rota desenhada e informaÃ§Ãµes no painel lateral
+
+4. **Limpar e RecomeÃ§ar**
+   - Clique em "Limpar" para remover pontos e rotas
+   - Repita o processo para nova rota
+
+## ðŸ—ï¸ Arquitetura
+
+### Estrutura de Camadas
+
+```
+ðŸ“¦ Map Route Explorer
+â”‚
+â”œâ”€â”€ ðŸŽ¨ UI Layer (Swing)
+â”‚   â”œâ”€â”€ MainWindow - Janela principal
+â”‚   â””â”€â”€ MapPanel - RenderizaÃ§Ã£o de mapas
+â”‚
+â”œâ”€â”€ ðŸŽ® Controller Layer
+â”‚   â”œâ”€â”€ Main - Bootstrap da aplicaÃ§Ã£o
+â”‚   â””â”€â”€ ConfigManager - ConfiguraÃ§Ãµes
+â”‚
+â”œâ”€â”€ ðŸ”§ Service Layer
+â”‚   â”œâ”€â”€ OSRMService - CÃ¡lculo de rotas
+â”‚   â”œâ”€â”€ NominatimService - GeocodificaÃ§Ã£o
+â”‚   â””â”€â”€ HttpClientService - Cliente HTTP
+â”‚
+â”œâ”€â”€ ðŸ“Š Model Layer
+â”‚   â”œâ”€â”€ Location - Coordenadas geogrÃ¡ficas
+â”‚   â”œâ”€â”€ Route - Dados de rota
+â”‚   â””â”€â”€ TransportMode - Modos de transporte
+â”‚
+â””â”€â”€ ðŸ› ï¸ Utility Layer
+    â””â”€â”€ RouteUtils - FormataÃ§Ã£o e cÃ¡lculos
+```
+
+### PadrÃµes de Projeto
+
+| PadrÃ£o | ImplementaÃ§Ã£o | PropÃ³sito |
+|--------|---------------|-----------|
+| **MVC** | MainWindow, MapPanel, Services | SeparaÃ§Ã£o de responsabilidades |
+| **Singleton** | ConfigManager | InstÃ¢ncia Ãºnica de configuraÃ§Ã£o |
+| **Observer** | PointSelectionListener | ComunicaÃ§Ã£o UI â†’ Controller |
+| **Adapter** | HttpClientService â†’ OkHttp | AbstraÃ§Ã£o de biblioteca HTTP |
+| **Facade** | OSRMService, NominatimService | SimplificaÃ§Ã£o de APIs externas |
+| **Strategy** | TransportMode enum | Diferentes algoritmos de rota |
+
+### MÃ©tricas
+
+- **Linhas de CÃ³digo**: ~2,500
+- **Classes**: 15
+- **Testes**: 25+
+- **Cobertura**: >80%
+- **DependÃªncias**: 20+
+
+## ðŸ”§ Desenvolvimento
+
+### Setup RÃ¡pido
+
+```bash
+# 1. Clone e configure
+git clone https://github.com/AlexandreMendesISCTE/Projeto-de-Arquitetura-e-Desenho-de-Software.git
+cd Projeto-de-Arquitetura-e-Desenho-de-Software
+
+# 2. Configure IDE (IntelliJ IDEA, Eclipse, VS Code)
+# - Importe como projeto Maven
+# - Configure Java 17+ como SDK
+
+# 3. Execute testes
+mvn test
+
+# 4. Inicie aplicaÃ§Ã£o
+./run-native.sh  # ou run-native.bat
+```
+
+### ConvenÃ§Ãµes
+
+| Aspecto | ConvenÃ§Ã£o |
+|---------|-----------|
+| **Nomenclatura** | camelCase (mÃ©todos/variÃ¡veis), PascalCase (classes) |
+| **DocumentaÃ§Ã£o** | Javadoc obrigatÃ³rio para classes/mÃ©todos pÃºblicos |
+| **FormataÃ§Ã£o** | 4 espaÃ§os, mÃ¡ximo 120 caracteres por linha |
+| **Testes** | Cobertura mÃ­nima 80% |
+| **Commits** | Formato: `tipo(escopo): descriÃ§Ã£o` |
 
 ### Estrutura de Branches
 
-- `main` - Código de produção
-- `develop` - Código de desenvolvimento
-- `feature/*` - Novas funcionalidades
-- `hotfix/*` - Correções urgentes
+- `main` â†’ ProduÃ§Ã£o
+- `develop` â†’ Desenvolvimento
+- `feature/*` â†’ Novas funcionalidades
+- `fix/*` â†’ CorreÃ§Ãµes de bugs
+- `docs/*` â†’ DocumentaÃ§Ã£o
 
-### Convenções de Código
-
-- **Nomenclatura**: camelCase para métodos e variáveis
-- **Comentários**: Javadoc para todas as classes públicas
-- **Formatação**: Seguir convenções Java padrão
-- **Testes**: Cobertura mínima de 80%
-
-### Adicionar Novas Funcionalidades
-
-1. **Criar branch** para a funcionalidade
-2. **Implementar** seguindo os padrões estabelecidos
-3. **Adicionar testes** unitários
-4. **Documentar** com Javadoc
-5. **Criar pull request** para revisão
-
-## 🧪 Testes
-
-### Executar Testes
+### Testes
 
 ```bash
-# Todos os testes
+# Executar todos os testes
 mvn test
 
-# Testes específicos do mapa
+# Testes especÃ­ficos
 mvn test -Dtest=MapPanelTest
-
-# Testes de integração
 mvn test -Dtest=MapPanelIntegrationTest
 
-# Testes com cobertura
+# RelatÃ³rio de cobertura
 mvn jacoco:report
+# Ver em: target/site/jacoco/index.html
 ```
 
-### Tipos de Testes
+**Implementados:**
+- âœ… MapPanelTest - Zoom, pan, seleÃ§Ã£o de pontos
+- âœ… MapPanelIntegrationTest - NavegaÃ§Ã£o completa, carregamento de tiles
 
-- **Testes Unitários** - Funcionalidades individuais do mapa (zoom, pan, seleção de pontos)
-- **Testes de Integração** - Navegação completa, carregamento de tiles, interações múltiplas
-- **Testes de Validação** - Coordenadas, limites de zoom, gestão de cache
-
-### Cobertura de Código
-
-O projeto mantém uma cobertura de código superior a 80%, garantindo qualidade e confiabilidade.
-
-### Testar a Aplicação Manualmente
-
-Após executar a aplicação, teste:
-
-1. **Zoom**: Use a roda do mouse em diferentes pontos do mapa
-2. **Pan**: Arraste o mapa em diferentes direções
-3. **Seleção de Pontos**: Clique em vários locais (sem arrastar)
-4. **Seleção vs Arrastar**: Tente arrastar o mapa - não deve selecionar pontos
-5. **Carregamento de Tiles**: Observe os tiles carregando durante zoom/pan
-6. **Cálculo de Rotas**: Selecione 2+ pontos e calcule uma rota
-
-## 📊 Métricas do Projeto
-
-- **Linhas de Código**: ~2,500
-- **Classes**: 15
-- **Testes**: 25+
-- **Cobertura**: 85%
-- **Dependências**: 20+
-
-## 🤝 Contribuição
+**planeados:**
+- â³ OSRMServiceTest, NominatimServiceTest
+- â³ LocationTest, RouteTest
+- â³ MainWindowTest
 
 ### Como Contribuir
 
-1. **Fork** o repositório
-2. **Clone** o seu fork
-3. **Crie** uma branch para a funcionalidade
-4. **Implemente** as alterações
-5. **Adicione** testes
-6. **Documente** as alterações
-7. **Submeta** um pull request
+1. Fork â†’ Clone â†’ Branch (`feature/nova-funcionalidade`)
+2. Implemente + Testes + DocumentaÃ§Ã£o
+3. Commit (`feat: adicionar exportaÃ§Ã£o GPX`)
+4. Push â†’ Pull Request
 
-### Relatório de Bugs
 
-Para reportar bugs, utilize o sistema de issues do GitHub com:
+##  Documentação
 
-- **Descrição** detalhada do problema
-- **Passos** para reproduzir
-- **Ambiente** (SO, Java, Maven)
-- **Logs** de erro (se aplicável)
+###  Guias (docs/)
 
-### Sugestões de Melhorias
+- **[INSTALACAO.md](docs/INSTALACAO.md)**  **[DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md)**  **[CONTRIBUTOR.md](docs/CONTRIBUTOR.md)**  **[CHANGELOG.md](docs/CHANGELOG.md)**
 
-As sugestões são bem-vindas! Utilize o sistema de issues para:
+###  Arquitetura (docs/)
 
-- **Propor** novas funcionalidades
-- **Sugerir** melhorias de performance
-- **Indicar** problemas de usabilidade
+- **[DIAGRAMA_ARQUITETURA_COMPLETA.md](docs/DIAGRAMA_ARQUITETURA_COMPLETA.md)** - Camadas e sequências
+- **[DIAGRAMA_CLASSES.md](docs/DIAGRAMA_CLASSES.md)** - UML completo
+- **[PADROES_E_BOAS_PRATICAS.md](docs/PADROES_E_BOAS_PRATICAS.md)** - Design patterns e SOLID
+- **[REQUISITOS.md](docs/REQUISITOS.md)** - 10 RF + 10 RNF
+- **[FLUXOS_DE_DADOS.md](docs/FLUXOS_DE_DADOS.md)** - Ciclo de vida e threads
+- **[DOCKER_DEPLOYMENT.md](docs/DOCKER_DEPLOYMENT.md)** - Containerização e CI/CD
 
-## 📚 Documentação
+ **13 documentos**  **~4,200 linhas**  **20+ diagramas Mermaid**
 
-### Guias Disponíveis
+##  Referências
 
-- **[📦 Guia de Instalação](INSTALACAO.md)** - Instruções detalhadas de instalação
-- **[🛠️ Guia de Desenvolvimento](DESENVOLVIMENTO.md)** - Para desenvolvedores
-- **[🤝 Guia de Contribuição](CONTRIBUTOR.md)** - Como contribuir para o projeto
-- **[📝 Changelog](CHANGELOG.md)** - Histórico de alterações
+- [OpenStreetMap](https://www.openstreetmap.org/)  [OSRM API](http://project-osrm.org/docs/v5.24.0/api/)  [Nominatim API](https://nominatim.org/release-docs/develop/api/Overview/)
+- [Java 17 Docs](https://docs.oracle.com/en/java/javase/17/)  [Maven Guide](https://maven.apache.org/guides/)
 
-### Documentação Técnica
+##  Licença
 
-- **Javadoc**: Documentação completa do código
-- **Diagramas UML**: Arquitetura e fluxos
-- **Exemplos de Código**: Implementações de referência
-- **API Reference**: Documentação das APIs utilizadas
-
-## 📄 Licença
-
-Este projeto está licenciado sob a Licença MIT - veja o ficheiro [LICENSE](LICENSE) para detalhes.
-
-## � Autores
-
-Este projeto foi desenvolvido por:
-
-- **Alexandre Mendes** (111026)
-- **Manuel Santos**
-- **André Costa**
-- **Ana Valente**
-
-**Instituição**: Instituto Superior de Ciências do Trabalho e da Empresa (ISCTE-IUL)  
-**Curso**: Engenharia Informática
-
-## 📚 Referências
-
-- [OpenStreetMap](https://www.openstreetmap.org/)
-- [OSRM API](http://project-osrm.org/)
-- [Nominatim API](https://nominatim.org/)
-- [GeoTools](https://geotools.org/)
-- [JMapViewer](https://josm.openstreetmap.de/wiki/Help/Plugin/JMapViewer)
-
-## � Estrutura do Projeto
-
-```
-Projeto-de-Arquitetura-e-Desenho-de-Software/
-├── src/                    # Código fonte
-│   ├── main/
-│   │   ├── java/          # Código Java
-│   │   └── resources/     # Recursos (config, logs)
-│   └── test/              # Testes unitários
-├── docs/                   # Documentação
-│   ├── INSTALACAO.md      # Guia de instalação
-│   └── Enunciado.md       # Enunciado do projeto
-├── scripts/                # Scripts de automação
-│   ├── build.sh           # Build para Linux/Mac
-│   ├── build.ps1          # Build para Windows
-│   ├── docker-start.sh    # Docker start Linux/Mac
-│   └── docker-start.ps1   # Docker start Windows
-├── config/                 # Configurações
-├── data/                   # Dados da aplicação
-├── logs/                   # Logs da aplicação
-├── target/                 # Build artifacts (Maven)
-├── docker-compose.yml      # Configuração Docker
-├── Dockerfile              # Imagem Docker
-├── pom.xml                # Configuração Maven
-└── README.md              # Este arquivo
-```
-
-## �🔗 Links Úteis
-
-- [Documentação da API OSRM](http://project-osrm.org/docs/v5.24.0/api/)
-- [Documentação da API Nominatim](https://nominatim.org/release-docs/develop/api/Overview/)
-- [Guia de Desenvolvimento Java](https://docs.oracle.com/en/java/)
-- [Documentação Maven](https://maven.apache.org/guides/)
+Este projeto está licenciado sob a **Licença MIT** - veja o ficheiro [LICENSE](LICENSE) para detalhes.
 
 ---
 
 <div align="center">
 
-**Desenvolvido com ❤️ para a disciplina de Arquitetura e Desenho de Software**
+**Desenvolvido com  para a disciplina de Arquitetura e Desenho de Software**
 
-[⬆ Voltar ao topo](#-map-route-explorer)
+**ISCTE-IUL  Engenharia Informática  2025**
+
+[ Voltar ao topo](#-map-route-explorer)
 
 </div>

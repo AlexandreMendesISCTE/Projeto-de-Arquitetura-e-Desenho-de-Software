@@ -381,7 +381,7 @@ public class MapPanel extends JPanel implements MapPanelInterface {
     }
 
     /**
-     * Carrega os tiles visíveis na tela com buffer adicional para melhor
+     * Carrega os tiles visíveis no ecrã com buffer adicional para melhor
      * performance.
      */
     private void loadVisibleTiles() {
@@ -598,7 +598,7 @@ public class MapPanel extends JPanel implements MapPanelInterface {
     }
 
     /**
-     * Converte localização geográfica para coordenadas de tela.
+     * Converte localização geográfica para coordenadas de ecrã.
      */
     private Point locationToScreen(Location location) {
         double[] centerTile = latLonToTileXY(mapCenter.getLatitude(), mapCenter.getLongitude(), zoomLevel);
@@ -614,7 +614,7 @@ public class MapPanel extends JPanel implements MapPanelInterface {
     }
 
     /**
-     * Converte coordenadas de tela para localização geográfica.
+     * Converte coordenadas de ecrã para localização geográfica.
      */
     private Location screenToLocation(int x, int y) {
         double[] centerTile = latLonToTileXY(mapCenter.getLatitude(), mapCenter.getLongitude(), zoomLevel);

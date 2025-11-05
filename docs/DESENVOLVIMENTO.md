@@ -1,4 +1,4 @@
-# 🛠️ Guia de Desenvolvimento - Map Route Explorer
+﻿# 🛠️ Guia de Desenvolvimento - Map Route Explorer
 
 Este guia fornece informações detalhadas para desenvolvedores que pretendem contribuir para o projeto Map Route Explorer.
 
@@ -198,20 +198,20 @@ src/main/java/pt/iscteiul/maprouteexplorer/
 ```
 src/test/java/pt/iscteiul/maprouteexplorer/
 ├── model/
-│   ├── LocationTest.java              # Testes de Location (planejado)
-│   ├── RouteTest.java                 # Testes de Route (planejado)
-│   └── TransportModeTest.java         # Testes de TransportMode (planejado)
+│   ├── LocationTest.java              # Testes de Location (planeado)
+│   ├── RouteTest.java                 # Testes de Route (planeado)
+│   └── TransportModeTest.java         # Testes de TransportMode (planeado)
 ├── service/
-│   ├── OSRMServiceTest.java           # Testes de OSRM (planejado)
-│   ├── NominatimServiceTest.java      # Testes de Nominatim (planejado)
-│   └── HttpClientServiceTest.java     # Testes de HTTP (planejado)
+│   ├── OSRMServiceTest.java           # Testes de OSRM (planeado)
+│   ├── NominatimServiceTest.java      # Testes de Nominatim (planeado)
+│   └── HttpClientServiceTest.java     # Testes de HTTP (planeado)
 ├── ui/
-│   ├── MainWindowTest.java            # Testes de UI (planejado)
+│   ├── MainWindowTest.java            # Testes de UI (planeado)
 │   ├── MapPanelTest.java              # ✅ Testes de mapa (implementado)
 │   └── MapPanelIntegrationTest.java   # ✅ Testes de integração (implementado)
 └── util/
-    ├── RouteUtilsTest.java            # Testes de utilitários (planejado)
-    └── ConfigManagerTest.java         # Testes de configuração (planejado)
+    ├── RouteUtilsTest.java            # Testes de utilitários (planeado)
+    └── ConfigManagerTest.java         # Testes de configuração (planeado)
 ```
 
 **Testes Implementados:**
@@ -444,9 +444,9 @@ git commit -m "docs: atualizar README com novas instruções"
 
 ### 4. Integração Contínua
 
-> **📝 Nota**: A configuração de CI/CD está planejada para implementação futura.
+> **📝 Nota**: A configuração de CI/CD está planeada para implementação futura.
 
-#### Pipeline de CI/CD (Planejado)
+#### Pipeline de CI/CD (planeado)
 
 ```yaml
 # .github/workflows/ci.yml

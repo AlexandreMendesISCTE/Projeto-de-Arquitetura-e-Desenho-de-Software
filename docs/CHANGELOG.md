@@ -1,4 +1,4 @@
-# 📝 Changelog - Map Route Explorer
+﻿# 📝 Changelog - Map Route Explorer
 
 Todas as alterações notáveis neste projeto serão documentadas neste ficheiro.
 
@@ -48,7 +48,7 @@ Este projeto foi desenvolvido por:
 #### Documentado
 - **Requisitos Funcionais** (RF-01 a RF-10):
   - ✅ 6 implementados (Visualização Mapa, Seleção Rota, Informações Rota, Limpeza, Pesquisa, Modos Transporte)
-  - ⏳ 4 planejados (POIs, Múltiplos Destinos, Exportação, Estatísticas)
+  - ⏳ 4 planeados (POIs, Múltiplos Destinos, Exportação, Estatísticas)
 
 - **Requisitos Não Funcionais** (RNF-01 a RNF-10):
   - ✅ 9 implementados (Performance, Escalabilidade, Manutenibilidade, Portabilidade, Usabilidade, Segurança, Confiabilidade, Disponibilidade, Documentação)
@@ -157,7 +157,7 @@ Este projeto foi desenvolvido por:
 
 #### Melhorado
 - **Build Performance**: Cache de dependências Maven otimizado em multi-stage
-- **Security**: Execução com usuário não-root no Docker (appuser)
+- **Security**: Execução com utilizador não-root no Docker (appuser)
 - **Compatibilidade**: Funciona com Java 17 local e Java 23 no Docker
 - **Documentação**: Todos os ficheiros .md atualizados e consistentes
 
@@ -170,7 +170,7 @@ Este projeto foi desenvolvido por:
 
 ## [Não Lançado]
 
-### Planejado
+### planeado
 - Funcionalidade de exportação GPX
 - Suporte a múltiplos destinos
 - Integração com Overpass API para POIs

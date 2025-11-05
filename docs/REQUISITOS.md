@@ -1,4 +1,4 @@
-# 🎯 Requisitos do Sistema - Map Route Explorer
+﻿# 🎯 Requisitos do Sistema - Map Route Explorer
 
 **Versão**: 2.0.0  
 **Data**: 5 de Novembro de 2025
@@ -71,23 +71,23 @@ mindmap
         A pé rotas pedonais
         Enum TransportMode
         Mudança dinâmica
-      RF-07 POIs Planejado
+      RF-07 POIs planeado
         Overpass API
         Restaurantes hotéis postos
         Ao longo da rota
         Filtragem por categoria
         Informações detalhadas
-      RF-08 Múltiplos Destinos Planejado
+      RF-08 Múltiplos Destinos planeado
         Waypoints adicionais
         Construir URL OSRM múltiplos pontos
         Otimização de ordem
         Rotas complexas
-      RF-09 Exportação Dados Planejado
+      RF-09 Exportação Dados planeado
         Salvar rotas GPX JSON
         Reutilização de dados
         Importação de rotas
         Compartilhamento
-      RF-10 Estatísticas Avançadas Planejado
+      RF-10 Estatísticas Avançadas planeado
         Perfil altimétrico
         Elevation API
         Gráficos interativos
@@ -182,10 +182,10 @@ graph LR
         RF04[RF-04<br/>Limpeza Reinício]
         RF05[RF-05<br/>Pesquisa Localização]
         RF06[RF-06<br/>Modos Transporte]
-        RF07[RF-07<br/>POIs<br/>PLANEJADO]
-        RF08[RF-08<br/>Múltiplos Destinos<br/>PLANEJADO]
-        RF09[RF-09<br/>Exportação<br/>PLANEJADO]
-        RF10[RF-10<br/>Estatísticas<br/>PLANEJADO]
+        RF07[RF-07<br/>POIs<br/>planeadO]
+        RF08[RF-08<br/>Múltiplos Destinos<br/>planeadO]
+        RF09[RF-09<br/>Exportação<br/>planeadO]
+        RF10[RF-10<br/>Estatísticas<br/>planeadO]
     end
     
     subgraph "💻 IMPLEMENTAÇÃO"
@@ -207,10 +207,10 @@ graph LR
     RF04 -->|Implementado| IMPL_RF04
     RF05 -->|Implementado| IMPL_RF05
     RF06 -->|Implementado| IMPL_RF06
-    RF07 -.->|Planejado v2.1| IMPL_RF07
-    RF08 -.->|Planejado v2.2| IMPL_RF08
-    RF09 -.->|Planejado v2.2| IMPL_RF09
-    RF10 -.->|Planejado v2.1| IMPL_RF10
+    RF07 -.->|planeado v2.1| IMPL_RF07
+    RF08 -.->|planeado v2.2| IMPL_RF08
+    RF09 -.->|planeado v2.2| IMPL_RF09
+    RF10 -.->|planeado v2.1| IMPL_RF10
     
     subgraph "⚙️ REQUISITOS NÃO FUNCIONAIS"
         RNF01[RNF-01<br/>Performance]
@@ -381,8 +381,8 @@ graph LR
 - ✅ Campo de pesquisa funcional
 - ✅ Geocodificação via Nominatim
 - ✅ Centralização automática
-- ⏳ Sugestões (planejado)
-- ⏳ Histórico (planejado)
+- ⏳ Sugestões (planeado)
+- ⏳ Histórico (planeado)
 
 **Prioridade**: Alta  
 **Status**: ✅ Implementado (básico)  
@@ -430,8 +430,8 @@ graph LR
 - ⏳ Informações detalhadas
 
 **Prioridade**: Baixa  
-**Status**: ⏳ Planejado  
-**Versão**: 2.1.0 (planejado)
+**Status**: ⏳ planeado  
+**Versão**: 2.1.0 (planeado)
 
 ---
 
@@ -445,8 +445,8 @@ graph LR
 - ⏳ Visualização de rota completa
 
 **Prioridade**: Baixa  
-**Status**: ⏳ Planejado  
-**Versão**: 2.2.0 (planejado)
+**Status**: ⏳ planeado  
+**Versão**: 2.2.0 (planeado)
 
 ---
 
@@ -460,8 +460,8 @@ graph LR
 - ⏳ Importação de rotas
 
 **Prioridade**: Baixa  
-**Status**: ⏳ Planejado  
-**Versão**: 2.2.0 (planejado)
+**Status**: ⏳ planeado  
+**Versão**: 2.2.0 (planeado)
 
 ---
 
@@ -475,8 +475,8 @@ graph LR
 - ⏳ Análise de subidas/descidas
 
 **Prioridade**: Baixa  
-**Status**: ⏳ Planejado  
-**Versão**: 2.1.0 (planejado)
+**Status**: ⏳ planeado  
+**Versão**: 2.1.0 (planeado)
 
 ---
 
@@ -686,7 +686,7 @@ graph LR
 
 **Requisitos Funcionais**:
 - ✅ Implementados: 6/10 (60%)
-- ⏳ Planejados: 4/10 (40%)
+- ⏳ planeados: 4/10 (40%)
 
 **Requisitos Não Funcionais**:
 - ✅ Implementados: 9/10 (90%)

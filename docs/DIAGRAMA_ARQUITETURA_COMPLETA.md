@@ -1,4 +1,4 @@
-# 🏗️ Diagrama Completo de Arquitetura - Map Route Explorer
+﻿# 🏗️ Diagrama Completo de Arquitetura - Map Route Explorer
 
 **Versão**: 2.0.0  
 **Data**: 5 de Novembro de 2025
@@ -92,7 +92,7 @@ graph TB
         MAIN -->|configura| LOGBACK
     end
     
-    subgraph "🧪 CAMADA DE TESTES (Test Layer - Planejado)"
+    subgraph "🧪 CAMADA DE TESTES (Test Layer - planeado)"
         TEST_LOCATION[LocationTest.java<br/>Testes Unitários Location<br/>Validação coordenadas,<br/>Cálculos distância]
         TEST_ROUTE[RouteTest.java<br/>Testes Unitários Route<br/>Validação waypoints,<br/>Métricas de rota]
         TEST_OSRM[OSRMServiceTest.java<br/>Testes Integração OSRM<br/>Mocking HTTP,<br/>Validação JSON parsing]

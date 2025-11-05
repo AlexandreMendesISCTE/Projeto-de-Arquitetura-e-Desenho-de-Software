@@ -1,4 +1,4 @@
-# 🌊 Fluxos de Dados e Processos - Map Route Explorer
+﻿# 🌊 Fluxos de Dados e Processos - Map Route Explorer
 
 **Versão**: 2.0.0  
 **Data**: 5 de Novembro de 2025

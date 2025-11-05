@@ -1,4 +1,4 @@
-# 📚 Documentação do Projeto - Map Route Explorer
+﻿# 📚 Documentação do Projeto - Map Route Explorer
 
 Esta pasta contém toda a documentação técnica e arquitetural do Map Route Explorer.
 
@@ -62,7 +62,7 @@ Este projeto foi desenvolvido por:
 - **[DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)**: Containerização e deployment
   - Dockerfile multi-stage
   - docker-compose.yml
-  - Pipeline CI/CD (planejado)
+  - Pipeline CI/CD (planeado)
   - Troubleshooting
 
 ### 📝 Projeto Académico
