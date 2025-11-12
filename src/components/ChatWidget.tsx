@@ -14,8 +14,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Send, X, Minimize2 } from 'lucide-react'
 import { useRouteStore } from '../store/route.store'
 import { useMapStore } from '../store/map.store'
-import { sendMessageToN8N } from '../services/api/n8n.service'
-import nominatimService from '../services/api/nominatim.service'
+import { sendMessageToN8N, N8NResponse } from '../services/api/n8n.service'
 import chatBotIcon from '/1eb05f325ec50a15c8b045f3428d6d5e-removebg-preview.png'
 
 interface Message {
@@ -41,7 +40,7 @@ const ChatWidget = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const { setOrigin, setDestination, addWaypoint, origin, destination, waypoints } = useRouteStore()
+  const { setOrigin, setDestination, addWaypoint, setWaypoints, origin, destination, waypoints } = useRouteStore()
   const { setCenter, setWaitingForInput, waitingForInput } = useMapStore()
 
   /**
@@ -63,84 +62,98 @@ const ChatWidget = () => {
   /**
    * Processa resposta do n8n e atualiza o mapa conforme necessário
    */
-  const processN8NResponse = async (response: string) => {
-    // Detectar comandos de localização na resposta
-    const lowerResponse = response.toLowerCase()
-
-    // Verificar se a resposta contém coordenadas ou endereços
-    if (lowerResponse.includes('origem') || lowerResponse.includes('partida') || lowerResponse.includes('onde começa')) {
-      setWaitingForInput('origin')
-      addBotMessage(response + '\n\n👆 Clique no mapa para definir a origem ou digite o nome do local.')
-    } else if (lowerResponse.includes('destino') || lowerResponse.includes('chegada') || lowerResponse.includes('onde termina')) {
-      setWaitingForInput('destination')
-      addBotMessage(response + '\n\n👆 Clique no mapa para definir o destino ou digite o nome do local.')
-    } else if (lowerResponse.includes('paragem') || lowerResponse.includes('parada') || lowerResponse.includes('onde parar')) {
-      setWaitingForInput('waypoint')
-      addBotMessage(response + '\n\n👆 Clique no mapa para adicionar uma paragem ou digite o nome do local.')
-    } else {
-      // Tentar extrair nome de localização da resposta e fazer geocoding
-      await tryExtractAndSetLocation(response)
-      addBotMessage(response)
-    }
-  }
-
-  /**
-   * Tenta extrair nome de localização da resposta e definir automaticamente
-   */
-  const tryExtractAndSetLocation = async (response: string) => {
-    // Padrões comuns para identificar localizações
-    const originPattern = /(?:origem|partida|começar em|início em):\s*([^,\.\n]+)/i
-    const destinationPattern = /(?:destino|chegada|terminar em|fim em):\s*([^,\.\n]+)/i
-    const waypointPattern = /(?:paragem|parada em):\s*([^,\.\n]+)/i
-
-    let match: RegExpMatchArray | null = null
-    let locationType: 'origin' | 'destination' | 'waypoint' | null = null
-
-    // Verificar padrão de origem
-    match = response.match(originPattern)
-    if (match && match[1]) {
-      locationType = 'origin'
-    } else {
-      // Verificar padrão de destino
-      match = response.match(destinationPattern)
-      if (match && match[1]) {
-        locationType = 'destination'
-      } else {
-        // Verificar padrão de paragem
-        match = response.match(waypointPattern)
-        if (match && match[1]) {
-          locationType = 'waypoint'
-        }
-      }
-    }
-
-    if (match && match[1] && locationType) {
-      const locationName = match[1].trim()
-      try {
-        // Fazer geocoding do nome da localização
-        const results = await nominatimService.search(locationName)
-        if (results && results.length > 0) {
-          const locationData = results[0]
-
-          // Definir localização baseado no tipo detectado
-          if (locationType === 'origin') {
-            setOrigin(locationData)
-            setCenter([locationData.lat, locationData.lng])
-            addBotMessage(`✅ Origem definida: ${locationData.name || locationName}`)
-          } else if (locationType === 'destination') {
-            setDestination(locationData)
-            setCenter([locationData.lat, locationData.lng])
-            addBotMessage(`✅ Destino definido: ${locationData.name || locationName}`)
-          } else if (locationType === 'waypoint') {
-            addWaypoint(locationData)
-            setCenter([locationData.lat, locationData.lng])
-            addBotMessage(`✅ Paragem adicionada: ${locationData.name || locationName}`)
+  const processN8NResponse = (response: N8NResponse) => {
+    // Processar ação se existir
+    if (response.action) {
+      switch (response.action) {
+        case 'set_route':
+          // Definir origem e destino quando ambos estão presentes
+          if (response.origin && response.destination) {
+            setOrigin({
+              lat: response.origin.lat,
+              lng: response.origin.lng,
+              name: response.origin.name,
+            })
+            setDestination({
+              lat: response.destination.lat,
+              lng: response.destination.lng,
+              name: response.destination.name,
+            })
+            
+            // Centrar mapa entre origem e destino
+            const centerLat = (response.origin.lat + response.destination.lat) / 2
+            const centerLng = (response.origin.lng + response.destination.lng) / 2
+            setCenter([centerLat, centerLng])
+            
+            // Mensagem de confirmação formatada
+            const confirmMessage = `✅ Processado. 🗺️ Rota definida:\n📍 Origem: ${response.origin.name}\n🎯 Destino: ${response.destination.name}`
+            addBotMessage(confirmMessage)
+          } else {
+            addBotMessage(response.message)
           }
-        }
-      } catch (error) {
-        console.error('Erro ao fazer geocoding:', error)
+          break
+
+        case 'set_origin':
+          if (response.location) {
+            setOrigin({
+              lat: response.location.lat,
+              lng: response.location.lng,
+              name: response.location.name,
+            })
+            setCenter([response.location.lat, response.location.lng])
+            addBotMessage(`✅ Origem definida: ${response.location.name}`)
+          } else {
+            addBotMessage(response.message)
+          }
+          break
+
+        case 'set_destination':
+          if (response.location) {
+            setDestination({
+              lat: response.location.lat,
+              lng: response.location.lng,
+              name: response.location.name,
+            })
+            setCenter([response.location.lat, response.location.lng])
+            addBotMessage(`✅ Destino definido: ${response.location.name}`)
+          } else {
+            addBotMessage(response.message)
+          }
+          break
+
+        case 'add_waypoint':
+          if (response.location) {
+            addWaypoint({
+              lat: response.location.lat,
+              lng: response.location.lng,
+              name: response.location.name,
+            })
+            setCenter([response.location.lat, response.location.lng])
+            addBotMessage(`✅ Paragem adicionada: ${response.location.name}`)
+          } else {
+            addBotMessage(response.message)
+          }
+          break
+
+        case 'clear_route':
+          // Reset route store
+          setOrigin(null)
+          setDestination(null)
+          setWaypoints([])
+          addBotMessage(response.message || 'Rota limpa.')
+          break
+
+        default:
+          // Apenas mostrar mensagem se não houver ação específica
+          addBotMessage(response.message)
       }
+    } else {
+      // Sem ação específica, apenas mostrar mensagem
+      addBotMessage(response.message)
     }
+
+    // Limpar waitingForInput após processar resposta
+    setWaitingForInput(null)
   }
 
   /**

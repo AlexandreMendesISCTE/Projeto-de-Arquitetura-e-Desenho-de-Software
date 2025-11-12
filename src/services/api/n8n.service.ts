@@ -61,10 +61,20 @@ interface N8NPayload {
 /**
  * Interface para a resposta do n8n
  */
-interface N8NResponse {
+export interface N8NResponse {
   message: string
-  action?: 'set_origin' | 'set_destination' | 'add_waypoint' | 'clear_route' | null
+  action?: 'set_origin' | 'set_destination' | 'add_waypoint' | 'set_route' | 'clear_route' | null
   location?: {
+    name: string
+    lat: number
+    lng: number
+  }
+  origin?: {
+    name: string
+    lat: number
+    lng: number
+  }
+  destination?: {
     name: string
     lat: number
     lng: number
@@ -80,7 +90,7 @@ interface N8NResponse {
  * Envia mensagem do utilizador para o workflow n8n
  * 
  * @param context - Contexto atual da aplicação incluindo mensagem e estado da rota
- * @returns Promise<string> - Resposta do bot em formato texto
+ * @returns Promise<N8NResponse> - Resposta completa do n8n
  * @throws Error - Se ocorrer erro na comunicação com n8n
  * 
  * @example
@@ -96,7 +106,7 @@ export const sendMessageToN8N = async (context: {
   message: string
   currentRoute: RouteContext
   waitingForInput: 'origin' | 'destination' | 'waypoint' | null
-}): Promise<string> => {
+}): Promise<N8NResponse> => {
   try {
     // Preparar payload para o n8n
     const payload: N8NPayload = {
@@ -116,13 +126,18 @@ export const sendMessageToN8N = async (context: {
       },
     })
 
+    console.log('Resposta do n8n:', response.data)
+
     // Verificar se a resposta contém mensagem
     if (response.data && response.data.message) {
-      return response.data.message
+      return response.data
     }
 
     // Fallback se a resposta não tiver o formato esperado
-    return 'Mensagem processada com sucesso.'
+    return {
+      message: 'Mensagem processada com sucesso.',
+      action: null,
+    }
   } catch (error) {
     console.error('Erro ao comunicar com n8n:', error)
 
