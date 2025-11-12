@@ -9,9 +9,9 @@ export const useRouteStore = create<RouteState>((set) => ({
   route: null,
   transportMode: TransportMode.DRIVING,
   isLoading: false,
-  setOrigin: (location) => set({ origin: location }),
-  setDestination: (location) => set({ destination: location }),
-  setWaypoints: (waypoints) => set({ waypoints }),
+  setOrigin: (location) => set({ origin: location, route: null }),
+  setDestination: (location) => set({ destination: location, route: null }),
+  setWaypoints: (waypoints) => set({ waypoints, route: null }),
   addWaypoint: (waypoint) => set((state) => ({ waypoints: [...state.waypoints, waypoint] })),
   removeWaypoint: (index) => set((state) => ({ 
     waypoints: state.waypoints.filter((_, i) => i !== index),

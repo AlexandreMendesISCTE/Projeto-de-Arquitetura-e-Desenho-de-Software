@@ -1,0 +1,30 @@
+# .dockerignore
+# Ficheiros e diretórios a ignorar no build Docker
+
+node_modules
+npm-debug.log
+dist
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+coverage
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Documentação
+README.md
+docs/
+*.md
+
+# Docker files (não precisam estar na imagem)
+docker-compose.yml
+Dockerfile
+.dockerignore
+

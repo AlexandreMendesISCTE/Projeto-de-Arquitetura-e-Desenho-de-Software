@@ -44,3 +44,30 @@ body {
   border: none;
 }
 
+/* Garantir que o chat widget fique sempre acima do mapa Leaflet */
+.leaflet-container {
+  z-index: 1 !important;
+}
+
+.leaflet-control-container {
+  z-index: 1000 !important;
+}
+
+.leaflet-pane {
+  z-index: 400 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1000 !important;
+}
+
+/* Chat widget sempre no topo - usar z-index muito alto */
+button[style*="zIndex: 99999"],
+div[style*="zIndex: 99999"],
+button[style*="z-index: 99999"],
+div[style*="z-index: 99999"] {
+  z-index: 99999 !important;
+  position: fixed !important;
+}
+

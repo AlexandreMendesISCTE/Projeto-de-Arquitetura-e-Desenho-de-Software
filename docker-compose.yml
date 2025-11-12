@@ -1,0 +1,55 @@
+# docker-compose.yml
+# Configuração para deploy da aplicação com nginx como proxy reverso
+
+version: '3.8'
+
+services:
+  # Aplicação React
+  map-route-explorer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Configurar variáveis de ambiente no build
+        VITE_N8N_WEBHOOK_URL: ${VITE_N8N_WEBHOOK_URL:-http://192.168.100.178:5678/webhook/chat}
+        VITE_OSRM_BASE_URL: ${VITE_OSRM_BASE_URL:-http://router.project-osrm.org/route/v1}
+        VITE_NOMINATIM_BASE_URL: ${VITE_NOMINATIM_BASE_URL:-https://nominatim.openstreetmap.org}
+        VITE_MAP_DEFAULT_CENTER_LAT: ${VITE_MAP_DEFAULT_CENTER_LAT:-38.7223}
+        VITE_MAP_DEFAULT_CENTER_LNG: ${VITE_MAP_DEFAULT_CENTER_LNG:--9.1393}
+        VITE_MAP_DEFAULT_ZOOM: ${VITE_MAP_DEFAULT_ZOOM:-13}
+    container_name: map-route-explorer-app
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx como proxy reverso
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: map-route-explorer-nginx
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx-logs:/var/log/nginx
+    depends_on:
+      - map-route-explorer
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  app-network:
+    driver: bridge
+    name: map-route-explorer-network
+
