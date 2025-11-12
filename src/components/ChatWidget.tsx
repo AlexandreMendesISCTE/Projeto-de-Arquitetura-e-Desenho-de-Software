@@ -42,7 +42,7 @@ const ChatWidget = () => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const { setOrigin, setDestination, addWaypoint, origin, destination, waypoints } = useRouteStore()
-  const { setCenter, setZoom, setWaitingForInput, waitingForInput } = useMapStore()
+  const { setCenter, setWaitingForInput, waitingForInput } = useMapStore()
 
   /**
    * Scroll automático para a última mensagem
@@ -178,9 +178,9 @@ const ChatWidget = () => {
       const context = {
         message: inputMessage,
         currentRoute: {
-          origin: origin ? { name: origin.name, lat: origin.lat, lng: origin.lng } : null,
-          destination: destination ? { name: destination.name, lat: destination.lat, lng: destination.lng } : null,
-          waypoints: waypoints.map((wp) => ({ name: wp.name, lat: wp.lat, lng: wp.lng })),
+          origin: origin ? { name: origin.name || '', lat: origin.lat, lng: origin.lng } : null,
+          destination: destination ? { name: destination.name || '', lat: destination.lat, lng: destination.lng } : null,
+          waypoints: waypoints.map((wp) => ({ name: wp.name || '', lat: wp.lat, lng: wp.lng })),
         },
         waitingForInput: waitingForInput,
       }
