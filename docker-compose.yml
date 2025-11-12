@@ -17,6 +17,7 @@ services:
         VITE_MAP_DEFAULT_CENTER_LAT: ${VITE_MAP_DEFAULT_CENTER_LAT:-38.7223}
         VITE_MAP_DEFAULT_CENTER_LNG: ${VITE_MAP_DEFAULT_CENTER_LNG:--9.1393}
         VITE_MAP_DEFAULT_ZOOM: ${VITE_MAP_DEFAULT_ZOOM:-13}
+        VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY:-}
     container_name: map-route-explorer-app
     restart: unless-stopped
     networks:
