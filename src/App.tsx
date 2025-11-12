@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import MapRouteExplorer from './components/MapRouteExplorer'
+import ChatWidget from './components/ChatWidget'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,6 +15,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <MapRouteExplorer />
+      <ChatWidget />
     </QueryClientProvider>
   )
 }
