@@ -122,7 +122,6 @@ function BoundsEnforcer() {
     // Handle dragend to ensure center stays within bounds
     const handleDragEnd = () => {
       const center = map.getCenter()
-      const bounds = map.getBounds()
       
       // Check if center is outside valid longitude range
       let newLng = center.lng
