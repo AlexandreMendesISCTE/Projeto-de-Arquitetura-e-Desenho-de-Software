@@ -36,6 +36,57 @@ body {
   * {
     -webkit-tap-highlight-color: transparent;
   }
+  
+  /* Improve touch targets on mobile */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better spacing for mobile inputs */
+  input, textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Add bottom spacing for RouteInfo to avoid chat widget overlap */
+  .mobile-bottom-spacing {
+    margin-bottom: 80px;
+  }
+}
+
+@media (min-width: 641px) {
+  .mobile-bottom-spacing {
+    margin-bottom: 0;
+  }
+}
+
+/* Slide-in animation for transport mode menu - from right to left */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.2s ease-out;
+}
+
+/* Prevent text selection while dragging */
+.cursor-grab {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cursor-grabbing {
+  cursor: grabbing;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Custom marker styles */

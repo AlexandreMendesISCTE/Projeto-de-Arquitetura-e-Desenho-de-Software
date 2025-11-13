@@ -39,9 +39,32 @@ const ChatWidget = () => {
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  
+  // Draggable state - always reset to default position on mount
+  const [position, setPosition] = useState<{ x: number | null; y: number | null }>({ x: null, y: null })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+  const [hasDragged, setHasDragged] = useState(false)
+  const hasUserDraggedRef = useRef(false) // Track if user manually dragged (use ref for closure access)
+  const [isMobile, setIsMobile] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const chatWindowRef = useRef<HTMLDivElement>(null)
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const { setOrigin, setDestination, addWaypoint, setWaypoints, origin, destination, waypoints } = useRouteStore()
   const { setCenter, setWaitingForInput, waitingForInput } = useMapStore()
+  
+  // Track waypoints count to detect changes
+  const waypointsCount = waypoints.filter(wp => wp.lat !== 0 || wp.lng !== 0).length
 
   /**
    * Scroll automático para a última mensagem
@@ -58,6 +81,193 @@ const ChatWidget = () => {
       inputRef.current?.focus()
     }
   }, [isOpen, isMinimized])
+
+  /**
+   * Calculate default position below the green arrow button in destination row (mobile)
+   * Or bottom-right for desktop
+   * Recalculates on resize, waypoints changes, and DOM mutations to maintain responsive positioning
+   */
+  useEffect(() => {
+    const calculateDefaultPosition = () => {
+      // On desktop, use bottom-right position (don't set position, use CSS)
+      if (!isMobile) {
+        // Reset to null to use CSS positioning (bottom-right)
+        setPosition({ x: null, y: null })
+        return
+      }
+
+      // On mobile, position below the green arrow button in destination row
+      const destinationField = document.querySelector('[data-destination-field]')
+      if (destinationField && buttonRef.current) {
+        const greenButton = destinationField.querySelector('button[class*="bg-green-500"]')
+        if (greenButton) {
+          const rect = greenButton.getBoundingClientRect()
+          const chatButton = buttonRef.current
+          const chatButtonWidth = chatButton.offsetWidth || 56
+          
+          // Calculate responsive gap based on viewport height
+          // Use a small fixed gap plus a small percentage of viewport for better scaling
+          const gap = Math.max(2, window.innerHeight * 0.02) // At least 2px, or 2% of viewport height
+          
+          // Position below the green button, aligned to its right edge
+          // Use right edge of green button minus chat button width
+          const x = rect.right - chatButtonWidth
+          const y = rect.bottom + gap
+          
+          // Only update if user hasn't manually dragged
+          // This allows responsive updates on resize while maintaining user's manual position
+          if (!hasUserDraggedRef.current) {
+            setPosition({ x, y })
+          } else {
+            // If user has dragged, constrain to viewport but keep their position
+            setPosition(prev => {
+              if (prev.x === null || prev.y === null) return prev
+              const windowWidth = window.innerWidth
+              const windowHeight = window.innerHeight
+              const constrainedX = Math.max(0, Math.min(prev.x, windowWidth - chatButtonWidth))
+              const constrainedY = Math.max(0, Math.min(prev.y, windowHeight - chatButton.offsetHeight))
+              return { x: constrainedX, y: constrainedY }
+            })
+          }
+        }
+      }
+    }
+
+    // Calculate position after a short delay to ensure DOM is ready
+    const timeout = setTimeout(calculateDefaultPosition, 150)
+    
+    // Recalculate on window resize for responsive behavior
+    window.addEventListener('resize', calculateDefaultPosition)
+    
+    // Watch for DOM changes in LocationSearch component (when waypoints are added/removed)
+    const locationSearchContainer = document.querySelector('[data-location-search-container]')
+    
+    let mutationObserver: MutationObserver | null = null
+    if (locationSearchContainer && typeof MutationObserver !== 'undefined') {
+      let mutationTimeout: ReturnType<typeof setTimeout> | null = null
+      mutationObserver = new MutationObserver(() => {
+        // Debounce mutation observer calls
+        if (mutationTimeout) clearTimeout(mutationTimeout)
+        mutationTimeout = setTimeout(calculateDefaultPosition, 150)
+      })
+      
+      mutationObserver.observe(locationSearchContainer, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style', 'class']
+      })
+    }
+    
+    return () => {
+      clearTimeout(timeout)
+      window.removeEventListener('resize', calculateDefaultPosition)
+      if (mutationObserver) {
+        mutationObserver.disconnect()
+      }
+    }
+  }, [isMobile, waypointsCount, origin, destination]) // Re-run if mobile state, waypoints, origin, or destination changes
+
+  /**
+   * Handle drag start
+   */
+  const handleDragStart = (e: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>) => {
+    if (isOpen) return // Don't drag when chat is open
+    
+    // Only preventDefault for mouse events, not touch (touch will be handled in non-passive listener)
+    if (!('touches' in e)) {
+      e.preventDefault()
+    }
+    
+    setIsDragging(true)
+    setHasDragged(false)
+    
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+    
+    const button = buttonRef.current
+    if (!button) return
+    
+    // Get current button position
+    const rect = button.getBoundingClientRect()
+    const currentX = position.x !== null ? position.x : window.innerWidth - rect.width - 16
+    const currentY = position.y !== null ? position.y : window.innerHeight - rect.height - (isMobile ? 80 : 24)
+    
+    setDragStart({
+      x: clientX - currentX,
+      y: clientY - currentY,
+    })
+  }
+
+  /**
+   * Handle drag move
+   */
+  const handleDragMove = (e: MouseEvent | TouchEvent) => {
+    if (!isDragging) return
+
+    // preventDefault is called in the event listener wrapper
+    setHasDragged(true)
+    hasUserDraggedRef.current = true // Mark that user has manually dragged
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+
+    const newX = clientX - dragStart.x
+    const newY = clientY - dragStart.y
+
+    // Get button dimensions
+    const button = buttonRef.current
+    if (!button) return
+
+    const buttonWidth = button.offsetWidth
+    const buttonHeight = button.offsetHeight
+    const windowWidth = window.innerWidth
+    const windowHeight = window.innerHeight
+
+    // Constrain to viewport bounds
+    const constrainedX = Math.max(0, Math.min(newX, windowWidth - buttonWidth))
+    const constrainedY = Math.max(0, Math.min(newY, windowHeight - buttonHeight))
+
+    setPosition({ x: constrainedX, y: constrainedY })
+  }
+
+  /**
+   * Handle drag end
+   */
+  const handleDragEnd = () => {
+    setIsDragging(false)
+    // Position is kept in state but will reset on page reload
+  }
+
+  /**
+   * Set up drag event listeners
+   */
+  useEffect(() => {
+    if (isDragging) {
+      const handleMouseMove = (e: MouseEvent) => {
+        e.preventDefault()
+        handleDragMove(e)
+      }
+      const handleTouchMove = (e: TouchEvent) => {
+        e.preventDefault()
+        handleDragMove(e)
+      }
+      const handleMouseUp = () => handleDragEnd()
+      const handleTouchEnd = () => handleDragEnd()
+
+      document.addEventListener('mousemove', handleMouseMove, { passive: false })
+      document.addEventListener('touchmove', handleTouchMove, { passive: false })
+      document.addEventListener('mouseup', handleMouseUp)
+      document.addEventListener('touchend', handleTouchEnd)
+
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('touchmove', handleTouchMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+        document.removeEventListener('touchend', handleTouchEnd)
+      }
+    }
+  }, [isDragging, dragStart])
 
   /**
    * Processa resposta do n8n e atualiza o mapa conforme necessário
@@ -232,28 +442,59 @@ const ChatWidget = () => {
       {/* Botão flutuante do chat */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
-          style={{ pointerEvents: 'auto', zIndex: 99999, position: 'fixed' }}
+          ref={buttonRef}
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          onClick={() => {
+            // Only open if not dragging and didn't drag
+            if (!isDragging && !hasDragged) {
+              setIsOpen(true)
+            }
+            setHasDragged(false)
+          }}
+          className={`fixed w-14 h-14 md:w-16 md:h-16 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group ${
+            isDragging ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
+          style={{ 
+            pointerEvents: 'auto', 
+            zIndex: 100001, 
+            position: 'fixed',
+            ...(isMobile && position.x !== null && position.y !== null
+              ? { 
+                  left: `${position.x}px`, 
+                  top: `${position.y}px`, 
+                  bottom: 'auto', 
+                  right: 'auto' 
+                }
+              : { 
+                  // Desktop: use CSS positioning (bottom-right) - scales automatically
+                  bottom: '24px', 
+                  right: '16px',
+                  left: 'auto',
+                  top: 'auto'
+                }),
+            transform: isDragging ? 'scale(1.1)' : undefined,
+          }}
           aria-label="Abrir chat"
         >
           <img
             src={chatBotIcon}
             alt="Chat Bot"
-            className="w-12 h-12 object-contain filter brightness-0 invert"
+            className="w-10 h-10 md:w-12 md:h-12 object-contain filter brightness-0 invert"
           />
           {/* Indicador de notificação */}
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white"></span>
+          <span className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-red-500 rounded-full border-2 border-white"></span>
         </button>
       )}
 
       {/* Janela do chat */}
       {isOpen && (
         <div
-          className={`fixed bottom-6 right-6 bg-white rounded-lg shadow-2xl flex flex-col transition-all duration-300 ${
-            isMinimized ? 'w-80 h-12' : 'w-96 h-[600px]'
+          ref={chatWindowRef}
+          className={`fixed bottom-20 right-4 md:bottom-6 md:right-6 bg-white rounded-lg shadow-2xl flex flex-col transition-all duration-300 ${
+            isMinimized ? 'w-[calc(100vw-2rem)] md:w-80 h-12' : 'w-[calc(100vw-2rem)] md:w-96 h-[calc(100vh-8rem)] md:h-[600px] max-w-md'
           }`}
-          style={{ pointerEvents: 'auto', zIndex: 99999, position: 'fixed' }}
+          style={{ pointerEvents: 'auto', zIndex: 100001, position: 'fixed' }}
         >
           {/* Cabeçalho do chat */}
           <div className="bg-blue-600 text-white p-4 rounded-t-lg flex items-center justify-between">

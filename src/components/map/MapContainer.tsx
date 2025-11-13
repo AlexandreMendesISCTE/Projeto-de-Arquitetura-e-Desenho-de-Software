@@ -1,10 +1,11 @@
-import { MapContainer as LeafletMap, TileLayer, useMapEvents } from 'react-leaflet'
+import { MapContainer as LeafletMap, TileLayer, useMapEvents, useMap } from 'react-leaflet'
 import { useMapStore } from '../../store/map.store'
 import { useRouteStore } from '../../store/route.store'
 import RouteLayer from './RouteLayer'
 import MarkerLayer from './MarkerLayer'
 import POILayer from './POILayer'
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
+import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 function MapEvents() {
@@ -15,7 +16,16 @@ function MapEvents() {
   useMapEvents({
     click: (e) => {
       const { lat, lng } = e.latlng
-      const location = { lat, lng }
+      
+      // Normalize longitude to -180 to 180 range
+      let normalizedLng = lng
+      while (normalizedLng > 180) normalizedLng -= 360
+      while (normalizedLng < -180) normalizedLng += 360
+      
+      // Clamp latitude to valid range
+      const normalizedLat = Math.max(-85, Math.min(85, lat))
+      
+      const location = { lat: normalizedLat, lng: normalizedLng }
 
       // If waiting for specific input type, set that
       if (waitingForInput === 'origin') {
@@ -93,6 +103,82 @@ function MapEvents() {
   return null
 }
 
+/**
+ * Component to enforce map bounds and prevent dragging to repeated world copies
+ */
+function BoundsEnforcer() {
+  const map = useMap()
+  const { setCenter } = useMapStore()
+  
+  useEffect(() => {
+    // Set max bounds to prevent dragging to repeated world copies
+    const maxBounds = L.latLngBounds(
+      L.latLng(-85, -180),
+      L.latLng(85, 180)
+    )
+    
+    map.setMaxBounds(maxBounds)
+    
+    // Handle dragend to ensure center stays within bounds
+    const handleDragEnd = () => {
+      const center = map.getCenter()
+      const bounds = map.getBounds()
+      
+      // Check if center is outside valid longitude range
+      let newLng = center.lng
+      if (newLng < -180) {
+        newLng = -180
+      } else if (newLng > 180) {
+        newLng = 180
+      }
+      
+      // Normalize longitude to -180 to 180 range
+      if (newLng !== center.lng) {
+        map.setView([center.lat, newLng], map.getZoom(), { animate: false })
+        setCenter([center.lat, newLng])
+      }
+      
+      // Ensure latitude is within valid range
+      let newLat = center.lat
+      if (newLat < -85) {
+        newLat = -85
+      } else if (newLat > 85) {
+        newLat = 85
+      }
+      
+      if (newLat !== center.lat) {
+        map.setView([newLat, center.lng], map.getZoom(), { animate: false })
+        setCenter([newLat, center.lng])
+      }
+    }
+    
+    // Handle moveend to check bounds
+    const handleMoveEnd = () => {
+      const center = map.getCenter()
+      
+      // Normalize longitude to -180 to 180 range
+      let normalizedLng = center.lng
+      while (normalizedLng > 180) normalizedLng -= 360
+      while (normalizedLng < -180) normalizedLng += 360
+      
+      if (Math.abs(normalizedLng - center.lng) > 0.01) {
+        map.setView([center.lat, normalizedLng], map.getZoom(), { animate: false })
+        setCenter([center.lat, normalizedLng])
+      }
+    }
+    
+    map.on('dragend', handleDragEnd)
+    map.on('moveend', handleMoveEnd)
+    
+    return () => {
+      map.off('dragend', handleDragEnd)
+      map.off('moveend', handleMoveEnd)
+    }
+  }, [map, setCenter])
+  
+  return null
+}
+
 const MapContainer = () => {
   const { center, zoom } = useMapStore()
 
@@ -102,12 +188,19 @@ const MapContainer = () => {
       zoom={zoom}
       style={{ height: '100vh', width: '100%' }}
       zoomControl={true}
+      minZoom={3}
+      maxZoom={19}
+      worldCopyJump={false}
+      maxBounds={[[-85, -180], [85, 180]]}
+      maxBoundsViscosity={1.0}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         maxZoom={19}
+        minZoom={3}
       />
+      <BoundsEnforcer />
       <MapEvents />
       <RouteLayer />
       <MarkerLayer />

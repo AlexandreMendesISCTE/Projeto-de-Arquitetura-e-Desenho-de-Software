@@ -28,7 +28,7 @@ const TransportModeSelector = () => {
           <button
             key={mode}
             onClick={() => setTransportMode(mode)}
-            className={`px-3 py-2 rounded-md transition-all flex items-center justify-center gap-2 text-sm ${
+            className={`px-3 py-2 rounded-md transition-all flex items-center justify-center gap-2 text-sm min-h-[44px] ${
               transportMode === mode
                 ? `${color} text-white shadow-md`
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -44,7 +44,7 @@ const TransportModeSelector = () => {
       <div className="md:hidden w-full">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className={`w-full px-3 py-2 rounded-md transition-all flex items-center justify-between text-sm ${
+          className={`w-full px-3 py-2.5 rounded-md transition-all flex items-center justify-between text-sm min-h-[44px] ${
             currentMode.color
           } text-white shadow-md`}
         >
@@ -69,7 +69,7 @@ const TransportModeSelector = () => {
                 <button
                   key={mode}
                   onClick={() => handleModeSelect(mode)}
-                  className={`px-3 py-2 rounded-md transition-all flex items-center gap-2 text-sm ${
+                  className={`px-3 py-2.5 rounded-md transition-all flex items-center gap-2 text-sm min-h-[44px] ${
                     color
                   } text-white shadow-md hover:opacity-90`}
                 >

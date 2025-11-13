@@ -1,8 +1,8 @@
 import { Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
-import { useRouteStore } from '../../store/route.store'
 import { usePOIStore } from '../../store/poi.store'
 import { usePOIs } from '../../hooks/usePOIs'
+import { useMapStore } from '../../store/map.store'
 import { POI } from '../../services/api/poi.service'
 
 const createPOIIcon = (category?: string) => {
@@ -35,12 +35,12 @@ const createPOIIcon = (category?: string) => {
 }
 
 const POILayer = () => {
-  const { route } = useRouteStore()
   const { enabled } = usePOIStore()
-  const { data: pois = [], isLoading } = usePOIs(route)
+  const { center, zoom } = useMapStore()
+  const { data: pois = [], isLoading } = usePOIs(center, zoom)
 
-  // Don't render if POIs are disabled or no route
-  if (!enabled || isLoading || !route || pois.length === 0) {
+  // Don't render if POIs are disabled
+  if (!enabled || isLoading || pois.length === 0) {
     return null
   }
 

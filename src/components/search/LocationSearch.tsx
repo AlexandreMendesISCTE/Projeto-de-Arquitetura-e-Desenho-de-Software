@@ -6,7 +6,6 @@ import { useMapStore } from '../../store/map.store'
 import { useRouteStore } from '../../store/route.store'
 import { useSearchStore } from '../../store/search.store'
 import { Location } from '../../types/route.types'
-import TransportModeSelector from '../route/TransportModeSelector'
 
 interface LocationSearchFieldProps {
   type: 'origin' | 'destination' | 'waypoint'
@@ -110,13 +109,13 @@ const LocationSearchField = ({ placeholder, currentLocation, onLocationSelect, o
             }}
             onFocus={() => setIsExpanded(true)}
             placeholder={placeholder}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="w-full pl-10 pr-4 py-1.5 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-sm"
           />
         </div>
         <button
           onClick={handleUseCurrentLocation}
           disabled={isGeolocating}
-          className="px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-sm"
+          className="px-2.5 py-1.5 md:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-sm min-w-[40px] md:min-w-0"
           title="Usar localização atual"
         >
           {isGeolocating ? (
@@ -128,7 +127,7 @@ const LocationSearchField = ({ placeholder, currentLocation, onLocationSelect, o
         {currentLocation && (
           <button
             onClick={handleAddToMap}
-            className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 flex items-center gap-1 text-sm"
+            className="px-2.5 py-1.5 md:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 flex items-center gap-1 text-sm min-w-[40px] md:min-w-0"
             title="Limpar e adicionar pelo mapa"
           >
             <Navigation className="w-4 h-4" />
@@ -137,7 +136,7 @@ const LocationSearchField = ({ placeholder, currentLocation, onLocationSelect, o
         {!currentLocation && (
           <button
             onClick={handleAddToMap}
-            className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 flex items-center gap-1 text-sm"
+            className="px-2.5 py-1.5 md:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 flex items-center gap-1 text-sm min-w-[40px] md:min-w-0"
             title="Adicionar pelo mapa"
           >
             <Navigation className="w-4 h-4" />
@@ -176,9 +175,9 @@ const LocationSearch = () => {
   const { waitingForInput } = useMapStore()
 
   return (
-    <div className="absolute top-4 left-4 right-4 md:right-auto md:w-96 z-[1000] bg-white rounded-lg shadow-lg p-4 space-y-3">
+    <div data-location-search-container className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-auto md:w-96 z-[1000] bg-white rounded-lg shadow-lg p-1.5 md:p-4 space-y-1 md:space-y-3 max-h-[calc(100vh-120px)] md:max-h-none overflow-y-auto">
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">Origem</label>
+        <label className="block text-xs font-medium text-gray-700 mb-0 md:mb-1">Origem</label>
         <LocationSearchField
           type="origin"
           placeholder="Pesquisar origem..."
@@ -191,7 +190,7 @@ const LocationSearch = () => {
       {/* Waypoints Section */}
       {origin && (
         <div>
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-0 md:mb-1">
             <label className="block text-xs font-medium text-gray-700">Paragens</label>
             <button
               onClick={() => {
@@ -269,8 +268,8 @@ const LocationSearch = () => {
         </div>
       )}
 
-      <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">Destino</label>
+      <div data-destination-field>
+        <label className="block text-xs font-medium text-gray-700 mb-0 md:mb-1">Destino</label>
         <LocationSearchField
           type="destination"
           placeholder="Pesquisar destino..."
@@ -278,10 +277,6 @@ const LocationSearch = () => {
           onLocationSelect={setDestination}
           onClearLocation={() => setDestination(null)}
         />
-      </div>
-      {/* Transport mode selector integrated here for mobile */}
-      <div className="md:hidden">
-        <TransportModeSelector />
       </div>
     </div>
   )
