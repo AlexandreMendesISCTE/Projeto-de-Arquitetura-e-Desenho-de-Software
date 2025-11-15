@@ -55,6 +55,12 @@ interface N8NPayload {
   currentRoute: RouteContext
   waitingForInput: 'origin' | 'destination' | 'waypoint' | null
   timestamp: string
+  userLocation?: {
+    name: string
+    lat: number
+    lng: number
+  } | null
+  useCurrentLocationAsOrigin?: boolean
 }
 
 /**
@@ -105,6 +111,12 @@ export const sendMessageToN8N = async (context: {
   message: string
   currentRoute: RouteContext
   waitingForInput: 'origin' | 'destination' | 'waypoint' | null
+  userLocation?: {
+    name: string
+    lat: number
+    lng: number
+  } | null
+  useCurrentLocationAsOrigin?: boolean
 }): Promise<N8NResponse> => {
   try {
     // Preparar payload para o n8n
@@ -113,6 +125,8 @@ export const sendMessageToN8N = async (context: {
       currentRoute: context.currentRoute,
       waitingForInput: context.waitingForInput,
       timestamp: new Date().toISOString(),
+      userLocation: context.userLocation,
+      useCurrentLocationAsOrigin: context.useCurrentLocationAsOrigin,
     }
 
     console.log('Enviando mensagem para n8n:', payload)

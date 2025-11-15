@@ -1,0 +1,145 @@
+{
+  "name": "Map Chat with Gemini Flash",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mapchat",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "mapchat"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract input data\nconst userMessage = $input.item.json.message || \"\";\nconst currentRoute = $input.item.json.currentRoute || { origin: null, destination: null, waypoints: [] };\nconst waitingForInput = $input.item.json.waitingForInput || null;\nconst userLocation = $input.item.json.userLocation || null;\nconst useCurrentLocationAsOrigin = $input.item.json.useCurrentLocationAsOrigin || false;\n\n// Build context for AI\nlet context = \"You are a helpful route planning assistant for a map application. \";\n\nif (useCurrentLocationAsOrigin && userLocation) {\n  context += `User wants to use their current location as origin: ${userLocation.name} (${userLocation.lat}, ${userLocation.lng}). `;\n}\n\nif (currentRoute.origin) {\n  context += `Current origin: ${currentRoute.origin.name} (${currentRoute.origin.lat}, ${currentRoute.origin.lng}). `;\n}\nif (currentRoute.destination) {\n  context += `Current destination: ${currentRoute.destination.name} (${currentRoute.destination.lat}, ${currentRoute.destination.lng}). `;\n}\nif (currentRoute.waypoints && currentRoute.waypoints.length > 0) {\n  context += `Current waypoints: ${currentRoute.waypoints.map(w => w.name).join(\", \")}. `;\n}\nif (waitingForInput) {\n  context += `User is being asked to provide: ${waitingForInput}. `;\n}\n\n// System prompt for Gemini\nconst systemPrompt = `${context}\n\nIMPORTANT: You must respond in valid JSON format only. No markdown, no explanation outside JSON.\n\nYour response must follow this exact structure:\n{\n  \"message\": \"Your response message to the user in Portuguese\",\n  \"action\": null or \"set_origin\" or \"set_destination\" or \"add_waypoint\" or \"set_route\" or \"clear_route\",\n  \"origin\": null or {\"name\": \"City Name\", \"lat\": 38.7223, \"lng\": -9.1393},\n  \"destination\": null or {\"name\": \"City Name\", \"lat\": 41.1579, \"lng\": -8.6291},\n  \"location\": null or {\"name\": \"City Name\", \"lat\": 38.7223, \"lng\": -9.1393},\n  \"suggestions\": []\n}\n\nExamples:\n- If user says \"Quero ir de Lisboa ao Porto\":\n  Response: {\"message\": \"✅ Rota definida de Lisboa ao Porto!\", \"action\": \"set_route\", \"origin\": {\"name\": \"Lisboa, Portugal\", \"lat\": 38.7223, \"lng\": -9.1393}, \"destination\": {\"name\": \"Porto, Portugal\", \"lat\": 41.1579, \"lng\": -8.6291}, \"location\": null, \"suggestions\": []}\n\n- If user has current location enabled and says \"Quero ir ao Porto\":\n  Response: {\"message\": \"✅ Rota definida da sua localização atual ao Porto!\", \"action\": \"set_route\", \"origin\": {\"name\": \"${userLocation?.name || 'Current Location'}\", \"lat\": ${userLocation?.lat || 0}, \"lng\": ${userLocation?.lng || 0}}, \"destination\": {\"name\": \"Porto, Portugal\", \"lat\": 41.1579, \"lng\": -8.6291}, \"location\": null, \"suggestions\": []}\n\n- If user says \"Origem em Coimbra\":\n  Response: {\"message\": \"✅ Origem definida: Coimbra\", \"action\": \"set_origin\", \"origin\": null, \"destination\": null, \"location\": {\"name\": \"Coimbra, Portugal\", \"lat\": 40.2033, \"lng\": -8.4103}, \"suggestions\": []}\n\nKnown Portuguese cities with coordinates:\n- Lisboa: 38.7223, -9.1393\n- Porto: 41.1579, -8.6291\n- Coimbra: 40.2033, -8.4103\n- Faro: 37.0194, -7.9322\n- Braga: 41.5518, -8.4229\n- Aveiro: 40.6443, -8.6455\n- Évora: 38.5667, -7.9000\n- Setúbal: 38.5244, -8.8882\n- Guimarães: 41.4416, -8.2918\n- Viseu: 40.6566, -7.9125\n\nUser's message: \"${userMessage}\"\n\nAnalyze the message and provide the appropriate JSON response. If you don't recognize a city, ask for clarification. ${useCurrentLocationAsOrigin ? \"IMPORTANT: User has enabled current location as origin, so use that if they only specify a destination.\" : \"\"}`;\n\n// Format for Gemini API\nreturn {\n  json: {\n    prompt: systemPrompt,\n    userMessage: userMessage,\n    context: context,\n    userLocation: userLocation,\n    useCurrentLocationAsOrigin: useCurrentLocationAsOrigin\n  }\n};"
+      },
+      "id": "format-prompt-node",
+      "name": "Format Prompt for Gemini",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={{$env.GEMINI_API_KEY}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"{{ $json.prompt }}\"\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.3,\n    \"topP\": 0.8,\n    \"topK\": 40,\n    \"maxOutputTokens\": 500,\n    \"responseMimeType\": \"application/json\"\n  }\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "gemini-api-node",
+      "name": "Call Gemini Flash",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract Gemini response\nlet geminiResponse;\ntry {\n  const rawResponse = $input.item.json.candidates[0].content.parts[0].text;\n  \n  // Parse JSON response from Gemini\n  geminiResponse = JSON.parse(rawResponse);\n} catch (error) {\n  // Fallback response if Gemini fails\n  return {\n    json: {\n      message: \"Desculpe, ocorreu um erro ao processar a sua mensagem. Por favor, tente novamente.\",\n      action: null,\n      origin: null,\n      destination: null,\n      location: null,\n      suggestions: []\n    }\n  };\n}\n\n// Ensure all required fields exist\nconst response = {\n  message: geminiResponse.message || \"Como posso ajudá-lo?\",\n  action: geminiResponse.action || null,\n  origin: geminiResponse.origin || null,\n  destination: geminiResponse.destination || null,\n  location: geminiResponse.location || null,\n  suggestions: geminiResponse.suggestions || []\n};\n\n// Validate coordinates if present\nconst validateCoords = (obj) => {\n  if (!obj) return null;\n  if (typeof obj.lat !== 'number' || typeof obj.lng !== 'number') return null;\n  if (obj.lat < -90 || obj.lat > 90) return null;\n  if (obj.lng < -180 || obj.lng > 180) return null;\n  return obj;\n};\n\nresponse.origin = validateCoords(response.origin);\nresponse.destination = validateCoords(response.destination);\nresponse.location = validateCoords(response.location);\n\nreturn { json: response };"
+      },
+      "id": "format-response-node",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-webhook-node",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Format Prompt for Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Prompt for Gemini": {
+      "main": [
+        [
+          {
+            "node": "Call Gemini Flash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Gemini Flash": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-15T00:00:00.000Z",
+  "versionId": "1"
+}
+

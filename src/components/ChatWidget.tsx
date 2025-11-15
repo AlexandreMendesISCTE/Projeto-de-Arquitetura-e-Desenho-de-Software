@@ -37,6 +37,9 @@ const ChatWidget = () => {
   ])
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [useCurrentLocation, setUseCurrentLocation] = useState(false)
+  const [currentLocation, setCurrentLocation] = useState<{ name: string; lat: number; lng: number } | null>(null)
+  const [locationError, setLocationError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   
@@ -380,6 +383,60 @@ const ChatWidget = () => {
   }
 
   /**
+   * Obtém a localização atual do utilizador
+   */
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocalização não suportada pelo seu navegador')
+      return
+    }
+
+    setLocationError(null)
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude
+        const lng = position.coords.longitude
+
+        // Reverse geocode to get location name
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+          )
+          const data = await response.json()
+          const locationName = data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+          
+          setCurrentLocation({ name: locationName, lat, lng })
+          addBotMessage(`📍 Localização atual: ${locationName}`)
+        } catch (error) {
+          console.error('Erro ao obter nome da localização:', error)
+          setCurrentLocation({ 
+            name: `${lat.toFixed(4)}, ${lng.toFixed(4)}`, 
+            lat, 
+            lng 
+          })
+        }
+      },
+      (error) => {
+        console.error('Erro ao obter localização:', error)
+        setLocationError('Não foi possível obter a sua localização')
+        setUseCurrentLocation(false)
+      }
+    )
+  }
+
+  /**
+   * Toggle use current location
+   */
+  const handleToggleCurrentLocation = () => {
+    const newValue = !useCurrentLocation
+    setUseCurrentLocation(newValue)
+    
+    if (newValue && !currentLocation) {
+      getCurrentLocation()
+    }
+  }
+
+  /**
    * Envia mensagem para o n8n workflow
    */
   const handleSendMessage = async () => {
@@ -406,6 +463,8 @@ const ChatWidget = () => {
           waypoints: waypoints.map((wp) => ({ name: wp.name || '', lat: wp.lat, lng: wp.lng })),
         },
         waitingForInput: waitingForInput,
+        userLocation: currentLocation,
+        useCurrentLocationAsOrigin: useCurrentLocation,
       }
 
       const response = await sendMessageToN8N(context)
@@ -573,6 +632,29 @@ const ChatWidget = () => {
 
               {/* Input de mensagem */}
               <div className="border-t border-gray-200 p-4 bg-white">
+                {/* Checkbox para usar localização atual */}
+                <div className="mb-3">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={useCurrentLocation}
+                      onChange={handleToggleCurrentLocation}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                    <span className="text-gray-700">
+                      📍 Usar a minha localização atual como origem
+                    </span>
+                  </label>
+                  {locationError && (
+                    <p className="text-xs text-red-500 mt-1 ml-6">{locationError}</p>
+                  )}
+                  {useCurrentLocation && currentLocation && (
+                    <p className="text-xs text-green-600 mt-1 ml-6">
+                      ✓ Localização obtida: {currentLocation.name.substring(0, 50)}...
+                    </p>
+                  )}
+                </div>
+
                 <div className="flex gap-2">
                   <input
                     ref={inputRef}

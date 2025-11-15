@@ -8,7 +8,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Definir ARGs primeiro (antes de COPY) para que possam ser usados durante o build
-ARG VITE_N8N_WEBHOOK_URL=http://192.168.100.178:5678/webhook/chat
+ARG VITE_N8N_WEBHOOK_URL=https://yocomsn8n.duckdns.org/webhook-test/mapchat
 ARG VITE_OSRM_BASE_URL=http://router.project-osrm.org/route/v1
 ARG VITE_NOMINATIM_BASE_URL=https://nominatim.openstreetmap.org
 ARG VITE_MAP_DEFAULT_CENTER_LAT=38.7223
