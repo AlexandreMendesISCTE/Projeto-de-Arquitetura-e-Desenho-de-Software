@@ -1,0 +1,582 @@
+{
+  "name": "Map Chat with Gemini Flash v2",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.body.useCurrentLocationAsOrigin }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "c623affe-544b-4ff8-a16f-b5cfd166b768",
+      "name": "IF: Using Current Location?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// PATH: User wants to use current location as origin\n// Extract DESTINATION and WAYPOINTS from message\n\nconst userMessage = $input.first().json.body.message|| \"\";\nconst currentRoute = $input.first().json.body.currentRoute|| { origin: null, destination: null, waypoints: [] };\nconst userLocation = $input.first().json.body.userLocation|| null;\n\nlet context = \"You are a route planning assistant. \";\ncontext += `User's current location is: ${userLocation?.name || 'Unknown'}. `;\ncontext += \"User wants to use their current location as the ORIGIN. \";\n\nif (currentRoute.destination) {\n  context += `Current destination: ${currentRoute.destination.name}. `;\n}\nif (currentRoute.waypoints && currentRoute.waypoints.length > 0) {\n  context += `Current waypoints: ${currentRoute.waypoints.map(w => w.name).join(', ')}. `;\n}\n\n// Prompt for destination and waypoints\nconst systemPrompt = `${context}\n\nIMPORTANT: Respond in JSON format only.\n\nYour response must follow this structure:\n{\n  \"destination_city\": \"City name\",\n  \"destination_country\": \"Country\",\n  \"waypoints\": [{\"city\": \"City\", \"country\": \"Country\"}],\n  \"message_to_user\": \"Your response in Portuguese\",\n  \"needs_clarification\": false\n}\n\nExamples:\n- \"Quero ir ao Porto passando por Coimbra\": {\"destination_city\": \"Porto\", \"destination_country\": \"Portugal\", \"waypoints\": [{\"city\": \"Coimbra\", \"country\": \"Portugal\"}], \"message_to_user\": \"Vou definir a rota da sua localização atual para o Porto, passando por Coimbra!\", \"needs_clarification\": false}\n- \"Quero ir ao Porto\": {\"destination_city\": \"Porto\", \"destination_country\": \"Portugal\", \"waypoints\": [], \"message_to_user\": \"Vou definir a rota da sua localização atual para o Porto!\", \"needs_clarification\": false}\n- \"Leva-me lá\": {\"destination_city\": null, \"destination_country\": null, \"waypoints\": [], \"message_to_user\": \"Para onde deseja ir?\", \"needs_clarification\": true}\n\nUser's message: \"${userMessage}\"\n\nExtract destination and any waypoints (max 5). If unclear, ask for clarification.`;\n\nreturn {\n  json: {\n    prompt: systemPrompt,\n    userMessage: userMessage,\n    userLocation: userLocation,\n    hasCurrentLocation: true\n  }\n};"
+      },
+      "id": "7b85c06c-b2e1-4d7c-a3a0-5cfaa4ee9e05",
+      "name": "Prepare Prompt (With Location)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// PATH: Regular flow - extract ORIGIN, DESTINATION, and WAYPOINTS\n\nconst userMessage = $input.first().json.body.message|| \"\";\nconst currentRoute = $input.first().json.body.currentRoute|| { origin: null, destination: null, waypoints: [] };\n\nlet context = \"You are a route planning assistant. \";\n\nif (currentRoute.origin) {\n  context += `Current origin: ${currentRoute.origin.name}. `;\n}\nif (currentRoute.destination) {\n  context += `Current destination: ${currentRoute.destination.name}. `;\n}\nif (currentRoute.waypoints && currentRoute.waypoints.length > 0) {\n  context += `Current waypoints: ${currentRoute.waypoints.map(w => w.name).join(', ')}. `;\n}\n\nconst systemPrompt = `${context}\n\nIMPORTANT: Respond in JSON format only.\n\nYour response must follow this structure:\n{\n  \"origin_city\": \"City name or null\",\n  \"origin_country\": \"Country or null\",\n  \"destination_city\": \"City name or null\",\n  \"destination_country\": \"Country or null\",\n  \"waypoints\": [{\"city\": \"City\", \"country\": \"Country\"}],\n  \"message_to_user\": \"Your response in Portuguese\",\n  \"needs_clarification\": false,\n  \"action_type\": \"set_route or set_origin or set_destination or add_waypoints or chat\"\n}\n\nExamples:\n- \"Quero ir de Lisboa ao Porto passando por Coimbra e Aveiro\": {\"origin_city\": \"Lisboa\", \"origin_country\": \"Portugal\", \"destination_city\": \"Porto\", \"destination_country\": \"Portugal\", \"waypoints\": [{\"city\": \"Coimbra\", \"country\": \"Portugal\"}, {\"city\": \"Aveiro\", \"country\": \"Portugal\"}], \"message_to_user\": \"Vou definir a rota de Lisboa para o Porto, passando por Coimbra e Aveiro!\", \"needs_clarification\": false, \"action_type\": \"set_route\"}\n- \"Quero ir de Lisboa ao Porto\": {\"origin_city\": \"Lisboa\", \"origin_country\": \"Portugal\", \"destination_city\": \"Porto\", \"destination_country\": \"Portugal\", \"waypoints\": [], \"message_to_user\": \"Vou definir a rota de Lisboa para o Porto!\", \"needs_clarification\": false, \"action_type\": \"set_route\"}\n- \"Adiciona paragem em Coimbra\": {\"origin_city\": null, \"origin_country\": null, \"destination_city\": null, \"destination_country\": null, \"waypoints\": [{\"city\": \"Coimbra\", \"country\": \"Portugal\"}], \"message_to_user\": \"Paragem adicionada: Coimbra\", \"needs_clarification\": false, \"action_type\": \"add_waypoints\"}\n- \"Origem em Coimbra\": {\"origin_city\": \"Coimbra\", \"origin_country\": \"Portugal\", \"destination_city\": null, \"destination_country\": null, \"waypoints\": [], \"message_to_user\": \"Origem definida: Coimbra. Para onde deseja ir?\", \"needs_clarification\": false, \"action_type\": \"set_origin\"}\n- \"Olá\": {\"origin_city\": null, \"origin_country\": null, \"destination_city\": null, \"destination_country\": null, \"waypoints\": [], \"message_to_user\": \"Olá! Posso ajudá-lo a planear a sua rota. Diga-me a origem, destino e paragens.\", \"needs_clarification\": false, \"action_type\": \"chat\"}\n\nUser's message: \"${userMessage}\"\n\nExtract origin, destination, and waypoints (max 5). If unclear, ask for clarification.`;\n\nreturn {\n  json: {\n    prompt: systemPrompt,\n    userMessage: userMessage,\n    hasCurrentLocation: false\n  }\n};"
+      },
+      "id": "0657521a-c693-4977-85e4-0c37ad6c4a39",
+      "name": "Prepare Prompt (Without Location)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyDRQQ8w5lBbqE38VHGHFQc0mZm_GQfUx84",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contents[0].parts[0].text",
+              "value": "={{ $json.prompt }}"
+            },
+            {
+              "name": "generationConfig.topK",
+              "value": "\t40"
+            },
+            {
+              "name": "generationConfig.maxOutputTokens",
+              "value": "\t400"
+            },
+            {
+              "name": "generationConfig.responseMimeType",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "bc6dd34b-4031-4225-85ea-93a70d732f4f",
+      "name": "Gemini (With Location)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        64,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Gemini response (WITH current location path)\nconst inputItem = $input.item;\nconst previousData = $node[\"Prepare Prompt (With Location)\"].json;\nconst userLocation = previousData.userLocation;\n\nlet geminiResponse;\ntry {\n  const rawResponse = inputItem.json.candidates[0].content.parts[0].text;\n  geminiResponse = JSON.parse(rawResponse);\n} catch (error) {\n  return {\n    json: {\n      needsCoordinates: false,\n      destination_city: null,\n      destination_country: null,\n      waypoints: [],\n      message: \"Desculpe, ocorreu um erro. Por favor, tente novamente.\",\n      error: true\n    }\n  };\n}\n\n// Check if we need to get coordinates\nif (geminiResponse.needs_clarification || !geminiResponse.destination_city) {\n  return {\n    json: {\n      needsCoordinates: false,\n      message: geminiResponse.message_to_user,\n      action: null,\n      origin: null,\n      destination: null,\n      location: null,\n      waypoints: []\n    }\n  };\n}\n\n// We have destination city, will need to get coordinates\nreturn {\n  json: {\n    needsCoordinates: true,\n    destination_city: geminiResponse.destination_city,\n    destination_country: geminiResponse.destination_country,\n    waypoints: geminiResponse.waypoints || [],\n    message_to_user: geminiResponse.message_to_user,\n    userLocation: userLocation,\n    hasCurrentLocation: true\n  }\n};"
+      },
+      "id": "f8e7a1cd-96ca-40ab-9b9a-3c0e52d1900b",
+      "name": "Parse Response (With Location)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Gemini response (WITHOUT current location path)\nlet geminiResponse;\ntry {\n  const rawResponse = $input.item.json.candidates[0].content.parts[0].text;\n  geminiResponse = JSON.parse(rawResponse);\n} catch (error) {\n  return {\n    json: {\n      needsCoordinates: false,\n      message: \"Desculpe, ocorreu um erro. Por favor, tente novamente.\",\n      waypoints: [],\n      error: true\n    }\n  };\n}\n\n// Check if we need to get coordinates\nif (geminiResponse.needs_clarification || geminiResponse.action_type === 'chat') {\n  return {\n    json: {\n      needsCoordinates: false,\n      message: geminiResponse.message_to_user,\n      action: null,\n      origin: null,\n      destination: null,\n      location: null,\n      waypoints: []\n    }\n  };\n}\n\n// We have cities, will need to get coordinates\nreturn {\n  json: {\n    needsCoordinates: true,\n    origin_city: geminiResponse.origin_city,\n    origin_country: geminiResponse.origin_country,\n    destination_city: geminiResponse.destination_city,\n    destination_country: geminiResponse.destination_country,\n    waypoints: geminiResponse.waypoints || [],\n    message_to_user: geminiResponse.message_to_user,\n    action_type: geminiResponse.action_type,\n    hasCurrentLocation: false\n  }\n};"
+      },
+      "id": "2e0de5e3-45fa-4cc8-9b13-f7c48f009e0c",
+      "name": "Parse Response (Without Location)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.needsCoordinates }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "529c269b-2973-4c36-a068-50457b42005c",
+      "name": "IF: Needs Coordinates?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        608,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://nominatim.openstreetmap.org/search?q={{ $json.origin_city }},{{ $json.origin_country }}&format=json&limit=1",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "9defe9fa-df92-4d6c-b5fb-3353a3d79955",
+      "name": "Get Origin Coords",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        912,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build final response WITH current location\nconst parseData = $node[\"Parse Response (With Location)\"].json;\n\n// Get Nominatim response - it could be in different places\nlet destCoords = null;\n\n// Try different ways to access the data\nif ($json && Array.isArray($json)) {\n  // If it's an array directly\n  destCoords = $json[0];\n} else if ($json && typeof $json === 'object' && !Array.isArray($json)) {\n  // If it's already the first object (n8n split the array)\n  destCoords = $json;\n} else if ($input.item.json && Array.isArray($input.item.json)) {\n  // If it's in item.json as array\n  destCoords = $input.item.json[0];\n} else {\n  // Fallback\n  destCoords = $input.item.json;\n}\n\n// Check if we got valid data\nif (!destCoords || !destCoords.lat || !destCoords.lon) {\n  return {\n    json: {\n      message: `Não consegui encontrar as coordenadas para ${parseData.destination_city}. Por favor, tente outra cidade.`,\n      action: null,\n      origin: null,\n      destination: null,\n      location: null,\n      waypoints: [],\n      suggestions: []\n    }\n  };\n}\n\n// Geocode waypoints if any\nconst waypoints = [];\nif (parseData.waypoints && parseData.waypoints.length > 0) {\n  for (const waypoint of parseData.waypoints.slice(0, 5)) {  // Max 5 waypoints\n    try {\n      const wpResponse = await fetch(\n        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(waypoint.city)},${encodeURIComponent(waypoint.country)}&format=json&limit=1`\n      );\n      const wpData = await wpResponse.json();\n      if (wpData && wpData.length > 0) {\n        waypoints.push({\n          name: wpData[0].display_name || wpData[0].name || `${waypoint.city}, ${waypoint.country}`,\n          lat: parseFloat(wpData[0].lat),\n          lng: parseFloat(wpData[0].lon)\n        });\n      }\n    } catch (error) {\n      console.error(`Failed to geocode waypoint ${waypoint.city}:`, error);\n    }\n  }\n}\n\n// Build response with user's current location as origin\nreturn {\n  json: {\n    message: `✅ ${parseData.message_to_user}`,\n    action: \"set_route\",\n    origin: {\n      name: parseData.userLocation.name,\n      lat: parseData.userLocation.lat,\n      lng: parseData.userLocation.lng\n    },\n    destination: {\n      name: destCoords.display_name || destCoords.name || `${parseData.destination_city}, ${parseData.destination_country}`,\n      lat: parseFloat(destCoords.lat),\n      lng: parseFloat(destCoords.lon)  // Nominatim uses 'lon', convert to 'lng'\n    },\n    waypoints: waypoints,\n    location: null,\n    suggestions: []\n  }\n};"
+      },
+      "id": "c653b723-0422-4301-b4aa-f39381b73ff1",
+      "name": "Build Final Response (With Location)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build final response WITHOUT current location\nconst parseData = $node[\"Parse Response (Without Location)\"].json;\n\n// Helper function to get coordinates from Nominatim response\nfunction getCoords(nodeData) {\n  if (!nodeData) return null;\n  \n  // Try different data structures\n  if (Array.isArray(nodeData)) {\n    return nodeData[0];\n  } else if (nodeData.json && Array.isArray(nodeData.json)) {\n    return nodeData.json[0];\n  } else if (typeof nodeData === 'object' && nodeData.lat && nodeData.lon) {\n    return nodeData;\n  }\n  \n  return null;\n}\n\n// Get coordinates from both Nominatim nodes\nlet originCoords = null;\nlet destCoords = null;\n\n// Try to get origin results\ntry {\n  const originNode = $node[\"Get Origin Coords\"];\n  originCoords = getCoords(originNode.json);\n} catch (e) {\n  originCoords = null;\n}\n\n// Try to get destination results\ntry {\n  const destNode = $node[\"Get Destination Coords\"];\n  destCoords = getCoords(destNode.json);\n} catch (e) {\n  destCoords = null;\n}\n\n// Geocode waypoints if any\nconst waypoints = [];\nif (parseData.waypoints && parseData.waypoints.length > 0) {\n  for (const waypoint of parseData.waypoints.slice(0, 5)) {  // Max 5 waypoints\n    try {\n      const wpResponse = await fetch(\n        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(waypoint.city)},${encodeURIComponent(waypoint.country)}&format=json&limit=1`\n      );\n      const wpData = await wpResponse.json();\n      if (wpData && wpData.length > 0) {\n        waypoints.push({\n          name: wpData[0].display_name || wpData[0].name || `${waypoint.city}, ${waypoint.country}`,\n          lat: parseFloat(wpData[0].lat),\n          lng: parseFloat(wpData[0].lon)\n        });\n      }\n    } catch (error) {\n      console.error(`Failed to geocode waypoint ${waypoint.city}:`, error);\n    }\n  }\n}\n\nlet response = {\n  message: parseData.message_to_user,\n  action: null,\n  origin: null,\n  destination: null,\n  location: null,\n  waypoints: waypoints,\n  suggestions: []\n};\n\n// Handle different action types\nif (parseData.action_type === 'set_route') {\n  // Both origin and destination needed\n  \n  if (!originCoords || !originCoords.lat || !originCoords.lon) {\n    return {\n      json: {\n        message: `Não consegui encontrar as coordenadas para ${parseData.origin_city}. Por favor, tente outra cidade.`,\n        action: null,\n        origin: null,\n        destination: null,\n        location: null,\n        waypoints: [],\n        suggestions: []\n      }\n    };\n  }\n  \n  if (!destCoords || !destCoords.lat || !destCoords.lon) {\n    return {\n      json: {\n        message: `Não consegui encontrar as coordenadas para ${parseData.destination_city}. Por favor, tente outra cidade.`,\n        action: null,\n        origin: null,\n        destination: null,\n        location: null,\n        waypoints: [],\n        suggestions: []\n      }\n    };\n  }\n  \n  response.action = \"set_route\";\n  response.origin = {\n    name: originCoords.display_name || originCoords.name || `${parseData.origin_city}, ${parseData.origin_country}`,\n    lat: parseFloat(originCoords.lat),\n    lng: parseFloat(originCoords.lon)\n  };\n  response.destination = {\n    name: destCoords.display_name || destCoords.name || `${parseData.destination_city}, ${parseData.destination_country}`,\n    lat: parseFloat(destCoords.lat),\n    lng: parseFloat(destCoords.lon)\n  };\n  const waypointMsg = waypoints.length > 0 ? ` passando por ${waypoints.map(w => w.name.split(',')[0]).join(', ')}` : '';\n  response.message = `✅ Rota definida de ${parseData.origin_city} para ${parseData.destination_city}${waypointMsg}!`;\n  \n} else if (parseData.action_type === 'set_origin') {\n  // Only origin needed\n  \n  if (!originCoords || !originCoords.lat || !originCoords.lon) {\n    return {\n      json: {\n        message: `Não consegui encontrar as coordenadas para ${parseData.origin_city}. Por favor, tente outra cidade.`,\n        action: null,\n        origin: null,\n        destination: null,\n        location: null,\n        waypoints: [],\n        suggestions: []\n      }\n    };\n  }\n  \n  response.action = \"set_origin\";\n  response.location = {\n    name: originCoords.display_name || originCoords.name || `${parseData.origin_city}, ${parseData.origin_country}`,\n    lat: parseFloat(originCoords.lat),\n    lng: parseFloat(originCoords.lon)\n  };\n  response.message = `✅ Origem definida: ${parseData.origin_city}. Para onde deseja ir?`;\n  \n} else if (parseData.action_type === 'set_destination') {\n  // Only destination needed\n  \n  if (!destCoords || !destCoords.lat || !destCoords.lon) {\n    return {\n      json: {\n        message: `Não consegui encontrar as coordenadas para ${parseData.destination_city}. Por favor, tente outra cidade.`,\n        action: null,\n        origin: null,\n        destination: null,\n        location: null,\n        waypoints: [],\n        suggestions: []\n      }\n    };\n  }\n  \n  response.action = \"set_destination\";\n  response.location = {\n    name: destCoords.display_name || destCoords.name || `${parseData.destination_city}, ${parseData.destination_country}`,\n    lat: parseFloat(destCoords.lat),\n    lng: parseFloat(destCoords.lon)\n  };\n  response.message = `✅ Destino definido: ${parseData.destination_city}.`;\n  \n} else if (parseData.action_type === 'add_waypoints') {\n  // Only waypoints\n  response.action = \"add_waypoints\";\n  if (waypoints.length > 0) {\n    response.message = `✅ ${waypoints.length} paragem(ns) adicionada(s): ${waypoints.map(w => w.name.split(',')[0]).join(', ')}`;\n  } else {\n    response.message = \"⚠️ Não consegui encontrar as paragens especificadas.\";\n  }\n}\n\nreturn { json: response };"
+      },
+      "id": "47b464d5-50b2-46e8-b0ec-039f736dda11",
+      "name": "Build Final Response (Without Location)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mapchat",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "7f74c6c0-8295-4c52-9250-6371e5482c54",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -608,
+        272
+      ],
+      "webhookId": "mapchat"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "id": "26bcc71d-f0a1-4701-afdc-5dca140e315b",
+      "name": "Respond to Webhook1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1696,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyDRQQ8w5lBbqE38VHGHFQc0mZm_GQfUx84",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contents[0].parts[0].text",
+              "value": "={{ $json.prompt }}"
+            },
+            {
+              "name": "generationConfig.topK",
+              "value": "\t40"
+            },
+            {
+              "name": "generationConfig.maxOutputTokens",
+              "value": "\t400"
+            },
+            {
+              "name": "generationConfig.responseMimeType",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "ca98a4be-157c-495f-a218-0f60fbf8313f",
+      "name": "Gemini (With Location)1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        64,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://nominatim.openstreetmap.org/search?q={{ $json.destination_city }},{{ $json.destination_country }}&format=json&limit=1",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "22c67745-9cc1-488e-9920-14c8848d38a9",
+      "name": "Get Destination Coords1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        976,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.needsCoordinates }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "7478844b-d2ac-4880-849f-7ebb887562e9",
+      "name": "IF: Needs Coordinates?1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        544,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://nominatim.openstreetmap.org/search?q={{ $json.destination_city }},{{ $json.destination_country }}&format=json&limit=1",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "c6e9124a-5969-4c2b-9f79-38c1ad0f0718",
+      "name": "Get Destination Coords",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        912,
+        336
+      ]
+    }
+  ],
+  "pinData": {
+    "Webhook1": [
+      {
+        "json": {
+          "headers": {
+            "host": "yocomsn8n.duckdns.org",
+            "x-forwarded-scheme": "https",
+            "x-forwarded-proto": "https",
+            "x-forwarded-for": "89.115.141.210",
+            "x-real-ip": "89.115.141.210",
+            "content-length": "373",
+            "sec-ch-ua": "\"Not;A=Brand\";v=\"24\", \"Chromium\";v=\"128\"",
+            "accept": "application/json, text/plain, */*",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "dnt": "1",
+            "sec-ch-ua-mobile": "?0",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+            "content-type": "application/json",
+            "origin": "https://yocomsmap.duckdns.org",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://yocomsmap.duckdns.org/",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "pt-PT,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+            "priority": "u=1, i"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "message": "Para o Porto",
+            "currentRoute": {
+              "origin": {
+                "name": "",
+                "lat": 38.728108084565,
+                "lng": -9.133071899414064
+              },
+              "destination": {
+                "name": "",
+                "lat": 38.71056279224359,
+                "lng": -9.14491653442383
+              },
+              "waypoints": []
+            },
+            "waitingForInput": null,
+            "timestamp": "2025-11-15T21:04:07.112Z",
+            "userLocation": {
+              "name": "38.7622, -9.1781",
+              "lat": 38.7621765,
+              "lng": -9.1781491
+            },
+            "useCurrentLocationAsOrigin": true
+          },
+          "webhookUrl": "https://yocomsn8n.duckdns.org/webhook/mapchat",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "IF: Using Current Location?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Prompt (With Location)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Prompt (Without Location)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Prompt (With Location)": {
+      "main": [
+        [
+          {
+            "node": "Gemini (With Location)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Prompt (Without Location)": {
+      "main": [
+        [
+          {
+            "node": "Gemini (With Location)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (With Location)": {
+      "main": [
+        [
+          {
+            "node": "Parse Response (With Location)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Response (With Location)": {
+      "main": [
+        [
+          {
+            "node": "IF: Needs Coordinates?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Response (Without Location)": {
+      "main": [
+        [
+          {
+            "node": "IF: Needs Coordinates?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Needs Coordinates?": {
+      "main": [
+        [
+          {
+            "node": "Get Origin Coords",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Destination Coords",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Origin Coords": {
+      "main": [
+        [
+          {
+            "node": "Build Final Response (Without Location)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Final Response (With Location)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Final Response (Without Location)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "IF: Using Current Location?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (With Location)1": {
+      "main": [
+        [
+          {
+            "node": "Parse Response (Without Location)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Destination Coords1": {
+      "main": [
+        [
+          {
+            "node": "Build Final Response (With Location)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Needs Coordinates?1": {
+      "main": [
+        [
+          {
+            "node": "Get Destination Coords1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Destination Coords": {
+      "main": [
+        [
+          {
+            "node": "Build Final Response (Without Location)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bf4129f0-bc1c-4f2b-83ca-54374f8e85d4",
+  "meta": {
+    "instanceId": "05e21a55a20df7d2b8fcd8dddfd8ac84ba166b3564406101f791eda86c0f1c4d"
+  },
+  "id": "EXNJj0ZUfFUo1nTS",
+  "tags": []
+}

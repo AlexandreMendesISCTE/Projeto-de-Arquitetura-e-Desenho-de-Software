@@ -293,13 +293,23 @@ const ChatWidget = () => {
               name: response.destination.name,
             })
             
+            // Set waypoints if any
+            if (response.waypoints && response.waypoints.length > 0) {
+              setWaypoints(response.waypoints)
+            } else {
+              setWaypoints([])
+            }
+            
             // Centrar mapa entre origem e destino
             const centerLat = (response.origin.lat + response.destination.lat) / 2
             const centerLng = (response.origin.lng + response.destination.lng) / 2
             setCenter([centerLat, centerLng])
             
             // Mensagem de confirmação formatada
-            const confirmMessage = `✅ Processado. 🗺️ Rota definida:\n📍 Origem: ${response.origin.name}\n🎯 Destino: ${response.destination.name}`
+            let confirmMessage = `✅ Processado. 🗺️ Rota definida:\n📍 Origem: ${response.origin.name}\n🎯 Destino: ${response.destination.name}`
+            if (response.waypoints && response.waypoints.length > 0) {
+              confirmMessage += `\n🛑 Paragens: ${response.waypoints.map((w: any) => w.name.split(',')[0]).join(', ')}`
+            }
             addBotMessage(confirmMessage)
           } else {
             addBotMessage(response.message)
@@ -343,6 +353,36 @@ const ChatWidget = () => {
             })
             setCenter([response.location.lat, response.location.lng])
             addBotMessage(`✅ Paragem adicionada: ${response.location.name}`)
+          } else {
+            addBotMessage(response.message)
+          }
+          break
+
+        case 'add_waypoints':
+          // Add multiple waypoints (from chat command)
+          if (response.waypoints && response.waypoints.length > 0) {
+            // Check if we would exceed the 5 waypoint limit
+            const currentCount = waypoints.filter(wp => wp.lat !== 0 || wp.lng !== 0).length
+            const availableSlots = 5 - currentCount
+            
+            if (availableSlots <= 0) {
+              addBotMessage('⚠️ Limite máximo de 5 paragens atingido.')
+            } else {
+              const waypointsToAdd = response.waypoints.slice(0, availableSlots)
+              waypointsToAdd.forEach((wp: any) => {
+                addWaypoint({
+                  lat: wp.lat,
+                  lng: wp.lng,
+                  name: wp.name,
+                })
+              })
+              
+              if (response.waypoints.length > availableSlots) {
+                addBotMessage(`✅ ${availableSlots} paragem(ns) adicionada(s). Limite máximo atingido.`)
+              } else {
+                addBotMessage(response.message)
+              }
+            }
           } else {
             addBotMessage(response.message)
           }

@@ -191,7 +191,9 @@ const LocationSearch = () => {
       {origin && (
         <div>
           <div className="flex items-center justify-between mb-0 md:mb-1">
-            <label className="block text-xs font-medium text-gray-700">Paragens</label>
+            <label className="block text-xs font-medium text-gray-700">
+              Paragens {waypoints.length > 0 && `(${waypoints.length}/5)`}
+            </label>
             <button
               onClick={() => {
                 // Add empty waypoint (will be set to null, not map center)
@@ -199,8 +201,9 @@ const LocationSearch = () => {
                 // Set waiting state so user can click map or search
                 useMapStore.getState().setWaitingForInput('waypoint')
               }}
-              className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-              title="Adicionar paragem"
+              disabled={waypoints.length >= 5}
+              className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+              title={waypoints.length >= 5 ? "Máximo de 5 paragens" : "Adicionar paragem"}
             >
               <Plus className="w-4 h-4" />
             </button>
