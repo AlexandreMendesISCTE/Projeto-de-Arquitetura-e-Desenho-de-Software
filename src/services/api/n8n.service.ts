@@ -5,8 +5,7 @@
  * Envia mensagens do utilizador e contexto da aplicação para processamento.
  * 
  * Endpoint esperado no n8n:
- * - POST http://192.168.100.178:81/n8n/webhook/chat
- * 
+ * - POST https://yocomsn8n.duckdns.org/webhook/mapchat
  * O workflow n8n deve processar:
  * - Mensagens do utilizador
  * - Contexto da rota atual
@@ -20,7 +19,7 @@ import axios from 'axios'
  * Configurável via variável de ambiente
  */
 const N8N_WEBHOOK_URL =
-  import.meta.env.VITE_N8N_WEBHOOK_URL || 'http://192.168.100.178:81/n8n/webhook/chat'
+  import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://yocomsn8n.duckdns.org/webhook/mapchat'
 
 /**
  * Timeout para requisições ao n8n (30 segundos)
