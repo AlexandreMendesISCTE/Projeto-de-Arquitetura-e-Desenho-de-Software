@@ -1,7 +1,9 @@
-// Nominatim search/reverse client used by geocoding hooks
+// Geocoding service - Primary: Google Places API, Fallback: Nominatim
+// Uses Google Places for fast, reliable results, falls back to Nominatim if Google fails
 import axios, { AxiosInstance } from 'axios'
 import { NOMINATIM_BASE_URL, HTTP_TIMEOUT } from '../../constants/api.constants'
 import { Location } from '../../types/route.types'
+import googlePlacesService from './google-places.service'
 
 interface NominatimResult {
   lat: string
@@ -25,42 +27,95 @@ class NominatimService {
   }
 
   async search(query: string, limit: number = 10): Promise<Location[]> {
+    // Try Google Places API first (faster and more reliable)
     try {
-      const response = await this.client.get<NominatimResult[]>('/search', {
-        params: {
-          q: query,
-          format: 'json',
-          limit,
-          addressdetails: 1,
-        },
-      })
-
-      return response.data.map(this.parseLocation)
+      const googleResults = await googlePlacesService.search(query, limit)
+      return googleResults
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(`Nominatim API error: ${error.message}`)
+      // If Google Places fails, fallback to Nominatim
+      console.warn('Google Places API failed, falling back to Nominatim:', error)
+      try {
+        const response = await this.client.get<NominatimResult[]>('/search', {
+          params: {
+            q: query,
+            format: 'json',
+            limit,
+            addressdetails: 1,
+          },
+          validateStatus: (status) => {
+            // Don't throw on 418 (rate limit) or other client errors
+            return status < 500
+          },
+        })
+
+        // Check if we got a valid response
+        if (response.status === 418 || response.status >= 400) {
+          throw new Error(`Nominatim returned ${response.status}`)
+        }
+
+        if (!response.data || response.data.length === 0) {
+          throw new Error('Nominatim returned empty results')
+        }
+
+        const nominatimResults = response.data.map(this.parseLocation)
+        console.log(`✅ Nominatim fallback successful: ${nominatimResults.length} results`)
+        return nominatimResults
+      } catch (fallbackError) {
+        // If both fail, throw error
+        if (axios.isAxiosError(fallbackError)) {
+          throw new Error(
+            `Geocoding failed (Google Places: ${error}, Nominatim: ${fallbackError.message})`
+          )
+        }
+        throw new Error(`Geocoding failed (Google Places: ${error}, Nominatim: ${fallbackError})`)
       }
-      throw error
     }
   }
 
   async reverseGeocode(lat: number, lng: number): Promise<Location> {
+    // Try Google Places API first (faster and more reliable)
     try {
-      const response = await this.client.get<NominatimResult>('/reverse', {
-        params: {
-          lat,
-          lon: lng,
-          format: 'json',
-          addressdetails: 1,
-        },
-      })
-
-      return this.parseLocation(response.data)
+      return await googlePlacesService.reverseGeocode(lat, lng)
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(`Nominatim reverse geocoding error: ${error.message}`)
+      // If Google Places fails, fallback to Nominatim
+      console.warn('Google Places reverse geocoding failed, falling back to Nominatim:', error)
+      try {
+        const response = await this.client.get<NominatimResult>('/reverse', {
+          params: {
+            lat,
+            lon: lng,
+            format: 'json',
+            addressdetails: 1,
+          },
+          validateStatus: (status) => {
+            // Don't throw on 418 or other client errors
+            return status < 500
+          },
+        })
+
+        // Check if we got a valid response
+        if (response.status === 418 || response.status >= 400) {
+          throw new Error(`Nominatim returned ${response.status}`)
+        }
+
+        if (!response.data) {
+          throw new Error('Nominatim returned empty result')
+        }
+
+        const result = this.parseLocation(response.data)
+        console.log(`✅ Nominatim reverse geocoding fallback successful`)
+        return result
+      } catch (fallbackError) {
+        // If both fail, throw error
+        if (axios.isAxiosError(fallbackError)) {
+          throw new Error(
+            `Reverse geocoding failed (Google Places: ${error}, Nominatim: ${fallbackError.message})`
+          )
+        }
+        throw new Error(
+          `Reverse geocoding failed (Google Places: ${error}, Nominatim: ${fallbackError})`
+        )
       }
-      throw error
     }
   }
 

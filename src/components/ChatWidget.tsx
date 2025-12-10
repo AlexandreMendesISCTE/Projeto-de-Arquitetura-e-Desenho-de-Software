@@ -310,6 +310,19 @@ const ChatWidget = () => {
               name: response.destination.name,
             })
 
+            // Set waypoints if provided (limit to 5)
+            if (response.waypoints && response.waypoints.length > 0) {
+              const waypointsToSet = response.waypoints.slice(0, 5).map((wp) => ({
+                lat: wp.lat,
+                lng: wp.lng,
+                name: wp.name || '',
+              }))
+              setWaypoints(waypointsToSet)
+            } else {
+              // Clear waypoints if none provided
+              setWaypoints([])
+            }
+
             // Centrar mapa entre origem e destino
             const centerLat = (response.origin.lat + response.destination.lat) / 2
             const centerLng = (response.origin.lng + response.destination.lng) / 2

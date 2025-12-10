@@ -54,7 +54,7 @@ function decodePolyline(encoded: string): [number, number][] {
 }
 
 // Load Google Maps JavaScript API
-function loadGoogleMapsAPI(): Promise<void> {
+export function loadGoogleMapsAPI(): Promise<void> {
   return new Promise((resolve, reject) => {
     if (window.google && window.google.maps) {
       resolve()
