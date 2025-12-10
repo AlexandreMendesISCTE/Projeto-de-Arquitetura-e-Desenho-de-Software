@@ -11,6 +11,7 @@ const AVERAGE_SPEEDS: Record<TransportMode, number> = {
   [TransportMode.WALKING]: 1.4, // 5 km/h
   [TransportMode.BICYCLING]: 4.2, // 15 km/h
   [TransportMode.DRIVING]: 13.9, // 50 km/h (urban average)
+  [TransportMode.TRANSIT]: 7.0, // ~25 km/h average transit
 }
 
 /**

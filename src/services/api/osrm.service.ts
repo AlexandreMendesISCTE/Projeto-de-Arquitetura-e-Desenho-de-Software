@@ -38,10 +38,12 @@ class OSRMService {
   }
 
   private getProfile(mode: TransportMode): string {
-    const profiles = {
+    const profiles: Record<TransportMode, string> = {
       [TransportMode.DRIVING]: 'driving',
       [TransportMode.BICYCLING]: 'cycling',
       [TransportMode.WALKING]: 'walking',
+      // OSRM não suporta transit; usar driving como fallback razoável para evitar quebra
+      [TransportMode.TRANSIT]: 'driving',
     }
     return profiles[mode]
   }
