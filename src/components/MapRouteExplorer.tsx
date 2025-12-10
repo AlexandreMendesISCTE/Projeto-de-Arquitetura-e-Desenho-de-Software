@@ -1,3 +1,4 @@
+// High-level layout combining map, search, transport selector and info panels
 import MapContainer from './map/MapContainer'
 import LocationSearch from './search/LocationSearch'
 import TransportModeSelector from './route/TransportModeSelector'

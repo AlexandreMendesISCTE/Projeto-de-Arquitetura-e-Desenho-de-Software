@@ -1,3 +1,4 @@
+// Fetch nearby POIs with debounce, rate limiting, and viewport-based caching
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState, useRef } from 'react'
 import poiService from '../services/api/poi.service'

@@ -1,3 +1,4 @@
+// Global map viewport state (center/zoom) and click-waiting flags
 import { create } from 'zustand'
 import { MapState } from '../types/store.types'
 import { MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM } from '../constants/api.constants'

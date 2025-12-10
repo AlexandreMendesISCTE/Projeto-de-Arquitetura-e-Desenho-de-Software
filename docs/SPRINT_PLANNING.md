@@ -5,10 +5,12 @@
 **Sprint Goal**: Complete migration from Java Swing to modern React + Vite web application
 
 ### Card 1.1: Project Setup & Configuration
+
 **Assigned to**: Name 1  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Initialize Vite project with React + TypeScript template
 2. Configure Tailwind CSS and PostCSS
 3. Set up ESLint and TypeScript configuration files
@@ -17,10 +19,12 @@
 ---
 
 ### Card 1.2: State Management Setup
+
 **Assigned to**: Name 2  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Install and configure Zustand for state management
 2. Create map.store.ts (center, zoom, selectedPoint)
 3. Create route.store.ts (origin, destination, route, transportMode)
@@ -29,10 +33,12 @@
 ---
 
 ### Card 1.3: Type Definitions & Constants
+
 **Assigned to**: Name 3  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Define TypeScript interfaces (Location, Route, TransportMode)
 2. Create store type definitions (MapState, RouteState, SearchState)
 3. Set up API constants (base URLs, timeouts, default map settings)
@@ -41,10 +47,12 @@
 ---
 
 ### Card 1.4: Basic Map Component
+
 **Assigned to**: Name 4  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Install Leaflet and React-Leaflet dependencies
 2. Create MapContainer component with Leaflet integration
 3. Configure OpenStreetMap tile layer
@@ -57,10 +65,12 @@
 **Sprint Goal**: Implement all core routing and location features
 
 ### Card 2.1: Location Search & Geocoding
+
 **Assigned to**: Name 1  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Create Nominatim API service for geocoding
 2. Implement useGeocoding hook with React Query
 3. Build LocationSearch component with search input
@@ -69,10 +79,12 @@
 ---
 
 ### Card 2.2: Google Maps Routing Integration
+
 **Assigned to**: Name 2  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Set up Google Maps JavaScript API loading
 2. Create google-maps.service.ts with DirectionsService
 3. Implement route calculation with waypoints support
@@ -81,10 +93,12 @@
 ---
 
 ### Card 2.3: Route Display & Visualization
+
 **Assigned to**: Name 3  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Create RouteLayer component for route polyline rendering
 2. Create MarkerLayer for origin/destination markers
 3. Implement useRoute hook with React Query caching
@@ -93,10 +107,12 @@
 ---
 
 ### Card 2.4: Transport Mode Selection
+
 **Assigned to**: Name 4  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Create TransportModeSelector component
 2. Implement collapsible mobile design with animations
 3. Add mode change handler with route clearing
@@ -105,10 +121,12 @@
 ---
 
 ### Card 2.5: Route Information Display
+
 **Assigned to**: Name 1  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Create RouteInfo component for route details
 2. Format distance and duration utilities
 3. Add Google Maps integration button
@@ -117,10 +135,12 @@
 ---
 
 ### Card 2.6: Waypoints (Multiple Stops)
+
 **Assigned to**: Name 2  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Add waypoints array to route store
 2. Create waypoint input fields in LocationSearch
 3. Update Google Maps service to handle waypoints
@@ -129,10 +149,12 @@
 ---
 
 ### Card 2.7: Map Click Interaction
+
 **Assigned to**: Name 3  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Implement map click handler for setting locations
 2. Add "waiting for input" state management
 3. Handle origin/destination/waypoint assignment
@@ -141,10 +163,12 @@
 ---
 
 ### Card 2.8: POI (Points of Interest) Feature
+
 **Assigned to**: Name 4  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Create Overpass API service for POI fetching
 2. Implement usePOIs hook with route-based query
 3. Create POILayer component with colored markers
@@ -153,10 +177,12 @@
 ---
 
 ### Card 2.9: Mobile Responsive Design
+
 **Assigned to**: Name 1  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Implement responsive layouts with Tailwind breakpoints
 2. Move transport selector below destination on mobile
 3. Add mobile-specific CSS optimizations
@@ -165,10 +191,12 @@
 ---
 
 ### Card 2.10: Location Search Enhancements
+
 **Assigned to**: Name 2  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Add separate origin/destination search fields
 2. Implement "Add to Map" button (green arrow)
 3. Add waypoint clearing functionality
@@ -177,10 +205,12 @@
 ---
 
 ### Card 2.11: Error Handling & Edge Cases
+
 **Assigned to**: Name 3  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Add error handling for API failures
 2. Handle empty waypoints in route calculation
 3. Prevent invalid route states
@@ -189,10 +219,12 @@
 ---
 
 ### Card 2.12: Documentation & Cleanup
+
 **Assigned to**: Name 4  
 **Status**: ✅ Completed
 
 **Tasks**:
+
 1. Update README with setup instructions
 2. Add mermaid architecture diagrams
 3. Remove old Java documentation files
@@ -203,12 +235,14 @@
 ## Sprint Summary
 
 ### Sprint 1 Statistics
+
 - **Total Cards**: 4
 - **Total Tasks**: 16
 - **Team Members**: 4 (Name 1, Name 2, Name 3, Name 4)
 - **Work Distribution**: Equal (4 tasks per person)
 
 ### Sprint 2 Statistics
+
 - **Total Cards**: 12
 - **Total Tasks**: 48
 - **Team Members**: 4 (Name 1, Name 2, Name 3, Name 4)
@@ -216,22 +250,26 @@
 
 ### Team Member Workload
 
-**Name 1**: 
+**Name 1**:
+
 - Sprint 1: Card 1.1 (4 tasks)
 - Sprint 2: Cards 2.1, 2.5, 2.9 (12 tasks)
 - **Total**: 16 tasks
 
 **Name 2**:
+
 - Sprint 1: Card 1.2 (4 tasks)
 - Sprint 2: Cards 2.2, 2.6, 2.10 (12 tasks)
 - **Total**: 16 tasks
 
 **Name 3**:
+
 - Sprint 1: Card 1.3 (4 tasks)
 - Sprint 2: Cards 2.3, 2.7, 2.11 (12 tasks)
 - **Total**: 16 tasks
 
 **Name 4**:
+
 - Sprint 1: Card 1.4 (4 tasks)
 - Sprint 2: Cards 2.4, 2.8, 2.12 (12 tasks)
 - **Total**: 16 tasks
@@ -249,7 +287,7 @@
 ✅ Route recalculation on mode change  
 ✅ Map click interaction  
 ✅ Location search with Nominatim  
-✅ Google Maps app integration  
+✅ Google Maps app integration
 
 ---
 
@@ -257,4 +295,3 @@
 **Team Size**: 4 developers  
 **Total Tasks Completed**: 64 tasks  
 **Status**: ✅ All sprints completed successfully
-

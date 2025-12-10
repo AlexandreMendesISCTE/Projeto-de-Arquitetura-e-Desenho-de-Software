@@ -67,7 +67,14 @@ interface N8NPayload {
  */
 export interface N8NResponse {
   message: string
-  action?: 'set_origin' | 'set_destination' | 'add_waypoint' | 'add_waypoints' | 'set_route' | 'clear_route' | null
+  action?:
+    | 'set_origin'
+    | 'set_destination'
+    | 'add_waypoint'
+    | 'add_waypoints'
+    | 'set_route'
+    | 'clear_route'
+    | null
   location?: {
     name: string
     lat: number

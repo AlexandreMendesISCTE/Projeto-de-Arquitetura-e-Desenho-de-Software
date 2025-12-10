@@ -1,3 +1,4 @@
+// Displays nearby POIs as colored map markers when enabled
 import { Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import { usePOIStore } from '../../store/poi.store'

@@ -35,6 +35,7 @@ nano n8n-docker-compose.yml
 ```
 
 Add under `environment:`:
+
 ```yaml
 - GEMINI_API_KEY=your-api-key-here
 ```
@@ -42,6 +43,7 @@ Add under `environment:`:
 Get key: https://aistudio.google.com/app/apikey
 
 Restart:
+
 ```bash
 docker-compose restart
 ```
@@ -63,6 +65,7 @@ curl -X POST https://yocomsn8n.duckdns.org/webhook/mapchat \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "message": "✅ Rota definida da sua localização atual para o Porto!",
@@ -85,6 +88,7 @@ curl -X POST https://yocomsn8n.duckdns.org/webhook/mapchat \
 ## 🔍 Testing Different Scenarios
 
 ### Scenario 1: With Current Location + Destination
+
 ```bash
 curl -X POST https://yocomsn8n.duckdns.org/webhook/mapchat \
   -H "Content-Type: application/json" \
@@ -96,6 +100,7 @@ curl -X POST https://yocomsn8n.duckdns.org/webhook/mapchat \
 ```
 
 ### Scenario 2: Regular - Origin + Destination
+
 ```bash
 curl -X POST https://yocomsn8n.duckdns.org/webhook/mapchat \
   -H "Content-Type: application/json" \
@@ -106,6 +111,7 @@ curl -X POST https://yocomsn8n.duckdns.org/webhook/mapchat \
 ```
 
 ### Scenario 3: Only Origin
+
 ```bash
 curl -X POST https://yocomsn8n.duckdns.org/webhook/mapchat \
   -H "Content-Type: application/json" \
@@ -116,6 +122,7 @@ curl -X POST https://yocomsn8n.duckdns.org/webhook/mapchat \
 ```
 
 ### Scenario 4: Needs Clarification
+
 ```bash
 curl -X POST https://yocomsn8n.duckdns.org/webhook/mapchat \
   -H "Content-Type: application/json" \
@@ -144,26 +151,29 @@ IF: Has Current Location?
 
 ## 🎯 Key Features
 
-| Feature | Status |
-|---------|--------|
-| Current location support | ✅ |
-| City name extraction | ✅ |
-| Coordinate accuracy | ✅ (Nominatim) |
-| Error handling | ✅ |
-| Fast response | ✅ (< 3s) |
-| Portuguese messages | ✅ |
+| Feature                  | Status         |
+| ------------------------ | -------------- |
+| Current location support | ✅             |
+| City name extraction     | ✅             |
+| Coordinate accuracy      | ✅ (Nominatim) |
+| Error handling           | ✅             |
+| Fast response            | ✅ (< 3s)      |
+| Portuguese messages      | ✅             |
 
 ---
 
 ## 🔧 Configuration
 
 ### Required Environment Variables
+
 - `GEMINI_API_KEY` - Your Google AI API key
 
 ### Webhook Path
+
 - `/webhook/mapchat`
 
 ### Frontend ENV
+
 ```env
 VITE_N8N_WEBHOOK_URL=https://yocomsn8n.duckdns.org/webhook/mapchat
 ```
@@ -172,10 +182,10 @@ VITE_N8N_WEBHOOK_URL=https://yocomsn8n.duckdns.org/webhook/mapchat
 
 ## ⚡ Performance
 
-| Path | Time | Nodes |
-|------|------|-------|
-| **With Location** | 1.5-2.5s | 7 nodes |
-| **Without Location** | 2-3s | 9 nodes |
+| Path                 | Time     | Nodes   |
+| -------------------- | -------- | ------- |
+| **With Location**    | 1.5-2.5s | 7 nodes |
+| **Without Location** | 2-3s     | 9 nodes |
 
 ---
 
@@ -206,11 +216,13 @@ VITE_N8N_WEBHOOK_URL=https://yocomsn8n.duckdns.org/webhook/mapchat
 ## 🆘 Troubleshooting
 
 ### Workflow not responding
+
 1. Check workflow is **active** (toggle in n8n)
 2. Check Gemini API key is set
 3. Check n8n logs: `docker logs n8n -f`
 
 ### Wrong coordinates
+
 1. Check Nominatim responses in n8n execution log
 2. Verify city names are correct
 3. Test Nominatim directly:
@@ -219,6 +231,7 @@ VITE_N8N_WEBHOOK_URL=https://yocomsn8n.duckdns.org/webhook/mapchat
    ```
 
 ### Gemini errors
+
 1. Verify API key is valid
 2. Check quota: https://aistudio.google.com/
 3. Test Gemini API directly in n8n
@@ -228,6 +241,7 @@ VITE_N8N_WEBHOOK_URL=https://yocomsn8n.duckdns.org/webhook/mapchat
 ## 🎉 You're Ready!
 
 Your improved workflow:
+
 - ✅ More accurate (Nominatim coordinates)
 - ✅ More reliable (separate concerns)
 - ✅ Better UX (current location support)
@@ -235,4 +249,3 @@ Your improved workflow:
 - ✅ Easier to debug (clear paths)
 
 **Start testing now!** 🚀
-

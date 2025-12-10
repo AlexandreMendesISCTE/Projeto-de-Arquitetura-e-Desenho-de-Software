@@ -1,3 +1,4 @@
+// Nominatim search/reverse client used by geocoding hooks
 import axios, { AxiosInstance } from 'axios'
 import { NOMINATIM_BASE_URL, HTTP_TIMEOUT } from '../../constants/api.constants'
 import { Location } from '../../types/route.types'

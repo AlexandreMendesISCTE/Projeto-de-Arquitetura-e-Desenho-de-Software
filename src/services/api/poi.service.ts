@@ -1,3 +1,4 @@
+// Overpass API client for POIs with bbox limiting and graceful error handling
 import axios, { AxiosInstance } from 'axios'
 import { HTTP_TIMEOUT } from '../../constants/api.constants'
 import { Location } from '../../types/route.types'

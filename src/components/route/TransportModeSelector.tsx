@@ -1,3 +1,4 @@
+// Desktop/mobile selectors for switching transport modes
 import { useState } from 'react'
 import { Car, Bike, Footprints, Train, ChevronDown } from 'lucide-react'
 import { useRouteStore } from '../../store/route.store'

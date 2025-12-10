@@ -1,3 +1,4 @@
+// Lightweight wrapper over browser geolocation to expose loading/error/state
 import { useState } from 'react'
 import { Location } from '../types/route.types'
 

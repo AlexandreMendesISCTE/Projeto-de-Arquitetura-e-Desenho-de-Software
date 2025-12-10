@@ -1,6 +1,7 @@
 # 🛑 Waypoints Feature - Implementation Guide
 
 ## Overview
+
 Successfully implemented support for waypoints (paragens) in both the frontend and n8n workflow. Users can now specify up to **5 waypoints** (stops) along their route.
 
 ---
@@ -10,6 +11,7 @@ Successfully implemented support for waypoints (paragens) in both the frontend a
 ### 1. **Frontend - LocationSearch Component** (`src/components/search/LocationSearch.tsx`)
 
 #### Added 5 Waypoint Limit
+
 - Added counter display showing current waypoints: `Paragens (2/5)`
 - Disabled the "+" button when 5 waypoints are reached
 - Added tooltip showing "Máximo de 5 paragens" when limit is reached
@@ -21,8 +23,8 @@ Successfully implemented support for waypoints (paragens) in both the frontend a
 <button
   onClick={() => { /* ... */ }}
   disabled={waypoints.length >= 5}
-  className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors 
-             disabled:opacity-50 disabled:cursor-not-allowed 
+  className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors
+             disabled:opacity-50 disabled:cursor-not-allowed
              disabled:hover:bg-transparent"
   title={waypoints.length >= 5 ? "Máximo de 5 paragens" : "Adicionar paragem"}
 >
@@ -35,12 +37,14 @@ Successfully implemented support for waypoints (paragens) in both the frontend a
 ### 2. **Frontend - ChatWidget Component** (`src/components/ChatWidget.tsx`)
 
 #### Updated Route Setting with Waypoints
+
 - Modified `set_route` action to handle waypoints
 - Added new `add_waypoints` action for adding multiple waypoints via chat
 - Enforces 5 waypoint limit when adding via chat
 - Displays waypoints in confirmation message
 
 **Example confirmation message:**
+
 ```
 ✅ Processado. 🗺️ Rota definida:
 📍 Origem: Lisboa, Portugal
@@ -53,13 +57,20 @@ Successfully implemented support for waypoints (paragens) in both the frontend a
 ### 3. **Frontend - n8n Service** (`src/services/api/n8n.service.ts`)
 
 #### Updated Response Interface
+
 Added waypoints support and new action type:
 
 ```typescript
 export interface N8NResponse {
   message: string
-  action?: 'set_origin' | 'set_destination' | 'add_waypoint' | 
-           'add_waypoints' | 'set_route' | 'clear_route' | null
+  action?:
+    | 'set_origin'
+    | 'set_destination'
+    | 'add_waypoint'
+    | 'add_waypoints'
+    | 'set_route'
+    | 'clear_route'
+    | null
   // ... other fields ...
   waypoints?: Array<{
     name: string
@@ -76,6 +87,7 @@ export interface N8NResponse {
 #### Updated Gemini Prompts
 
 **With Location (User's GPS as origin):**
+
 ```javascript
 // Now extracts DESTINATION + WAYPOINTS
 {
@@ -88,6 +100,7 @@ export interface N8NResponse {
 ```
 
 **Without Location (Regular flow):**
+
 ```javascript
 // Now extracts ORIGIN + DESTINATION + WAYPOINTS
 {
@@ -106,32 +119,36 @@ export interface N8NResponse {
 ```
 
 #### New Action Type
+
 Added `add_waypoints` action for commands like:
+
 - "Adiciona paragem em Coimbra"
 - "Quero parar em Fátima e Leiria"
 
 #### Waypoint Geocoding
+
 Both `Build Final Response` nodes now geocode waypoints using Nominatim:
 
 ```javascript
 // Geocode waypoints if any
-const waypoints = [];
+const waypoints = []
 if (parseData.waypoints && parseData.waypoints.length > 0) {
-  for (const waypoint of parseData.waypoints.slice(0, 5)) {  // Max 5 waypoints
+  for (const waypoint of parseData.waypoints.slice(0, 5)) {
+    // Max 5 waypoints
     try {
       const wpResponse = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(waypoint.city)},${encodeURIComponent(waypoint.country)}&format=json&limit=1`
-      );
-      const wpData = await wpResponse.json();
+      )
+      const wpData = await wpResponse.json()
       if (wpData && wpData.length > 0) {
         waypoints.push({
           name: wpData[0].display_name || wpData[0].name || `${waypoint.city}, ${waypoint.country}`,
           lat: parseFloat(wpData[0].lat),
-          lng: parseFloat(wpData[0].lon)
-        });
+          lng: parseFloat(wpData[0].lon),
+        })
       }
     } catch (error) {
-      console.error(`Failed to geocode waypoint ${waypoint.city}:`, error);
+      console.error(`Failed to geocode waypoint ${waypoint.city}:`, error)
     }
   }
 }
@@ -144,12 +161,14 @@ if (parseData.waypoints && parseData.waypoints.length > 0) {
 ### Via Chat Interface
 
 **Example 1: Route with waypoints**
+
 ```
 User: "Quero ir de Lisboa ao Porto passando por Coimbra e Aveiro"
 Bot: ✅ Rota definida de Lisboa para Porto, passando por Coimbra, Aveiro!
 ```
 
 **Example 2: With user's current location**
+
 ```
 User: [Checks "📍 Usar a minha localização atual como origem"]
 User: "Para o Porto passando por Coimbra"
@@ -157,12 +176,14 @@ Bot: ✅ Vou definir a rota da sua localização atual para o Porto, passando po
 ```
 
 **Example 3: Add waypoints to existing route**
+
 ```
 User: "Adiciona paragem em Fátima"
 Bot: ✅ 1 paragem(ns) adicionada(s): Fátima
 ```
 
 ### Via Manual Input
+
 - Click origin → set origin
 - Click "+" button to add waypoints (up to 5)
 - Each waypoint can be:
@@ -178,6 +199,7 @@ Bot: ✅ 1 paragem(ns) adicionada(s): Fátima
 ### Workflow Flow
 
 1. **Webhook receives:**
+
    ```json
    {
      "message": "Quero ir de Lisboa ao Porto passando por Coimbra",
@@ -188,11 +210,12 @@ Bot: ✅ 1 paragem(ns) adicionada(s): Fátima
    ```
 
 2. **Gemini extracts cities:**
+
    ```json
    {
      "origin_city": "Lisboa",
      "destination_city": "Porto",
-     "waypoints": [{"city": "Coimbra", "country": "Portugal"}]
+     "waypoints": [{ "city": "Coimbra", "country": "Portugal" }]
    }
    ```
 
@@ -202,12 +225,13 @@ Bot: ✅ 1 paragem(ns) adicionada(s): Fátima
    - Destination: Porto → `{lat: 41.1579, lng: -8.6291}`
 
 4. **Workflow responds:**
+
    ```json
    {
      "action": "set_route",
-     "origin": {"name": "Lisboa, Portugal", "lat": 38.7223, "lng": -9.1393},
-     "waypoints": [{"name": "Coimbra, Portugal", "lat": 40.2033, "lng": -8.4103}],
-     "destination": {"name": "Porto, Portugal", "lat": 41.1579, "lng": -8.6291},
+     "origin": { "name": "Lisboa, Portugal", "lat": 38.7223, "lng": -9.1393 },
+     "waypoints": [{ "name": "Coimbra, Portugal", "lat": 40.2033, "lng": -8.4103 }],
+     "destination": { "name": "Porto, Portugal", "lat": 41.1579, "lng": -8.6291 },
      "message": "✅ Rota definida de Lisboa para Porto, passando por Coimbra!"
    }
    ```
@@ -224,6 +248,7 @@ Bot: ✅ 1 paragem(ns) adicionada(s): Fátima
 ## 🚀 Deployment Instructions
 
 ### 1. Update n8n Workflow
+
 1. Open n8n at `https://yocomsn8n.duckdns.org`
 2. Import the updated workflow: `Map Chat with Gemini Flash v2.json`
 3. OR manually update these nodes:
@@ -235,6 +260,7 @@ Bot: ✅ 1 paragem(ns) adicionada(s): Fátima
    - `Build Final Response (Without Location)` - JavaScript code
 
 ### 2. Deploy Frontend
+
 ```bash
 cd mapAPP/Projeto-de-Arquitetura-e-Desenho-de-Software
 npm install  # If needed
@@ -243,7 +269,9 @@ npm run build
 ```
 
 ### 3. Test the Feature
+
 Test these scenarios:
+
 - ✅ Add waypoints manually (up to 5)
 - ✅ Try to add 6th waypoint (should be disabled)
 - ✅ Chat: "Quero ir de Lisboa ao Porto passando por Coimbra"
@@ -298,16 +326,16 @@ Test these scenarios:
 
 ## 📊 Summary
 
-| Feature | Status |
-|---------|--------|
-| Frontend 5 waypoint limit | ✅ Complete |
+| Feature                      | Status      |
+| ---------------------------- | ----------- |
+| Frontend 5 waypoint limit    | ✅ Complete |
 | Workflow waypoint extraction | ✅ Complete |
-| Waypoint geocoding | ✅ Complete |
-| Chat integration | ✅ Complete |
-| Manual input | ✅ Complete |
-| With GPS location | ✅ Complete |
-| TypeScript types | ✅ Complete |
-| Error handling | ✅ Complete |
+| Waypoint geocoding           | ✅ Complete |
+| Chat integration             | ✅ Complete |
+| Manual input                 | ✅ Complete |
+| With GPS location            | ✅ Complete |
+| TypeScript types             | ✅ Complete |
+| Error handling               | ✅ Complete |
 
 ---
 
@@ -323,4 +351,3 @@ Test these scenarios:
 ---
 
 **✨ The waypoints feature is now fully functional and ready for testing!**
-

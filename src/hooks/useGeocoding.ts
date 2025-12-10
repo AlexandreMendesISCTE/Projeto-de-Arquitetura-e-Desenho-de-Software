@@ -1,3 +1,4 @@
+// React-query wrappers around Nominatim search/reverse endpoints
 import { useQuery } from '@tanstack/react-query'
 import nominatimService from '../services/api/nominatim.service'
 

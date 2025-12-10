@@ -1,7 +1,7 @@
+// Centralized API endpoints and defaults consumed across services/hooks
 export const OSRM_BASE_URL =
   import.meta.env.VITE_OSRM_BASE_URL || 'https://router.project-osrm.org/route/v1'
-export const NOMINATIM_BASE_URL =
-  import.meta.env.VITE_NOMINATIM_BASE_URL || '/nominatim'
+export const NOMINATIM_BASE_URL = import.meta.env.VITE_NOMINATIM_BASE_URL || '/nominatim'
 export const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
 
 export const MAP_DEFAULT_CENTER: [number, number] = [

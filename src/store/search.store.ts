@@ -1,3 +1,4 @@
+// Shared state for search query/results/loading used by LocationSearch
 import { create } from 'zustand'
 import { SearchState } from '../types/store.types'
 

@@ -1,3 +1,4 @@
+// Global route state: origin/destination/waypoints, active route, mode, loading
 import { create } from 'zustand'
 import { RouteState } from '../types/store.types'
 import { TransportMode } from '../types/route.types'

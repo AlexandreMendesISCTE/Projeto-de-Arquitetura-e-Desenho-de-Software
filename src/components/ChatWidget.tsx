@@ -38,7 +38,11 @@ const ChatWidget = () => {
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [useCurrentLocation, setUseCurrentLocation] = useState(false)
-  const [currentLocation, setCurrentLocation] = useState<{ name: string; lat: number; lng: number } | null>(null)
+  const [currentLocation, setCurrentLocation] = useState<{
+    name: string
+    lat: number
+    lng: number
+  } | null>(null)
   const [locationError, setLocationError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -305,7 +309,7 @@ const ChatWidget = () => {
               lng: response.destination.lng,
               name: response.destination.name,
             })
-            
+
             // Centrar mapa entre origem e destino
             const centerLat = (response.origin.lat + response.destination.lat) / 2
             const centerLng = (response.origin.lng + response.destination.lng) / 2
@@ -371,9 +375,9 @@ const ChatWidget = () => {
           // Add multiple waypoints (from chat command)
           if (response.waypoints && response.waypoints.length > 0) {
             // Check if we would exceed the 5 waypoint limit
-            const currentCount = waypoints.filter(wp => wp.lat !== 0 || wp.lng !== 0).length
+            const currentCount = waypoints.filter((wp) => wp.lat !== 0 || wp.lng !== 0).length
             const availableSlots = 5 - currentCount
-            
+
             if (availableSlots <= 0) {
               addBotMessage('⚠️ Limite máximo de 5 paragens atingido.')
             } else {
@@ -385,9 +389,11 @@ const ChatWidget = () => {
                   name: wp.name,
                 })
               })
-              
+
               if (response.waypoints.length > availableSlots) {
-                addBotMessage(`✅ ${availableSlots} paragem(ns) adicionada(s). Limite máximo atingido.`)
+                addBotMessage(
+                  `✅ ${availableSlots} paragem(ns) adicionada(s). Limite máximo atingido.`
+                )
               } else {
                 addBotMessage(response.message)
               }
@@ -453,15 +459,15 @@ const ChatWidget = () => {
           )
           const data = await response.json()
           const locationName = data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`
-          
+
           setCurrentLocation({ name: locationName, lat, lng })
           addBotMessage(`📍 Localização atual: ${locationName}`)
         } catch (error) {
           console.error('Erro ao obter nome da localização:', error)
-          setCurrentLocation({ 
-            name: `${lat.toFixed(4)}, ${lng.toFixed(4)}`, 
-            lat, 
-            lng 
+          setCurrentLocation({
+            name: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+            lat,
+            lng,
           })
         }
       },
@@ -479,7 +485,7 @@ const ChatWidget = () => {
   const handleToggleCurrentLocation = () => {
     const newValue = !useCurrentLocation
     setUseCurrentLocation(newValue)
-    
+
     if (newValue && !currentLocation) {
       getCurrentLocation()
     }

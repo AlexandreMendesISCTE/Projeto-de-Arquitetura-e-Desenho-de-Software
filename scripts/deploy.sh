@@ -46,7 +46,7 @@ echo ""
 
 # Stop existing container
 echo "🛑 Stopping existing container..."
-docker-compose down || true
+docker-compose -f deployment/docker-compose.yml --env-file .env down || true
 echo ""
 
 # Remove old images (optional)
@@ -54,18 +54,18 @@ read -p "🗑️  Remove old Docker images? (y/N): " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "Removing old images..."
-    docker-compose down --rmi local || true
+    docker-compose -f deployment/docker-compose.yml --env-file .env down --rmi local || true
     echo ""
 fi
 
 # Build new image
 echo "🔨 Building Docker image..."
-docker-compose build --no-cache
+docker-compose -f deployment/docker-compose.yml --env-file .env build --no-cache
 echo ""
 
 # Start container
 echo "▶️  Starting container..."
-docker-compose up -d
+docker-compose -f deployment/docker-compose.yml --env-file .env up -d
 echo ""
 
 # Wait for container to be healthy
@@ -128,9 +128,9 @@ echo "   - Public: https://yocomsmap.duckdns.org"
 echo ""
 echo "🔍 Useful commands:"
 echo "   - View logs: docker logs map-route-explorer-app -f"
-echo "   - Restart: docker-compose restart"
-echo "   - Stop: docker-compose down"
-echo "   - Rebuild: docker-compose build --no-cache"
+echo "   - Restart: docker-compose -f deployment/docker-compose.yml --env-file .env restart"
+echo "   - Stop: docker-compose -f deployment/docker-compose.yml --env-file .env down"
+echo "   - Rebuild: docker-compose -f deployment/docker-compose.yml --env-file .env build --no-cache"
 echo ""
 echo "📚 Documentation:"
 echo "   - QUICK_DEPLOY.md - Quick deployment guide"

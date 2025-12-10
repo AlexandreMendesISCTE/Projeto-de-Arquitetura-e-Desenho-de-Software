@@ -33,13 +33,6 @@
   git push
   ```
 
-### 2. Server Preparation
-
-- [ ] SSH access to Ubuntu server (192.168.100.178)
-- [ ] Docker and Docker Compose installed
-- [ ] Port 8082 available
-- [ ] n8n running and accessible on port 5678
-
 ### 3. Environment Variables
 
 - [ ] Google Maps API Key obtained
@@ -50,24 +43,23 @@
 
 ### Step 1: Clone Repository on Server
 
-```bash
-# SSH to server
-ssh yocoms@192.168.100.178
-
 # Create project directory
+
 mkdir -p ~/projects/map-route-explorer
 cd ~/projects/map-route-explorer
 
 # Clone repository
+
 git clone <your-repo-url> .
-```
+
+````
 
 ### Step 2: Create .env File
 
 ```bash
 # Create .env file
 nano .env
-```
+````
 
 Add:
 
@@ -83,18 +75,7 @@ VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 
 ### Step 3: Deploy via Portainer
 
-**Option A: Repository Method (Recommended)**
-
-1. Open Portainer: `http://192.168.100.178:9000`
-2. Go to **Stacks** → **Add Stack**
-3. Name: `map-route-explorer`
-4. Method: **Repository**
-5. Repository URL: Your Git repo URL
-6. Compose Path: `docker-compose.yml`
-7. Add environment variables (from .env file)
-8. Click **Deploy the stack**
-
-**Option B: Web Editor Method**
+**Web Editor Method**
 
 1. Open Portainer: `http://192.168.100.178:9000`
 2. Go to **Stacks** → **Add Stack**
@@ -104,7 +85,7 @@ VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 6. Add environment variables
 7. Click **Deploy the stack**
 
-### Step 4: Verify Deployment
+### Verify Deployment
 
 ```bash
 # Check containers
@@ -117,30 +98,6 @@ docker logs map-route-explorer-nginx
 # Test health endpoint
 curl http://192.168.100.178:8082/nginx/proxy/health
 ```
-
-### Step 5: Access Application
-
-- Direct: `http://192.168.100.178:8082/nginx/proxy`
-- Via Nginx Proxy Manager: Configure proxy to `http://192.168.100.178:8082/nginx/proxy`
-
-### Step 6: Configure n8n Workflow
-
-1. Open n8n: `http://192.168.100.178:5678`
-2. Create new workflow
-3. Add **Webhook** node:
-   - Method: POST
-   - Path: `/webhook/chat`
-   - Response: When Last Node Finishes
-4. Add processing nodes (see `N8N_WORKFLOW_GUIDE.md`)
-5. Activate workflow
-6. Test webhook:
-   ```bash
-   curl -X POST http://192.168.100.178:5678/webhook/chat \
-     -H "Content-Type: application/json" \
-     -d '{"message":"test","currentRoute":{"origin":null,"destination":null,"waypoints":[]},"waitingForInput":null,"timestamp":"2025-01-15T10:30:00.000Z"}'
-   ```
-
-## 🔧 Troubleshooting
 
 ### Container won't start
 

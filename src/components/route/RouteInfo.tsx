@@ -1,3 +1,4 @@
+// Route details panel: shows distance/time, mode selection (mobile), POI toggle and reset
 import {
   Route,
   RotateCcw,

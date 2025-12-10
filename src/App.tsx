@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import MapRouteExplorer from './components/MapRouteExplorer'
 import ChatWidget from './components/ChatWidget'
 
+// Shared react-query client for all data fetching hooks
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

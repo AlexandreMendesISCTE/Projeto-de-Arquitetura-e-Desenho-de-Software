@@ -1,3 +1,4 @@
+// Compute routes via Google Maps Directions API and refetch on mode/waypoint changes
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import googleMapsService from '../services/api/google-maps.service'

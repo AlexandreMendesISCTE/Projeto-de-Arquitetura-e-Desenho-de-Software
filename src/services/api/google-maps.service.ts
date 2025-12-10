@@ -1,3 +1,4 @@
+// Google Maps Directions integration (load API, request routes, decode polylines)
 import { Location, Route, TransportMode } from '../../types/route.types'
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''

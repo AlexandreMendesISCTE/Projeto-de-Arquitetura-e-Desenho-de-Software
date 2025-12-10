@@ -190,6 +190,7 @@ docker-compose up -d
 ### Chat não funciona
 
 1. Verificar n8n webhook:
+
    ```bash
    curl -X POST http://192.168.100.178:5678/webhook/chat \
      -H "Content-Type: application/json" \
@@ -211,4 +212,3 @@ docker-compose up -d
 1. Configurar n8n workflow (ver `N8N_WORKFLOW_GUIDE.md`)
 2. Configurar Nginx Proxy Manager (opcional)
 3. Configurar SSL/HTTPS (opcional, recomendado para produção)
-

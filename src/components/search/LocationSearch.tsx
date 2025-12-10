@@ -1,3 +1,4 @@
+// Origin/destination/waypoint search panel with dropdown, geolocation, and map-click support
 import { useState, useCallback, useEffect, useRef, useLayoutEffect } from 'react'
 import { Search, MapPin, Loader2, Navigation, Plus, X } from 'lucide-react'
 import { createPortal } from 'react-dom'
@@ -46,17 +47,38 @@ const LocationSearchField = ({
     width: number
   } | null>(null)
 
+  // Debounce search queries to avoid rate limiting (Nominatim allows 1 req/sec)
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const handleSearch = useCallback(
     (value: string) => {
       setInputValue(value)
+
+      // Clear existing timeout
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+
       if (value.length > 2) {
-        setQuery(value)
+        // Debounce: wait 500ms after user stops typing before searching
+        debounceTimeoutRef.current = setTimeout(() => {
+          setQuery(value)
+        }, 500)
       } else {
         clear()
       }
     },
     [setQuery, clear]
   )
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // Store onLocationSelect in a ref to avoid dependency issues
   const onLocationSelectRef = useRef(onLocationSelect)
@@ -284,7 +306,7 @@ const LocationSearch = () => {
                 }}
                 disabled={waypoints.length >= 5}
                 className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
-                title={waypoints.length >= 5 ? "Máximo de 5 paragens" : "Adicionar paragem"}
+                title={waypoints.length >= 5 ? 'Máximo de 5 paragens' : 'Adicionar paragem'}
               >
                 <Plus className="w-4 h-4" />
               </button>

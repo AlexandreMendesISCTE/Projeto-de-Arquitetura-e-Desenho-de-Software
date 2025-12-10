@@ -1,3 +1,4 @@
+// Renders origin, destination, and waypoint markers with basic labeling
 import { Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import { useRouteStore } from '../../store/route.store'

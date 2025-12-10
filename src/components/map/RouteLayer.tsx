@@ -1,3 +1,4 @@
+// Draws the active route polyline, colored by transport mode
 import { Polyline } from 'react-leaflet'
 import { useRouteStore } from '../../store/route.store'
 import { TransportMode } from '../../types/route.types'

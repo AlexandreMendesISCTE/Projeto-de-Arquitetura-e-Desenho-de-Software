@@ -1,3 +1,4 @@
+// POI cache/toggle store with loaded-area tracking to avoid repeat Overpass calls
 import { create } from 'zustand'
 import { POI } from '../services/api/poi.service'
 

@@ -1,13 +1,16 @@
+// Leaflet map wrapper: bounds enforcement, click-to-set points, and overlays
 import { MapContainer as LeafletMap, TileLayer, useMapEvents, useMap } from 'react-leaflet'
 import { useMapStore } from '../../store/map.store'
 import { useRouteStore } from '../../store/route.store'
 import RouteLayer from './RouteLayer'
 import MarkerLayer from './MarkerLayer'
 import POILayer from './POILayer'
+import AutoFitBounds from './AutoFitBounds'
 import { useRef, useEffect } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
+// Handles user interactions to update map/route state based on clicks and viewport changes
 function MapEvents() {
   const { setCenter, setZoom, setSelectedPoint, center, waitingForInput, clearWaitingForInput } =
     useMapStore()
@@ -206,6 +209,7 @@ const MapContainer = () => {
       />
       <BoundsEnforcer />
       <MapEvents />
+      <AutoFitBounds />
       <RouteLayer />
       <MarkerLayer />
       <POILayer />
