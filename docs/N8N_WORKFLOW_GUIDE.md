@@ -1,4 +1,5 @@
 # Guia de Configuração n8n Workflow
+
 # Integração com Map Route Explorer Chat
 
 ## 📋 Visão Geral
@@ -8,11 +9,13 @@ Este guia explica como configurar um workflow n8n para processar mensagens do ch
 ## 🔗 Endpoint do Webhook
 
 O workflow n8n deve estar configurado para receber POST requests em:
+
 ```
 http://192.168.100.178:5678/webhook/chat
 ```
 
 **Ou se usando Nginx Proxy Manager:**
+
 ```
 http://192.168.100.178:81/n8n/webhook/chat
 ```
@@ -79,43 +82,50 @@ Adicionar nó **Code** ou **Function** para processar a mensagem:
 
 ```javascript
 // Exemplo de processamento básico
-const message = $input.item.json.message.toLowerCase();
-const currentRoute = $input.item.json.currentRoute;
-const waitingForInput = $input.item.json.waitingForInput;
+const message = $input.item.json.message.toLowerCase()
+const currentRoute = $input.item.json.currentRoute
+const waitingForInput = $input.item.json.waitingForInput
 
 let response = {
-  message: "",
+  message: '',
   action: null,
   location: null,
-  suggestions: []
-};
-
-// Detectar intenção do utilizador
-if (message.includes("origem") || message.includes("partida") || message.includes("começar")) {
-  response.message = "Perfeito! Por favor, indique o ponto de partida. Pode clicar no mapa ou digitar o nome do local.";
-  response.action = null;
-} else if (message.includes("destino") || message.includes("chegada") || message.includes("terminar")) {
-  response.message = "Ótimo! Agora preciso saber o destino. Pode clicar no mapa ou digitar o nome do local.";
-  response.action = null;
-} else if (message.includes("paragem") || message.includes("parada")) {
-  response.message = "Vou adicionar uma paragem. Por favor, indique onde deseja parar.";
-  response.action = null;
-} else if (message.includes("lisboa") || message.includes("porto") || message.includes("coimbra")) {
-  // Exemplo: extrair localização da mensagem
-  if (message.includes("lisboa")) {
-    response.message = "Origem definida: Lisboa. Agora preciso saber o destino.";
-    response.location = {
-      name: "Lisboa, Portugal",
-      lat: 38.7223,
-      lng: -9.1393
-    };
-    response.action = "set_origin";
-  }
-} else {
-  response.message = "Como posso ajudá-lo? Posso ajudá-lo a definir origem, destino e paragens da sua rota.";
+  suggestions: [],
 }
 
-return response;
+// Detectar intenção do utilizador
+if (message.includes('origem') || message.includes('partida') || message.includes('começar')) {
+  response.message =
+    'Perfeito! Por favor, indique o ponto de partida. Pode clicar no mapa ou digitar o nome do local.'
+  response.action = null
+} else if (
+  message.includes('destino') ||
+  message.includes('chegada') ||
+  message.includes('terminar')
+) {
+  response.message =
+    'Ótimo! Agora preciso saber o destino. Pode clicar no mapa ou digitar o nome do local.'
+  response.action = null
+} else if (message.includes('paragem') || message.includes('parada')) {
+  response.message = 'Vou adicionar uma paragem. Por favor, indique onde deseja parar.'
+  response.action = null
+} else if (message.includes('lisboa') || message.includes('porto') || message.includes('coimbra')) {
+  // Exemplo: extrair localização da mensagem
+  if (message.includes('lisboa')) {
+    response.message = 'Origem definida: Lisboa. Agora preciso saber o destino.'
+    response.location = {
+      name: 'Lisboa, Portugal',
+      lat: 38.7223,
+      lng: -9.1393,
+    }
+    response.action = 'set_origin'
+  }
+} else {
+  response.message =
+    'Como posso ajudá-lo? Posso ajudá-lo a definir origem, destino e paragens da sua rota.'
+}
+
+return response
 ```
 
 ### Passo 3: Responder ao Webhook
@@ -127,6 +137,7 @@ return response;
 ## 💡 Exemplos de Respostas
 
 ### Solicitar Origem
+
 ```json
 {
   "message": "Por favor, indique o ponto de partida. Pode clicar no mapa ou digitar o nome do local.",
@@ -136,6 +147,7 @@ return response;
 ```
 
 ### Solicitar Destino
+
 ```json
 {
   "message": "Agora preciso saber o destino. Pode clicar no mapa ou digitar o nome do local.",
@@ -145,6 +157,7 @@ return response;
 ```
 
 ### Solicitar Paragem
+
 ```json
 {
   "message": "Vou adicionar uma paragem. Por favor, indique onde deseja parar.",
@@ -154,6 +167,7 @@ return response;
 ```
 
 ### Definir Localização Automaticamente
+
 ```json
 {
   "message": "Origem definida: Lisboa, Portugal",
@@ -167,6 +181,7 @@ return response;
 ```
 
 ### Sugerir Localizações
+
 ```json
 {
   "message": "Encontrei várias opções. Qual delas pretende?",
@@ -213,18 +228,18 @@ Se quiser fazer geocoding no n8n:
 
 ```javascript
 // Exemplo usando HTTP Request node
-const locationName = "Lisboa";
-const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`;
+const locationName = 'Lisboa'
+const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`
 
 // Fazer requisição HTTP
-const response = await $http.get(geocodingUrl);
-const result = response.data[0];
+const response = await $http.get(geocodingUrl)
+const result = response.data[0]
 
 return {
   name: result.display_name,
   lat: parseFloat(result.lat),
-  lng: parseFloat(result.lon)
-};
+  lng: parseFloat(result.lon),
+}
 ```
 
 ## 📝 Notas Importantes
@@ -266,4 +281,3 @@ return {
 - [Documentação n8n](https://docs.n8n.io/)
 - [Nominatim API](https://nominatim.org/release-docs/develop/api/Overview/)
 - [OpenStreetMap](https://www.openstreetmap.org/)
-

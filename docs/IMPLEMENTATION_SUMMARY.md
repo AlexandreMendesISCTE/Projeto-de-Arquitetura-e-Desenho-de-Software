@@ -3,6 +3,7 @@
 ## ✅ Funcionalidades Implementadas
 
 ### 1. Chat Widget
+
 - ✅ Ícone circular flutuante no canto inferior direito
 - ✅ Interface de chat responsiva e intuitiva
 - ✅ Integração com n8n workflow
@@ -10,12 +11,14 @@
 - ✅ Geocoding automático de localizações mencionadas
 
 ### 2. Integração n8n
+
 - ✅ Serviço de comunicação com webhook n8n
 - ✅ Envio de contexto da rota atual
 - ✅ Processamento de respostas do bot
 - ✅ Detecção automática de comandos de localização
 
 ### 3. Docker & Deploy
+
 - ✅ Dockerfile multi-stage otimizado
 - ✅ docker-compose.yml configurado
 - ✅ Configuração nginx para proxy reverso
@@ -163,15 +166,18 @@ Ver guia completo em `N8N_WORKFLOW_GUIDE.md`
 ## 🐛 Troubleshooting
 
 ### Chat não aparece
+
 - Verificar se `ChatWidget` está importado em `App.tsx`
 - Verificar se a imagem está em `public/`
 
 ### Chat não conecta ao n8n
+
 - Verificar variável `VITE_N8N_WEBHOOK_URL`
 - Verificar se n8n está acessível
 - Verificar CORS no n8n
 
 ### Deploy falha
+
 - Verificar logs: `docker-compose logs`
 - Verificar espaço em disco
 - Verificar portas disponíveis
@@ -188,4 +194,3 @@ Ver guia completo em `N8N_WORKFLOW_GUIDE.md`
 2. Testar integração chat → n8n → aplicação
 3. Ajustar variáveis de ambiente conforme necessário
 4. Monitorizar logs e performance
-

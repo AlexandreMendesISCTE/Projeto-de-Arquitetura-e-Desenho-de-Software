@@ -1,4 +1,5 @@
 # Guia de Deploy - Map Route Explorer
+
 # Deploy em Docker com nginx no servidor Ubuntu
 
 ## 📋 Pré-requisitos
@@ -69,6 +70,7 @@ docker-compose ps
 ### 4. Verificar Deploy
 
 A aplicação estará disponível em:
+
 - **URL Principal**: `http://192.168.100.178:8082/nginx/proxy`
 - **Health Check**: `http://192.168.100.178:8082/nginx/proxy/health`
 
@@ -77,16 +79,19 @@ A aplicação estará disponível em:
 ### 5. Configurar n8n Workflow
 
 O workflow n8n deve estar configurado para receber POST requests em:
+
 ```
 http://192.168.100.178:5678/webhook/chat
 ```
 
 **Ou se usando Nginx Proxy Manager:**
+
 ```
 http://192.168.100.178:81/n8n/webhook/chat
 ```
 
 **Payload esperado:**
+
 ```json
 {
   "message": "Quero ir de Lisboa ao Porto",
@@ -101,6 +106,7 @@ http://192.168.100.178:81/n8n/webhook/chat
 ```
 
 **Resposta esperada:**
+
 ```json
 {
   "message": "Perfeito! Vou ajudá-lo a definir a rota de Lisboa ao Porto.",
@@ -177,22 +183,25 @@ curl http://192.168.100.178:8082/nginx/proxy/health
 ### Problema: Aplicação não carrega
 
 1. Verificar se os containers estão a correr:
+
    ```bash
    docker-compose ps
    ```
 
 2. Verificar logs de erro:
+
    ```bash
    docker-compose logs map-route-explorer
    ```
 
 3. Verificar conectividade com n8n:
+
    ```bash
    # Testar webhook n8n diretamente
    curl -X POST http://192.168.100.178:5678/webhook/chat \
      -H "Content-Type: application/json" \
      -d '{"message":"test","currentRoute":{"origin":null,"destination":null,"waypoints":[]},"waitingForInput":null,"timestamp":"2025-01-15T10:30:00.000Z"}'
-   
+
    # Ou se usando Nginx Proxy Manager
    curl -X POST http://192.168.100.178:81/n8n/webhook/chat \
      -H "Content-Type: application/json" \
@@ -225,4 +234,3 @@ curl http://192.168.100.178:8082/nginx/proxy/health
 - Use HTTPS em produção (configurar certificados SSL)
 - Configure firewall para permitir apenas portas necessárias
 - Mantenha imagens Docker atualizadas
-

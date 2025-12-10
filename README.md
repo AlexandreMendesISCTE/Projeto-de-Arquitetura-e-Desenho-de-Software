@@ -2,7 +2,14 @@
 
 > **Sistema Interativo de Rotas e Exploração de Locais com OpenStreetMap**
 
+![CodeQL](https://github.com/AlexandreMendesISCTE/Projeto-de-Arquitetura-e-Desenho-de-Software/actions/workflows/codeql.yml/badge.svg)
+
 Uma aplicação web moderna desenvolvida em React + Vite que permite aos utilizadores explorar mapas baseados em dados do OpenStreetMap, traçar rotas entre pontos de interesse e obter informações relevantes sobre o trajeto.
+
+Documentação detalhada foi movida para `docs/`:
+- `docs/DEPLOY.md`, `docs/DEPLOY_PORTAINER.md`
+- `docs/DEPLOYMENT_CHECKLIST.md`, `docs/SPRINT_PLANNING.md`
+- `docs/IMPLEMENTATION_SUMMARY.md`, `docs/N8N_WORKFLOW_GUIDE.md`
 
 **Versão**: 3.0.0 | **Status**: Em desenvolvimento
 
@@ -68,83 +75,90 @@ npm run preview
 - **Tailwind CSS** - Framework CSS utility-first
 - **Lucide React** - Ícones
 
+## 🧹 Qualidade de Código
+
+- **Lint**: `npm run lint`
+- **Prettier**: `npm run format` (corrige) / `npm run format:check` (verifica)
+- **Dependabot**: configurações em `.github/dependabot.yml` (npm, semanal)
+- **CodeQL (GitHub Actions)**: workflow em `.github/workflows/codeql.yml` analisa JS/TS em pushes/PRs. Resultados aparecem em Security > Code scanning alerts no GitHub.
+
 ## 🏗️ Arquitetura e Integrações
 
 ```mermaid
 graph TB
     subgraph "Frontend - React Application"
         UI[MapRouteExplorer<br/>Componente Principal]
-        
+
         subgraph "Componentes UI"
             MapC[MapContainer<br/>Leaflet Map]
             Search[LocationSearch<br/>Pesquisa & Waypoints]
             RouteInfo[RouteInfo<br/>Info da Rota]
             Transport[TransportModeSelector<br/>Modo Transporte]
         end
-        
+
         subgraph "State Management - Zustand"
             MapStore[(MapStore<br/>Center, Zoom, Selected)]
             RouteStore[(RouteStore<br/>Origin, Dest, Waypoints, Route)]
             POIStore[(POIStore<br/>POI Enabled)]
             SearchStore[(SearchStore<br/>Query, Results)]
         end
-        
+
         subgraph "Data Fetching - React Query"
             useRoute[useRoute Hook<br/>Route Calculation]
             usePOIs[usePOIs Hook<br/>POI Fetching]
             useGeocoding[useGeocoding Hook<br/>Location Search]
             useGeolocation[useGeolocation Hook<br/>Browser Geolocation]
         end
-        
+
         subgraph "API Services"
             GoogleMaps[Google Maps Service<br/>Directions API]
             POIService[POI Service<br/>Overpass API]
             Nominatim[Nominatim Service<br/>Geocoding]
         end
     end
-    
+
     subgraph "External APIs"
         GMapsAPI[Google Maps<br/>Directions API<br/>JavaScript SDK]
         OverpassAPI[Overpass API<br/>OpenStreetMap<br/>POI Data]
         NominatimAPI[Nominatim API<br/>OpenStreetMap<br/>Geocoding]
         BrowserGeo[Browser<br/>Geolocation API]
     end
-    
+
     subgraph "Map Rendering"
         Leaflet[Leaflet Map<br/>OpenStreetMap Tiles]
         RouteLayer[RouteLayer<br/>Route Polyline]
         MarkerLayer[MarkerLayer<br/>Origin/Dest/Waypoints]
         POILayer[POILayer<br/>POI Markers]
     end
-    
+
     UI --> MapC
     UI --> Search
     UI --> RouteInfo
     UI --> Transport
-    
+
     MapC --> Leaflet
     MapC --> RouteLayer
     MapC --> MarkerLayer
     MapC --> POILayer
-    
+
     Search --> MapStore
     Search --> RouteStore
     Search --> SearchStore
     Search --> useGeocoding
     Search --> useGeolocation
-    
+
     RouteInfo --> RouteStore
     RouteInfo --> POIStore
     RouteInfo --> useRoute
-    
+
     Transport --> RouteStore
-    
+
     RouteLayer --> RouteStore
     MarkerLayer --> RouteStore
     POILayer --> RouteStore
     POILayer --> POIStore
     POILayer --> usePOIs
-    
+
     useRoute --> RouteStore
     useRoute --> GoogleMaps
     usePOIs --> RouteStore
@@ -153,11 +167,11 @@ graph TB
     useGeocoding --> SearchStore
     useGeocoding --> Nominatim
     useGeolocation --> BrowserGeo
-    
+
     GoogleMaps --> GMapsAPI
     POIService --> OverpassAPI
     Nominatim --> NominatimAPI
-    
+
     style UI fill:#3b82f6,color:#fff
     style MapStore fill:#10b981,color:#fff
     style RouteStore fill:#10b981,color:#fff
@@ -189,14 +203,14 @@ sequenceDiagram
     API-->>Hook: Route Object
     Hook-->>Store: setRoute(route)
     Store-->>Map: Render RouteLayer
-    
+
     User->>UI: 2. Adiciona Waypoint
     UI->>Store: addWaypoint(empty)
     Store->>UI: Show empty waypoint field
     User->>UI: Clica no mapa ou pesquisa
     UI->>Store: setWaypoints[updated]
     Store->>Hook: Trigger route recalculation
-    
+
     User->>UI: 3. Toggle POIs
     UI->>Store: togglePOIs()
     Store->>Hook: Trigger usePOIs
@@ -205,7 +219,7 @@ sequenceDiagram
     External-->>API: POI Data
     API-->>Hook: POI Array
     Hook-->>Map: Render POILayer
-    
+
     User->>UI: 4. Muda Modo Transporte
     UI->>Store: setTransportMode(mode)
     Store->>Store: Clear route
@@ -319,4 +333,3 @@ Este projeto está licenciado sob a Licença MIT - veja o ficheiro [LICENSE](LIC
 
 **Desenvolvido para a disciplina de Arquitetura e Desenho de Software**  
 **ISCTE-IUL | Engenharia Informática | 2025**
-
