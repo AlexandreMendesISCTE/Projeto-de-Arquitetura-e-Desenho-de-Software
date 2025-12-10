@@ -314,7 +314,10 @@ const ChatWidget = () => {
             // Mensagem de confirmação formatada
             let confirmMessage = `✅ Processado. 🗺️ Rota definida:\n📍 Origem: ${response.origin.name}\n🎯 Destino: ${response.destination.name}`
             if (response.waypoints && response.waypoints.length > 0) {
-              confirmMessage += `\n🛑 Paragens: ${response.waypoints.map((w: any) => w.name.split(',')[0]).join(', ')}`
+              confirmMessage += `\n🛑 Paragens: ${response.waypoints
+                .map((w) => (w.name ? w.name.split(',')[0] : ''))
+                .filter(Boolean)
+                .join(', ')}`
             }
             addBotMessage(confirmMessage)
           } else {
@@ -375,7 +378,7 @@ const ChatWidget = () => {
               addBotMessage('⚠️ Limite máximo de 5 paragens atingido.')
             } else {
               const waypointsToAdd = response.waypoints.slice(0, availableSlots)
-              waypointsToAdd.forEach((wp: any) => {
+              waypointsToAdd.forEach((wp) => {
                 addWaypoint({
                   lat: wp.lat,
                   lng: wp.lng,

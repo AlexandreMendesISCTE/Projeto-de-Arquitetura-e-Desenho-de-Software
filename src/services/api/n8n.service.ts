@@ -18,8 +18,7 @@ import axios from 'axios'
  * URL base do n8n workflow
  * Configurável via variável de ambiente
  */
-const N8N_WEBHOOK_URL =
-  import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://yocomsn8n.duckdns.org/webhook/mapchat'
+const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || '/n8n/chat'
 
 /**
  * Timeout para requisições ao n8n (30 segundos)

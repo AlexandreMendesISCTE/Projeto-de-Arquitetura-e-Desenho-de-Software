@@ -74,10 +74,19 @@ function loadGoogleMapsAPI(): Promise<void> {
       resolve()
     }
 
+    // Prevent double-loading the Google Maps script (avoids custom element redefinition warnings)
+    const existingScript = document.querySelector<HTMLScriptElement>(
+      'script[data-google-maps-loader]'
+    )
+    if (existingScript) {
+      return
+    }
+
     const script = document.createElement('script')
     script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&loading=async&callback=initGoogleMaps`
     script.async = true
     script.defer = true
+    script.setAttribute('data-google-maps-loader', 'true')
     script.onerror = () => {
       reject(new Error('Failed to load Google Maps API'))
     }
@@ -104,6 +113,7 @@ class GoogleMapsService {
       [TransportMode.DRIVING]: google.maps.TravelMode.DRIVING,
       [TransportMode.BICYCLING]: google.maps.TravelMode.BICYCLING,
       [TransportMode.WALKING]: google.maps.TravelMode.WALKING,
+      [TransportMode.TRANSIT]: google.maps.TravelMode.TRANSIT,
     }
     return modes[mode]
   }

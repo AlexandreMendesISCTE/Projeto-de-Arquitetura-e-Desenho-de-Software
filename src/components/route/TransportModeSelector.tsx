@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Car, Bike, Footprints, ChevronDown } from 'lucide-react'
+import { Car, Bike, Footprints, Train, ChevronDown } from 'lucide-react'
 import { useRouteStore } from '../../store/route.store'
 import { TransportMode } from '../../types/route.types'
 
@@ -11,6 +11,7 @@ const TransportModeSelector = () => {
     { mode: TransportMode.DRIVING, label: 'Carro', icon: Car, color: 'bg-blue-500' },
     { mode: TransportMode.BICYCLING, label: 'Bicicleta', icon: Bike, color: 'bg-green-500' },
     { mode: TransportMode.WALKING, label: 'A pé', icon: Footprints, color: 'bg-orange-500' },
+    { mode: TransportMode.TRANSIT, label: 'Transporte', icon: Train, color: 'bg-purple-500' },
   ]
 
   const currentMode = modes.find((m) => m.mode === transportMode) || modes[0]

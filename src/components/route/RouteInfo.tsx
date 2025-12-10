@@ -1,4 +1,14 @@
-import { Route, RotateCcw, Loader2, Map, MapPinned, Car, Bike, Footprints } from 'lucide-react'
+import {
+  Route,
+  RotateCcw,
+  Loader2,
+  Map,
+  MapPinned,
+  Car,
+  Bike,
+  Footprints,
+  Train,
+} from 'lucide-react'
 import { useRouteStore } from '../../store/route.store'
 import { usePOIStore } from '../../store/poi.store'
 import { useRoute } from '../../hooks/useRoute'
@@ -74,11 +84,14 @@ const RouteInfo = () => {
                   ? 'Carro'
                   : transportMode === TransportMode.BICYCLING
                     ? 'Bicicleta'
-                    : 'A pé'
+                    : transportMode === TransportMode.TRANSIT
+                      ? 'Transporte'
+                      : 'A pé'
               }
             >
               {transportMode === TransportMode.DRIVING && <Car className="w-4 h-4" />}
               {transportMode === TransportMode.BICYCLING && <Bike className="w-4 h-4" />}
+              {transportMode === TransportMode.TRANSIT && <Train className="w-4 h-4" />}
               {transportMode === TransportMode.WALKING && <Footprints className="w-4 h-4" />}
             </button>
 
@@ -95,6 +108,7 @@ const RouteInfo = () => {
                   {[
                     { mode: TransportMode.DRIVING, icon: Car },
                     { mode: TransportMode.BICYCLING, icon: Bike },
+                    { mode: TransportMode.TRANSIT, icon: Train },
                     { mode: TransportMode.WALKING, icon: Footprints },
                   ]
                     .filter((m) => m.mode !== transportMode)
@@ -111,7 +125,9 @@ const RouteInfo = () => {
                             ? 'Carro'
                             : mode === TransportMode.BICYCLING
                               ? 'Bicicleta'
-                              : 'A pé'
+                              : mode === TransportMode.TRANSIT
+                                ? 'Transporte'
+                                : 'A pé'
                         }
                       >
                         <Icon className="w-4 h-4 text-gray-700" />
@@ -183,7 +199,9 @@ const RouteInfo = () => {
                 ? 'Carro'
                 : transportMode === TransportMode.BICYCLING
                   ? 'Bicicleta'
-                  : 'A pé'}
+                  : transportMode === TransportMode.TRANSIT
+                    ? 'Transporte público'
+                    : 'A pé'}
             </span>
           </div>
           {waypoints.length > 0 && (

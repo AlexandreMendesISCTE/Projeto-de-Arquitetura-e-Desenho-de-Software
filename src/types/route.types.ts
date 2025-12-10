@@ -18,6 +18,7 @@ export enum TransportMode {
   DRIVING = 'driving',
   BICYCLING = 'cycling',
   WALKING = 'walking',
+  TRANSIT = 'transit',
 }
 
 export interface RouteInfo {

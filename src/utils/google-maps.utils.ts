@@ -16,7 +16,9 @@ export const openRouteInGoogleMaps = (
       ? 'driving'
       : mode === TransportMode.BICYCLING
         ? 'bicycling'
-        : 'walking'
+        : mode === TransportMode.TRANSIT
+          ? 'transit'
+          : 'walking'
 
   // Format coordinates
   const originStr = `${origin.lat},${origin.lng}`
