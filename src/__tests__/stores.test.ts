@@ -43,7 +43,13 @@ describe('Zustand stores', () => {
   describe('route.store', () => {
     it('clears route when origin or destination is set', () => {
       useRouteStore.setState({
-        route: { waypoints: [], totalDistance: 1000, totalDuration: 600, transportMode: TransportMode.DRIVING, geometry: { type: 'LineString', coordinates: [] } },
+        route: {
+          waypoints: [],
+          totalDistance: 1000,
+          totalDuration: 600,
+          transportMode: TransportMode.DRIVING,
+          geometry: { type: 'LineString', coordinates: [] },
+        },
       })
 
       useRouteStore.getState().setOrigin({ lat: 1, lng: 2 })
@@ -120,4 +126,3 @@ describe('Zustand stores', () => {
     })
   })
 })
-

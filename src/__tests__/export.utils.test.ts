@@ -12,7 +12,7 @@ const route = {
   totalDuration: 12000,
   transportMode: TransportMode.DRIVING,
   geometry: {
-    type: 'LineString',
+    type: 'LineString' as const,
     coordinates: [
       [-9.1393, 38.7223],
       [-9, 39],
@@ -34,22 +34,31 @@ describe('export.utils', () => {
   const originalDocument = globalThis.document
   const originalURL = globalThis.URL
 
+  type MockLink = { href: string; download: string; click: ReturnType<typeof vi.fn> }
+  type MockDocument = {
+    createElement: (tag: string) => MockLink
+    body: { appendChild: (link: MockLink) => void; removeChild: (link: MockLink) => void }
+  }
+  type MockURL = { createObjectURL: (blob: Blob) => string; revokeObjectURL: (url: string) => void }
+
   beforeEach(() => {
     vi.spyOn(Date, 'now').mockReturnValue(1700000000000)
-    ;(globalThis as any).document = {
+    const mockDoc: MockDocument = {
       createElement: vi.fn(() => link),
       body: { appendChild, removeChild },
     }
-    ;(globalThis as any).URL = {
+    const mockURL: MockURL = {
       createObjectURL,
       revokeObjectURL,
     }
+    ;(globalThis as unknown as { document: Document }).document = mockDoc as unknown as Document
+    ;(globalThis as unknown as { URL: MockURL }).URL = mockURL
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
-    ;(globalThis as any).document = originalDocument
-    ;(globalThis as any).URL = originalURL
+    ;(globalThis as unknown as { document: Document }).document = originalDocument
+    ;(globalThis as unknown as { URL: MockURL }).URL = originalURL as unknown as MockURL
   })
 
   it('exports route to JSON with deterministic filename and content', async () => {
@@ -62,8 +71,11 @@ describe('export.utils', () => {
 
     expect(link.download).toBe('route-driving-1700000000000.json')
 
-    const blob = createObjectURL.mock.calls[0][0] as Blob
-    const text = await blob.text()
+    const calls = createObjectURL.mock.calls as unknown[][]
+    expect(calls.length).toBeGreaterThan(0)
+    const blob = calls[0][0] as unknown
+    expect(blob).toBeInstanceOf(Blob)
+    const text = await (blob as Blob).text()
     expect(text).toContain('"origin"')
     expect(text).toContain('"destination"')
     expect(text).toContain('"transportMode"')
@@ -75,12 +87,14 @@ describe('export.utils', () => {
     expect(link.download).toBe('route-driving-1700000000000.gpx')
     expect(createObjectURL).toHaveBeenCalledTimes(1)
 
-    const blob = createObjectURL.mock.calls[0][0] as Blob
-    const text = await blob.text()
+    const calls = createObjectURL.mock.calls as unknown[][]
+    expect(calls.length).toBeGreaterThan(0)
+    const blob = calls[0][0] as unknown
+    expect(blob).toBeInstanceOf(Blob)
+    const text = await (blob as Blob).text()
     expect(text).toContain('<?xml version="1.0" encoding="UTF-8"?>')
     expect(text).toContain('<gpx')
     expect(text).toContain('<rtept lat="38.7223" lon="-9.1393">')
     expect(text).toContain('<rtept lat="41.1579" lon="-8.6291">')
   })
 })
-

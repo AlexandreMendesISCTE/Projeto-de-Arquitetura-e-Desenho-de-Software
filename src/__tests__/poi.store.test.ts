@@ -51,4 +51,3 @@ describe('poi.store', () => {
     expect(result[0].name).toBe('Cafe')
   })
 })
-

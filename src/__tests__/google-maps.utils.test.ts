@@ -9,15 +9,16 @@ describe('google-maps.utils', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
     // Minimal window mock for the util
-    ;(globalThis as unknown as { window: { open: (url: string, target?: string) => void } }).window = {
-      open: vi.fn(),
-    }
+    const mockOpen = vi.fn()
+    const holder = globalThis as unknown as { window?: { open: ReturnType<typeof vi.fn> } }
+    holder.window = { open: mockOpen }
   })
 
   it('opens Google Maps with correct params (driving, no waypoints)', () => {
     openRouteInGoogleMaps(origin, destination, TransportMode.DRIVING, [])
 
-    const openMock = (globalThis as any).window.open as ReturnType<typeof vi.fn>
+    const openMock = (globalThis as unknown as { window: { open: ReturnType<typeof vi.fn> } })
+      .window.open
     expect(openMock).toHaveBeenCalledTimes(1)
     const url = openMock.mock.calls[0][0] as string
     expect(url).toContain('https://www.google.com/maps/dir/?api=1')
@@ -35,7 +36,8 @@ describe('google-maps.utils', () => {
 
     openRouteInGoogleMaps(origin, destination, TransportMode.WALKING, waypoints)
 
-    const openMock = (globalThis as any).window.open as ReturnType<typeof vi.fn>
+    const openMock = (globalThis as unknown as { window: { open: ReturnType<typeof vi.fn> } })
+      .window.open
     const url = openMock.mock.calls[0][0] as string
     expect(url).toContain('travelmode=walking')
     expect(url).toContain('waypoints=')
@@ -43,4 +45,3 @@ describe('google-maps.utils', () => {
     expect(url).toContain(encodeURIComponent(`${waypoints[1].lat},${waypoints[1].lng}`))
   })
 })
-
