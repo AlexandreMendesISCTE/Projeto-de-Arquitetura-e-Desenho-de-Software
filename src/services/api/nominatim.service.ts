@@ -20,9 +20,6 @@ class NominatimService {
     this.client = axios.create({
       baseURL: NOMINATIM_BASE_URL,
       timeout: HTTP_TIMEOUT,
-      headers: {
-        'User-Agent': 'MapRouteExplorer/3.0.0',
-      },
     })
   }
 
