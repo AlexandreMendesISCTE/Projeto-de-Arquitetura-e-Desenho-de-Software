@@ -5,8 +5,7 @@
  * Envia mensagens do utilizador e contexto da aplicação para processamento.
  *
  * Endpoint esperado no n8n:
- * - POST http://192.168.100.178:81/n8n/webhook/chat
- *
+ * - POST ${VITE_N8N_WEBHOOK_URL} (configurado via variável de ambiente)
  * O workflow n8n deve processar:
  * - Mensagens do utilizador
  * - Contexto da rota atual
@@ -20,7 +19,7 @@ import axios from 'axios'
  * Configurável via variável de ambiente
  */
 const N8N_WEBHOOK_URL =
-  import.meta.env.VITE_N8N_WEBHOOK_URL || 'http://192.168.100.178:81/n8n/webhook/chat'
+  import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://yocomsn8n.duckdns.org/webhook/mapchat'
 
 /**
  * Timeout para requisições ao n8n (30 segundos)
@@ -56,6 +55,12 @@ interface N8NPayload {
   currentRoute: RouteContext
   waitingForInput: 'origin' | 'destination' | 'waypoint' | null
   timestamp: string
+  userLocation?: {
+    name: string
+    lat: number
+    lng: number
+  } | null
+  useCurrentLocationAsOrigin?: boolean
 }
 
 /**
@@ -63,7 +68,7 @@ interface N8NPayload {
  */
 export interface N8NResponse {
   message: string
-  action?: 'set_origin' | 'set_destination' | 'add_waypoint' | 'set_route' | 'clear_route' | null
+  action?: 'set_origin' | 'set_destination' | 'add_waypoint' | 'add_waypoints' | 'set_route' | 'clear_route' | null
   location?: {
     name: string
     lat: number
@@ -79,6 +84,11 @@ export interface N8NResponse {
     lat: number
     lng: number
   }
+  waypoints?: Array<{
+    name: string
+    lat: number
+    lng: number
+  }>
   suggestions?: Array<{
     name: string
     lat: number
@@ -106,6 +116,12 @@ export const sendMessageToN8N = async (context: {
   message: string
   currentRoute: RouteContext
   waitingForInput: 'origin' | 'destination' | 'waypoint' | null
+  userLocation?: {
+    name: string
+    lat: number
+    lng: number
+  } | null
+  useCurrentLocationAsOrigin?: boolean
 }): Promise<N8NResponse> => {
   try {
     // Preparar payload para o n8n
@@ -114,6 +130,8 @@ export const sendMessageToN8N = async (context: {
       currentRoute: context.currentRoute,
       waitingForInput: context.waitingForInput,
       timestamp: new Date().toISOString(),
+      userLocation: context.userLocation,
+      useCurrentLocationAsOrigin: context.useCurrentLocationAsOrigin,
     }
 
     console.log('Enviando mensagem para n8n:', payload)
