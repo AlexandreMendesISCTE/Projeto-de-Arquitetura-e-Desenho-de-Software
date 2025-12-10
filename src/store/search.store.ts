@@ -10,4 +10,3 @@ export const useSearchStore = create<SearchState>((set) => ({
   setIsLoading: (loading) => set({ isLoading: loading }),
   clear: () => set({ query: '', results: [], isLoading: false }),
 }))
-

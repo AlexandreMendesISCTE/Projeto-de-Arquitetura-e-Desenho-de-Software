@@ -50,9 +50,7 @@ const POILayer = () => {
         <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={createPOIIcon(poi.category)}>
           <Popup>
             <div className="font-semibold text-sm">{poi.name}</div>
-            {poi.category && (
-              <div className="text-xs text-gray-500 capitalize">{poi.category}</div>
-            )}
+            {poi.category && <div className="text-xs text-gray-500 capitalize">{poi.category}</div>}
           </Popup>
         </Marker>
       ))}
@@ -61,4 +59,3 @@ const POILayer = () => {
 }
 
 export default POILayer
-

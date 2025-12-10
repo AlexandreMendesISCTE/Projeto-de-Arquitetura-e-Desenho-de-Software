@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import googleMapsService from '../services/api/google-maps.service'
 import { Location, TransportMode } from '../types/route.types'
 
@@ -11,8 +11,19 @@ export const useRoute = (
 ) => {
   const queryClient = useQueryClient()
   // Filter out empty waypoints (0,0 coordinates)
-  const validWaypoints = waypoints.filter(wp => wp.lat !== 0 || wp.lng !== 0)
-  const queryKey = ['route', origin?.lat, origin?.lng, destination?.lat, destination?.lng, mode, validWaypoints.length]
+  const validWaypoints = waypoints.filter((wp) => wp.lat !== 0 || wp.lng !== 0)
+  const queryKey = useMemo(
+    () => [
+      'route',
+      origin?.lat,
+      origin?.lng,
+      destination?.lat,
+      destination?.lng,
+      mode,
+      validWaypoints.length,
+    ],
+    [destination?.lat, destination?.lng, mode, origin?.lat, origin?.lng, validWaypoints.length]
+  )
 
   const query = useQuery({
     queryKey,
@@ -30,14 +41,13 @@ export const useRoute = (
   // Force refetch when mode or waypoints change
   useEffect(() => {
     if (origin && destination) {
-      queryClient.removeQueries({ 
+      queryClient.removeQueries({
         queryKey: ['route'],
-        exact: false 
+        exact: false,
       })
       queryClient.refetchQueries({ queryKey })
     }
-  }, [mode, validWaypoints.length]) // Depend on mode and waypoints count
+  }, [destination, mode, origin, queryClient, queryKey, validWaypoints.length]) // Depend on mode, waypoints, and route context
 
   return query
 }
-

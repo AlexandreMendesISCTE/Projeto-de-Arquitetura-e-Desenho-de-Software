@@ -44,9 +44,7 @@ class POIService {
   /**
    * Get POIs along a route
    */
-  async getPOIsAlongRoute(
-    routeCoordinates: [number, number][]
-  ): Promise<POI[]> {
+  async getPOIsAlongRoute(routeCoordinates: [number, number][]): Promise<POI[]> {
     if (routeCoordinates.length < 2) {
       return []
     }
@@ -112,11 +110,7 @@ out center;`
         return
       }
 
-      const category =
-        element.tags.amenity ||
-        element.tags.shop ||
-        element.tags.tourism ||
-        'other'
+      const category = element.tags.amenity || element.tags.shop || element.tags.tourism || 'other'
 
       pois.push({
         id: `poi-${element.id}`,
@@ -163,14 +157,14 @@ out center;`
     const MAX_BBOX_SIZE = 0.1
     const latDiff = maxLat - minLat
     const lngDiff = maxLng - minLng
-    
+
     // If bounding box is too large, shrink it around the center
     if (latDiff > MAX_BBOX_SIZE || lngDiff > MAX_BBOX_SIZE) {
       const centerLat = (minLat + maxLat) / 2
       const centerLng = (minLng + maxLng) / 2
       const halfLat = Math.min(latDiff / 2, MAX_BBOX_SIZE / 2)
       const halfLng = Math.min(lngDiff / 2, MAX_BBOX_SIZE / 2)
-      
+
       minLat = centerLat - halfLat
       maxLat = centerLat + halfLat
       minLng = centerLng - halfLng
@@ -198,18 +192,19 @@ out center;`
       })
 
       const pois = this.parsePOIResponse(response.data)
-      
+
       // Limit results to 100 to prevent overload (limit in JavaScript, not query)
       return pois.slice(0, 100)
     } catch (error) {
       // Only log if it's not a timeout or bad request (these are expected and handled gracefully)
       if (axios.isAxiosError(error)) {
-        const isTimeout = error.code === 'ECONNABORTED' || 
-                         error.response?.status === 504 ||
-                         (typeof error.response?.data === 'string' && error.response.data.includes('timeout'))
-        
+        const isTimeout =
+          error.code === 'ECONNABORTED' ||
+          error.response?.status === 504 ||
+          (typeof error.response?.data === 'string' && error.response.data.includes('timeout'))
+
         const isBadRequest = error.response?.status === 400
-        
+
         if (!isTimeout && !isBadRequest) {
           console.error('Overpass API error:', error.response?.data || error.message)
         }
@@ -222,4 +217,3 @@ out center;`
 }
 
 export default new POIService()
-

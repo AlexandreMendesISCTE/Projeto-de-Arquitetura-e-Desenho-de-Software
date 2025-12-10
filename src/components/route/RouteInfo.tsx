@@ -8,9 +8,23 @@ import { openRouteInGoogleMaps } from '../../utils/google-maps.utils'
 import { TransportMode } from '../../types/route.types'
 
 const RouteInfo = () => {
-  const { origin, destination, route, transportMode, waypoints, setRoute, reset, setIsLoading, setTransportMode } = useRouteStore()
+  const {
+    origin,
+    destination,
+    route,
+    transportMode,
+    waypoints,
+    setRoute,
+    reset,
+    setIsLoading,
+    setTransportMode,
+  } = useRouteStore()
   const { enabled: poiEnabled, toggle: togglePOIs } = usePOIStore()
-  const { data: calculatedRoute, isLoading, error } = useRoute(origin, destination, transportMode, waypoints)
+  const {
+    data: calculatedRoute,
+    isLoading,
+    error,
+  } = useRoute(origin, destination, transportMode, waypoints)
   const [isTransportMenuOpen, setIsTransportMenuOpen] = useState(false)
 
   useEffect(() => {
@@ -38,9 +52,11 @@ const RouteInfo = () => {
   const isVisible = !!(origin && destination) || !!route
 
   return (
-    <div className={`absolute bottom-0 left-0 right-0 md:bottom-4 md:left-4 md:right-auto md:min-w-[300px] z-[1000] bg-white rounded-lg shadow-lg p-3 md:p-4 rounded-b-none md:rounded-b-lg transition-all duration-500 ease-out ${
-      isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
-    }`}>
+    <div
+      className={`absolute bottom-0 left-0 right-0 md:bottom-4 md:left-4 md:right-auto md:min-w-[300px] z-[1000] bg-white rounded-lg shadow-lg p-3 md:p-4 rounded-b-none md:rounded-b-lg transition-all duration-500 ease-out ${
+        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+      }`}
+    >
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-lg flex items-center gap-2">
           <Route className="w-5 h-5" />
@@ -53,18 +69,24 @@ const RouteInfo = () => {
             <button
               onClick={() => setIsTransportMenuOpen(!isTransportMenuOpen)}
               className="flex items-center justify-center w-8 h-8 rounded transition-colors hover:bg-gray-100 text-gray-600"
-              title={transportMode === TransportMode.DRIVING ? 'Carro' : transportMode === TransportMode.BICYCLING ? 'Bicicleta' : 'A pé'}
+              title={
+                transportMode === TransportMode.DRIVING
+                  ? 'Carro'
+                  : transportMode === TransportMode.BICYCLING
+                    ? 'Bicicleta'
+                    : 'A pé'
+              }
             >
               {transportMode === TransportMode.DRIVING && <Car className="w-4 h-4" />}
               {transportMode === TransportMode.BICYCLING && <Bike className="w-4 h-4" />}
               {transportMode === TransportMode.WALKING && <Footprints className="w-4 h-4" />}
             </button>
-            
+
             {/* Slide-out menu from right to left - horizontal row */}
             {isTransportMenuOpen && (
               <>
                 {/* Backdrop */}
-                <div 
+                <div
                   className="fixed inset-0 bg-black bg-opacity-20 z-[9998]"
                   onClick={() => setIsTransportMenuOpen(false)}
                 />
@@ -75,7 +97,7 @@ const RouteInfo = () => {
                     { mode: TransportMode.BICYCLING, icon: Bike },
                     { mode: TransportMode.WALKING, icon: Footprints },
                   ]
-                    .filter(m => m.mode !== transportMode)
+                    .filter((m) => m.mode !== transportMode)
                     .map(({ mode, icon: Icon }) => (
                       <button
                         key={mode}
@@ -84,7 +106,13 @@ const RouteInfo = () => {
                           setIsTransportMenuOpen(false)
                         }}
                         className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded transition-colors"
-                        title={mode === TransportMode.DRIVING ? 'Carro' : mode === TransportMode.BICYCLING ? 'Bicicleta' : 'A pé'}
+                        title={
+                          mode === TransportMode.DRIVING
+                            ? 'Carro'
+                            : mode === TransportMode.BICYCLING
+                              ? 'Bicicleta'
+                              : 'A pé'
+                        }
                       >
                         <Icon className="w-4 h-4 text-gray-700" />
                       </button>
@@ -93,15 +121,13 @@ const RouteInfo = () => {
               </>
             )}
           </div>
-          
+
           {/* POI Toggle Button */}
           {route && (
             <button
               onClick={togglePOIs}
               className={`flex items-center justify-center w-8 h-8 rounded transition-colors ${
-                poiEnabled
-                  ? 'bg-purple-100 text-purple-600'
-                  : 'hover:bg-gray-100 text-gray-600'
+                poiEnabled ? 'bg-purple-100 text-purple-600' : 'hover:bg-gray-100 text-gray-600'
               }`}
               title={poiEnabled ? 'Ocultar pontos de interesse' : 'Mostrar pontos de interesse'}
             >
@@ -153,9 +179,11 @@ const RouteInfo = () => {
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Modo:</span>
             <span className="font-semibold">
-              {transportMode === TransportMode.DRIVING ? 'Carro' : 
-               transportMode === TransportMode.BICYCLING ? 'Bicicleta' : 
-               'A pé'}
+              {transportMode === TransportMode.DRIVING
+                ? 'Carro'
+                : transportMode === TransportMode.BICYCLING
+                  ? 'Bicicleta'
+                  : 'A pé'}
             </span>
           </div>
           {waypoints.length > 0 && (
@@ -168,13 +196,10 @@ const RouteInfo = () => {
       )}
 
       {origin && !destination && (
-        <div className="text-sm text-gray-600 mt-2">
-          Clique no mapa para definir o destino
-        </div>
+        <div className="text-sm text-gray-600 mt-2">Clique no mapa para definir o destino</div>
       )}
     </div>
   )
 }
 
 export default RouteInfo
-

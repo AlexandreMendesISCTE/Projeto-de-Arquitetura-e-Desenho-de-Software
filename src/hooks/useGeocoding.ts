@@ -23,4 +23,3 @@ export const useReverseGeocoding = (lat: number | null, lng: number | null) => {
     staleTime: 10 * 60 * 1000,
   })
 }
-

@@ -1,12 +1,12 @@
 /**
  * Serviço de integração com n8n Workflow
- * 
+ *
  * Este módulo gere a comunicação com o workflow n8n hospedado no servidor.
  * Envia mensagens do utilizador e contexto da aplicação para processamento.
- * 
+ *
  * Endpoint esperado no n8n:
  * - POST http://192.168.100.178:81/n8n/webhook/chat
- * 
+ *
  * O workflow n8n deve processar:
  * - Mensagens do utilizador
  * - Contexto da rota atual
@@ -88,11 +88,11 @@ export interface N8NResponse {
 
 /**
  * Envia mensagem do utilizador para o workflow n8n
- * 
+ *
  * @param context - Contexto atual da aplicação incluindo mensagem e estado da rota
  * @returns Promise<N8NResponse> - Resposta completa do n8n
  * @throws Error - Se ocorrer erro na comunicação com n8n
- * 
+ *
  * @example
  * ```typescript
  * const response = await sendMessageToN8N({
@@ -168,7 +168,7 @@ export const sendMessageToN8N = async (context: {
 
 /**
  * Valida se o webhook do n8n está acessível
- * 
+ *
  * @returns Promise<boolean> - true se o webhook estiver disponível
  */
 export const checkN8NHealth = async (): Promise<boolean> => {
@@ -189,7 +189,7 @@ export const checkN8NHealth = async (): Promise<boolean> => {
 /**
  * Envia localização selecionada pelo utilizador para o n8n
  * Útil quando o utilizador clica no mapa após o bot solicitar uma localização
- * 
+ *
  * @param location - Localização selecionada
  * @param type - Tipo de localização (origin, destination, waypoint)
  * @returns Promise<string> - Confirmação do bot
@@ -212,10 +212,12 @@ export const sendLocationToN8N = async (
       },
     })
 
-    return response.data?.message || `${type === 'origin' ? 'Origem' : type === 'destination' ? 'Destino' : 'Paragem'} definida com sucesso!`
+    return (
+      response.data?.message ||
+      `${type === 'origin' ? 'Origem' : type === 'destination' ? 'Destino' : 'Paragem'} definida com sucesso!`
+    )
   } catch (error) {
     console.error('Erro ao enviar localização para n8n:', error)
     throw new Error('Erro ao processar localização.')
   }
 }
-

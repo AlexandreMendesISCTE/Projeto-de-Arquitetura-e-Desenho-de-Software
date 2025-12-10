@@ -1,16 +1,16 @@
 /**
  * Componente ChatWidget
- * 
+ *
  * Widget de chat flutuante com ícone circular no canto inferior direito.
  * Integra com n8n workflow para processar mensagens e definir localizações.
- * 
+ *
  * Funcionalidades:
  * - Chat interativo com n8n
  * - Definição de localização inicial, final e paragens
  * - Interface responsiva
  */
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Send, X, Minimize2 } from 'lucide-react'
 import { useRouteStore } from '../store/route.store'
 import { useMapStore } from '../store/map.store'
@@ -39,9 +39,12 @@ const ChatWidget = () => {
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  
+
   // Draggable state - always reset to default position on mount
-  const [position, setPosition] = useState<{ x: number | null; y: number | null }>({ x: null, y: null })
+  const [position, setPosition] = useState<{ x: number | null; y: number | null }>({
+    x: null,
+    y: null,
+  })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const [hasDragged, setHasDragged] = useState(false)
@@ -60,11 +63,12 @@ const ChatWidget = () => {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const { setOrigin, setDestination, addWaypoint, setWaypoints, origin, destination, waypoints } = useRouteStore()
+  const { setOrigin, setDestination, addWaypoint, setWaypoints, origin, destination, waypoints } =
+    useRouteStore()
   const { setCenter, setWaitingForInput, waitingForInput } = useMapStore()
-  
+
   // Track waypoints count to detect changes
-  const waypointsCount = waypoints.filter(wp => wp.lat !== 0 || wp.lng !== 0).length
+  const waypointsCount = waypoints.filter((wp) => wp.lat !== 0 || wp.lng !== 0).length
 
   /**
    * Scroll automático para a última mensagem
@@ -104,28 +108,31 @@ const ChatWidget = () => {
           const rect = greenButton.getBoundingClientRect()
           const chatButton = buttonRef.current
           const chatButtonWidth = chatButton.offsetWidth || 56
-          
+
           // Calculate responsive gap based on viewport height
           // Use a small fixed gap plus a small percentage of viewport for better scaling
           const gap = Math.max(2, window.innerHeight * 0.02) // At least 2px, or 2% of viewport height
-          
+
           // Position below the green button, aligned to its right edge
           // Use right edge of green button minus chat button width
           const x = rect.right - chatButtonWidth
           const y = rect.bottom + gap
-          
+
           // Only update if user hasn't manually dragged
           // This allows responsive updates on resize while maintaining user's manual position
           if (!hasUserDraggedRef.current) {
             setPosition({ x, y })
           } else {
             // If user has dragged, constrain to viewport but keep their position
-            setPosition(prev => {
+            setPosition((prev) => {
               if (prev.x === null || prev.y === null) return prev
               const windowWidth = window.innerWidth
               const windowHeight = window.innerHeight
               const constrainedX = Math.max(0, Math.min(prev.x, windowWidth - chatButtonWidth))
-              const constrainedY = Math.max(0, Math.min(prev.y, windowHeight - chatButton.offsetHeight))
+              const constrainedY = Math.max(
+                0,
+                Math.min(prev.y, windowHeight - chatButton.offsetHeight)
+              )
               return { x: constrainedX, y: constrainedY }
             })
           }
@@ -135,13 +142,13 @@ const ChatWidget = () => {
 
     // Calculate position after a short delay to ensure DOM is ready
     const timeout = setTimeout(calculateDefaultPosition, 150)
-    
+
     // Recalculate on window resize for responsive behavior
     window.addEventListener('resize', calculateDefaultPosition)
-    
+
     // Watch for DOM changes in LocationSearch component (when waypoints are added/removed)
     const locationSearchContainer = document.querySelector('[data-location-search-container]')
-    
+
     let mutationObserver: MutationObserver | null = null
     if (locationSearchContainer && typeof MutationObserver !== 'undefined') {
       let mutationTimeout: ReturnType<typeof setTimeout> | null = null
@@ -150,15 +157,15 @@ const ChatWidget = () => {
         if (mutationTimeout) clearTimeout(mutationTimeout)
         mutationTimeout = setTimeout(calculateDefaultPosition, 150)
       })
-      
+
       mutationObserver.observe(locationSearchContainer, {
         childList: true,
         subtree: true,
         attributes: true,
-        attributeFilter: ['style', 'class']
+        attributeFilter: ['style', 'class'],
       })
     }
-    
+
     return () => {
       clearTimeout(timeout)
       window.removeEventListener('resize', calculateDefaultPosition)
@@ -171,28 +178,31 @@ const ChatWidget = () => {
   /**
    * Handle drag start
    */
-  const handleDragStart = (e: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>) => {
+  const handleDragStart = (
+    e: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>
+  ) => {
     if (isOpen) return // Don't drag when chat is open
-    
+
     // Only preventDefault for mouse events, not touch (touch will be handled in non-passive listener)
     if (!('touches' in e)) {
       e.preventDefault()
     }
-    
+
     setIsDragging(true)
     setHasDragged(false)
-    
+
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-    
+
     const button = buttonRef.current
     if (!button) return
-    
+
     // Get current button position
     const rect = button.getBoundingClientRect()
     const currentX = position.x !== null ? position.x : window.innerWidth - rect.width - 16
-    const currentY = position.y !== null ? position.y : window.innerHeight - rect.height - (isMobile ? 80 : 24)
-    
+    const currentY =
+      position.y !== null ? position.y : window.innerHeight - rect.height - (isMobile ? 80 : 24)
+
     setDragStart({
       x: clientX - currentX,
       y: clientY - currentY,
@@ -202,42 +212,45 @@ const ChatWidget = () => {
   /**
    * Handle drag move
    */
-  const handleDragMove = (e: MouseEvent | TouchEvent) => {
-    if (!isDragging) return
+  const handleDragMove = useCallback(
+    (e: MouseEvent | TouchEvent) => {
+      if (!isDragging) return
 
-    // preventDefault is called in the event listener wrapper
-    setHasDragged(true)
-    hasUserDraggedRef.current = true // Mark that user has manually dragged
+      // preventDefault is called in the event listener wrapper
+      setHasDragged(true)
+      hasUserDraggedRef.current = true // Mark that user has manually dragged
 
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
 
-    const newX = clientX - dragStart.x
-    const newY = clientY - dragStart.y
+      const newX = clientX - dragStart.x
+      const newY = clientY - dragStart.y
 
-    // Get button dimensions
-    const button = buttonRef.current
-    if (!button) return
+      // Get button dimensions
+      const button = buttonRef.current
+      if (!button) return
 
-    const buttonWidth = button.offsetWidth
-    const buttonHeight = button.offsetHeight
-    const windowWidth = window.innerWidth
-    const windowHeight = window.innerHeight
+      const buttonWidth = button.offsetWidth
+      const buttonHeight = button.offsetHeight
+      const windowWidth = window.innerWidth
+      const windowHeight = window.innerHeight
 
-    // Constrain to viewport bounds
-    const constrainedX = Math.max(0, Math.min(newX, windowWidth - buttonWidth))
-    const constrainedY = Math.max(0, Math.min(newY, windowHeight - buttonHeight))
+      // Constrain to viewport bounds
+      const constrainedX = Math.max(0, Math.min(newX, windowWidth - buttonWidth))
+      const constrainedY = Math.max(0, Math.min(newY, windowHeight - buttonHeight))
 
-    setPosition({ x: constrainedX, y: constrainedY })
-  }
+      setPosition({ x: constrainedX, y: constrainedY })
+    },
+    [dragStart.x, dragStart.y, isDragging]
+  )
 
   /**
    * Handle drag end
    */
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     setIsDragging(false)
     // Position is kept in state but will reset on page reload
-  }
+  }, [])
 
   /**
    * Set up drag event listeners
@@ -267,7 +280,7 @@ const ChatWidget = () => {
         document.removeEventListener('touchend', handleTouchEnd)
       }
     }
-  }, [isDragging, dragStart])
+  }, [handleDragEnd, handleDragMove, isDragging])
 
   /**
    * Processa resposta do n8n e atualiza o mapa conforme necessário
@@ -289,12 +302,12 @@ const ChatWidget = () => {
               lng: response.destination.lng,
               name: response.destination.name,
             })
-            
+
             // Centrar mapa entre origem e destino
             const centerLat = (response.origin.lat + response.destination.lat) / 2
             const centerLng = (response.origin.lng + response.destination.lng) / 2
             setCenter([centerLat, centerLng])
-            
+
             // Mensagem de confirmação formatada
             const confirmMessage = `✅ Processado. 🗺️ Rota definida:\n📍 Origem: ${response.origin.name}\n🎯 Destino: ${response.destination.name}`
             addBotMessage(confirmMessage)
@@ -402,7 +415,9 @@ const ChatWidget = () => {
         message: inputMessage,
         currentRoute: {
           origin: origin ? { name: origin.name || '', lat: origin.lat, lng: origin.lng } : null,
-          destination: destination ? { name: destination.name || '', lat: destination.lat, lng: destination.lng } : null,
+          destination: destination
+            ? { name: destination.name || '', lat: destination.lat, lng: destination.lng }
+            : null,
           waypoints: waypoints.map((wp) => ({ name: wp.name || '', lat: wp.lat, lng: wp.lng })),
         },
         waitingForInput: waitingForInput,
@@ -455,23 +470,23 @@ const ChatWidget = () => {
           className={`fixed w-14 h-14 md:w-16 md:h-16 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab'
           }`}
-          style={{ 
-            pointerEvents: 'auto', 
-            zIndex: 100001, 
+          style={{
+            pointerEvents: 'auto',
+            zIndex: 100001,
             position: 'fixed',
             ...(isMobile && position.x !== null && position.y !== null
-              ? { 
-                  left: `${position.x}px`, 
-                  top: `${position.y}px`, 
-                  bottom: 'auto', 
-                  right: 'auto' 
+              ? {
+                  left: `${position.x}px`,
+                  top: `${position.y}px`,
+                  bottom: 'auto',
+                  right: 'auto',
                 }
-              : { 
+              : {
                   // Desktop: use CSS positioning (bottom-right) - scales automatically
-                  bottom: '24px', 
+                  bottom: '24px',
                   right: '16px',
                   left: 'auto',
-                  top: 'auto'
+                  top: 'auto',
                 }),
             transform: isDragging ? 'scale(1.1)' : undefined,
           }}
@@ -492,7 +507,9 @@ const ChatWidget = () => {
         <div
           ref={chatWindowRef}
           className={`fixed bottom-20 right-4 md:bottom-6 md:right-6 bg-white rounded-lg shadow-2xl flex flex-col transition-all duration-300 ${
-            isMinimized ? 'w-[calc(100vw-2rem)] md:w-80 h-12' : 'w-[calc(100vw-2rem)] md:w-96 h-[calc(100vh-8rem)] md:h-[600px] max-w-md'
+            isMinimized
+              ? 'w-[calc(100vw-2rem)] md:w-80 h-12'
+              : 'w-[calc(100vw-2rem)] md:w-96 h-[calc(100vh-8rem)] md:h-[600px] max-w-md'
           }`}
           style={{ pointerEvents: 'auto', zIndex: 100001, position: 'fixed' }}
         >
@@ -562,8 +579,14 @@ const ChatWidget = () => {
                     <div className="bg-white border border-gray-200 rounded-lg px-4 py-2">
                       <div className="flex gap-1">
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        <div
+                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                          style={{ animationDelay: '0.1s' }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                          style={{ animationDelay: '0.2s' }}
+                        ></div>
                       </div>
                     </div>
                   </div>
@@ -606,4 +629,3 @@ const ChatWidget = () => {
 }
 
 export default ChatWidget
-

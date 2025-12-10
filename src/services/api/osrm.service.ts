@@ -99,11 +99,7 @@ class OSRMService {
     })
 
     // Adjust duration if API returns unrealistic values
-    const adjustedDuration = adjustDuration(
-      routeData.duration,
-      routeData.distance,
-      mode
-    )
+    const adjustedDuration = adjustDuration(routeData.duration, routeData.distance, mode)
 
     return {
       waypoints: [origin, ...coordinates.slice(1, -1), destination],
@@ -120,4 +116,3 @@ class OSRMService {
 }
 
 export default new OSRMService()
-

@@ -25,4 +25,3 @@ export interface RouteInfo {
   duration: string
   mode: TransportMode
 }
-

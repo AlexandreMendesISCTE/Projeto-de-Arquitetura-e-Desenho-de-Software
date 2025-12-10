@@ -17,7 +17,7 @@ function decodePolyline(encoded: string): [number, number][] {
   if (!encoded || typeof encoded !== 'string' || encoded.length === 0) {
     return []
   }
-  
+
   const poly: [number, number][] = []
   let index = 0
   const len = encoded.length
@@ -115,7 +115,9 @@ class GoogleMapsService {
     waypoints: Location[] = []
   ): Promise<Route> {
     if (!GOOGLE_MAPS_API_KEY) {
-      throw new Error('Google Maps API key is not configured. Please set VITE_GOOGLE_MAPS_API_KEY in your .env file')
+      throw new Error(
+        'Google Maps API key is not configured. Please set VITE_GOOGLE_MAPS_API_KEY in your .env file'
+      )
     }
 
     await this.ensureInitialized()
@@ -131,7 +133,7 @@ class GoogleMapsService {
       unitSystem: google.maps.UnitSystem.METRIC,
       language: 'pt',
       ...(waypoints.length > 0 && {
-        waypoints: waypoints.map(wp => ({
+        waypoints: waypoints.map((wp) => ({
           location: new google.maps.LatLng(wp.lat, wp.lng),
           stopover: true,
         })),
@@ -153,7 +155,7 @@ class GoogleMapsService {
         }
 
         const routeData = result.routes[0]
-        
+
         // Calculate total distance and duration across all legs
         let totalDistance = 0
         let totalDuration = 0
@@ -164,14 +166,15 @@ class GoogleMapsService {
           if (!leg.distance || !leg.duration) {
             return
           }
-          
+
           totalDistance += leg.distance.value
           // Use duration_in_traffic for driving if available, otherwise use duration
-          const legDuration = mode === TransportMode.DRIVING && leg.duration_in_traffic
-            ? leg.duration_in_traffic.value
-            : leg.duration.value
+          const legDuration =
+            mode === TransportMode.DRIVING && leg.duration_in_traffic
+              ? leg.duration_in_traffic.value
+              : leg.duration.value
           totalDuration += legDuration
-          
+
           // Add waypoints from steps
           leg.steps.forEach((step) => {
             allWaypoints.push({
@@ -183,7 +186,7 @@ class GoogleMapsService {
             allInstructions.push(text)
           })
         })
-        
+
         allWaypoints.push(destination)
 
         if (totalDistance === 0 || totalDuration === 0) {
@@ -194,9 +197,12 @@ class GoogleMapsService {
         // Decode polyline to get coordinates
         // Handle different polyline formats from Google Maps
         let encodedPolyline = ''
-        
+
         if (routeData.overview_polyline) {
-          const polyline = routeData.overview_polyline as any
+          const polyline =
+            typeof routeData.overview_polyline === 'string'
+              ? routeData.overview_polyline
+              : (routeData.overview_polyline as google.maps.DirectionsPolyline | undefined)
           // Polyline can be an object with .points property or a string
           if (typeof polyline === 'string') {
             encodedPolyline = polyline
@@ -204,24 +210,31 @@ class GoogleMapsService {
             encodedPolyline = polyline.points
           }
         }
-        
+
         // Fallback: use step polylines if overview_polyline is not available
-        if (!encodedPolyline && routeData.legs.length > 0 && routeData.legs[0].steps && routeData.legs[0].steps.length > 0) {
+        if (
+          !encodedPolyline &&
+          routeData.legs.length > 0 &&
+          routeData.legs[0].steps &&
+          routeData.legs[0].steps.length > 0
+        ) {
           // Use first step's polyline as fallback
-          const firstStepPolyline = routeData.legs[0].steps[0].polyline as any
+          const firstStepPolyline = routeData.legs[0].steps[0].polyline as
+            | google.maps.DirectionsPolyline
+            | undefined
           if (firstStepPolyline && typeof firstStepPolyline.points === 'string') {
             encodedPolyline = firstStepPolyline.points
           }
         }
-        
+
         if (!encodedPolyline) {
           console.error('No polyline data found in route', routeData)
           reject(new Error('No polyline data in route'))
           return
         }
-        
+
         const coordinates = decodePolyline(encodedPolyline)
-        
+
         if (coordinates.length === 0) {
           console.error('Failed to decode polyline', encodedPolyline)
           reject(new Error('Failed to decode route polyline'))

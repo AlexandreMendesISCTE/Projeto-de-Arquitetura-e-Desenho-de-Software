@@ -9,22 +9,24 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 function MapEvents() {
-  const { setCenter, setZoom, setSelectedPoint, center, waitingForInput, clearWaitingForInput } = useMapStore()
-  const { setOrigin, setDestination, origin, destination, waypoints, setWaypoints } = useRouteStore()
+  const { setCenter, setZoom, setSelectedPoint, center, waitingForInput, clearWaitingForInput } =
+    useMapStore()
+  const { setOrigin, setDestination, origin, destination, waypoints, setWaypoints } =
+    useRouteStore()
   const isUpdatingRef = useRef(false)
 
   useMapEvents({
     click: (e) => {
       const { lat, lng } = e.latlng
-      
+
       // Normalize longitude to -180 to 180 range
       let normalizedLng = lng
       while (normalizedLng > 180) normalizedLng -= 360
       while (normalizedLng < -180) normalizedLng += 360
-      
+
       // Clamp latitude to valid range
       const normalizedLat = Math.max(-85, Math.min(85, lat))
-      
+
       const location = { lat: normalizedLat, lng: normalizedLng }
 
       // If waiting for specific input type, set that
@@ -34,17 +36,17 @@ function MapEvents() {
         clearWaitingForInput()
         return
       }
-      
+
       if (waitingForInput === 'destination') {
         setDestination(location)
         setSelectedPoint(location)
         clearWaitingForInput()
         return
       }
-      
+
       if (waitingForInput === 'waypoint') {
         // Find which waypoint is empty (has 0,0 coordinates) or add new one
-        const emptyIndex = waypoints.findIndex(wp => wp.lat === 0 && wp.lng === 0)
+        const emptyIndex = waypoints.findIndex((wp) => wp.lat === 0 && wp.lng === 0)
         if (emptyIndex !== -1) {
           const newWaypoints = [...waypoints]
           newWaypoints[emptyIndex] = location
@@ -81,12 +83,15 @@ function MapEvents() {
       if (isUpdatingRef.current) {
         return
       }
-      
+
       const newCenter = e.target.getCenter()
       const [currentLat, currentLng] = center
-      
+
       // Only update if center actually changed (more than 0.0001 degrees difference)
-      if (Math.abs(newCenter.lat - currentLat) > 0.0001 || Math.abs(newCenter.lng - currentLng) > 0.0001) {
+      if (
+        Math.abs(newCenter.lat - currentLat) > 0.0001 ||
+        Math.abs(newCenter.lng - currentLng) > 0.0001
+      ) {
         isUpdatingRef.current = true
         setCenter([newCenter.lat, newCenter.lng])
         // Reset flag after a short delay
@@ -109,20 +114,17 @@ function MapEvents() {
 function BoundsEnforcer() {
   const map = useMap()
   const { setCenter } = useMapStore()
-  
+
   useEffect(() => {
     // Set max bounds to prevent dragging to repeated world copies
-    const maxBounds = L.latLngBounds(
-      L.latLng(-85, -180),
-      L.latLng(85, 180)
-    )
-    
+    const maxBounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180))
+
     map.setMaxBounds(maxBounds)
-    
+
     // Handle dragend to ensure center stays within bounds
     const handleDragEnd = () => {
       const center = map.getCenter()
-      
+
       // Check if center is outside valid longitude range
       let newLng = center.lng
       if (newLng < -180) {
@@ -130,13 +132,13 @@ function BoundsEnforcer() {
       } else if (newLng > 180) {
         newLng = 180
       }
-      
+
       // Normalize longitude to -180 to 180 range
       if (newLng !== center.lng) {
         map.setView([center.lat, newLng], map.getZoom(), { animate: false })
         setCenter([center.lat, newLng])
       }
-      
+
       // Ensure latitude is within valid range
       let newLat = center.lat
       if (newLat < -85) {
@@ -144,37 +146,37 @@ function BoundsEnforcer() {
       } else if (newLat > 85) {
         newLat = 85
       }
-      
+
       if (newLat !== center.lat) {
         map.setView([newLat, center.lng], map.getZoom(), { animate: false })
         setCenter([newLat, center.lng])
       }
     }
-    
+
     // Handle moveend to check bounds
     const handleMoveEnd = () => {
       const center = map.getCenter()
-      
+
       // Normalize longitude to -180 to 180 range
       let normalizedLng = center.lng
       while (normalizedLng > 180) normalizedLng -= 360
       while (normalizedLng < -180) normalizedLng += 360
-      
+
       if (Math.abs(normalizedLng - center.lng) > 0.01) {
         map.setView([center.lat, normalizedLng], map.getZoom(), { animate: false })
         setCenter([center.lat, normalizedLng])
       }
     }
-    
+
     map.on('dragend', handleDragEnd)
     map.on('moveend', handleMoveEnd)
-    
+
     return () => {
       map.off('dragend', handleDragEnd)
       map.off('moveend', handleMoveEnd)
     }
   }, [map, setCenter])
-  
+
   return null
 }
 
@@ -190,7 +192,10 @@ const MapContainer = () => {
       minZoom={3}
       maxZoom={19}
       worldCopyJump={false}
-      maxBounds={[[-85, -180], [85, 180]]}
+      maxBounds={[
+        [-85, -180],
+        [85, 180],
+      ]}
       maxBoundsViscosity={1.0}
     >
       <TileLayer
@@ -209,4 +214,3 @@ const MapContainer = () => {
 }
 
 export default MapContainer
-

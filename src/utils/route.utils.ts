@@ -24,11 +24,11 @@ export const calculateDuration = (distance: number, mode: TransportMode): number
   if (!speed || distance <= 0) {
     return 0
   }
-  
+
   // Add a small buffer for stops, traffic lights, etc.
   const baseTime = distance / speed
   const bufferMultiplier = mode === TransportMode.DRIVING ? 1.15 : 1.1 // 15% buffer for driving, 10% for others
-  
+
   return Math.round(baseTime * bufferMultiplier)
 }
 
@@ -46,23 +46,23 @@ export const adjustDuration = (
   mode: TransportMode
 ): number => {
   const calculatedDuration = calculateDuration(distance, mode)
-  
+
   // If API duration is very close to calculated duration for a different mode,
   // it might be incorrect. Use calculated duration as fallback.
   const durationDifference = Math.abs(apiDuration - calculatedDuration)
   const percentageDifference = (durationDifference / calculatedDuration) * 100
-  
+
   // If API duration differs by more than 50% from expected, use calculated
   // This handles cases where API returns same duration for all modes
   if (percentageDifference > 50) {
     return calculatedDuration
   }
-  
+
   // Otherwise, use API duration but ensure it's reasonable
   // Minimum duration based on distance and mode
   const minDuration = calculatedDuration * 0.7
   const maxDuration = calculatedDuration * 2.0
-  
+
   return Math.max(minDuration, Math.min(maxDuration, apiDuration))
 }
 
@@ -92,4 +92,3 @@ export const formatDistance = (meters: number): string => {
   }
   return `${(meters / 1000).toFixed(2)} km`
 }
-

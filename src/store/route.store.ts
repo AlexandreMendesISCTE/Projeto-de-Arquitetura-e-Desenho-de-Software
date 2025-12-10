@@ -9,22 +9,25 @@ export const useRouteStore = create<RouteState>((set) => ({
   route: null,
   transportMode: TransportMode.DRIVING,
   isLoading: false,
-  setOrigin: (location) => set({ 
-    origin: location,
-    route: null // Clear route when origin changes to force recalculation
-  }),
-  setDestination: (location) => set({ 
-    destination: location,
-    route: null // Clear route when destination changes to force recalculation
-  }),
+  setOrigin: (location) =>
+    set({
+      origin: location,
+      route: null, // Clear route when origin changes to force recalculation
+    }),
+  setDestination: (location) =>
+    set({
+      destination: location,
+      route: null, // Clear route when destination changes to force recalculation
+    }),
   setWaypoints: (waypoints) => set({ waypoints }),
   addWaypoint: (waypoint) => set((state) => ({ waypoints: [...state.waypoints, waypoint] })),
-  removeWaypoint: (index) => set((state) => ({ 
-    waypoints: state.waypoints.filter((_, i) => i !== index),
-    route: null // Clear route when waypoints change
-  })),
+  removeWaypoint: (index) =>
+    set((state) => ({
+      waypoints: state.waypoints.filter((_, i) => i !== index),
+      route: null, // Clear route when waypoints change
+    })),
   setRoute: (route) => set({ route }),
-  setTransportMode: (mode) => 
+  setTransportMode: (mode) =>
     set((state) => {
       // Clear route when transport mode changes to force recalculation
       if (state.route && state.origin && state.destination) {
@@ -42,4 +45,3 @@ export const useRouteStore = create<RouteState>((set) => ({
       isLoading: false,
     }),
 }))
-

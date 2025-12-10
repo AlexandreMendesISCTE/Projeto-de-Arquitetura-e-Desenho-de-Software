@@ -13,7 +13,7 @@ const TransportModeSelector = () => {
     { mode: TransportMode.WALKING, label: 'A pé', icon: Footprints, color: 'bg-orange-500' },
   ]
 
-  const currentMode = modes.find(m => m.mode === transportMode) || modes[0]
+  const currentMode = modes.find((m) => m.mode === transportMode) || modes[0]
 
   const handleModeSelect = (mode: TransportMode) => {
     setTransportMode(mode)
@@ -52,19 +52,19 @@ const TransportModeSelector = () => {
             <currentMode.icon className="w-4 h-4" />
             <span className="font-medium">{currentMode.label}</span>
           </div>
-          <ChevronDown 
+          <ChevronDown
             className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
           />
         </button>
-        
-        <div 
+
+        <div
           className={`overflow-hidden transition-all duration-300 ease-in-out ${
             isExpanded ? 'max-h-48 opacity-100 mt-2' : 'max-h-0 opacity-0'
           }`}
         >
           <div className="bg-white rounded-lg shadow-lg p-2 flex flex-col gap-2">
             {modes
-              .filter(m => m.mode !== transportMode)
+              .filter((m) => m.mode !== transportMode)
               .map(({ mode, label, icon: Icon, color }) => (
                 <button
                   key={mode}

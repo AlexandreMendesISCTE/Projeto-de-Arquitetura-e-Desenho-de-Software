@@ -17,9 +17,22 @@ interface POIState {
   lastRequestTime: number
   toggle: () => void
   setEnabled: (enabled: boolean) => void
-  addPOIs: (pois: POI[], bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => void
-  getPOIsInBounds: (bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => POI[]
-  isAreaLoaded: (bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => boolean
+  addPOIs: (
+    pois: POI[],
+    bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }
+  ) => void
+  getPOIsInBounds: (bounds: {
+    minLat: number
+    maxLat: number
+    minLng: number
+    maxLng: number
+  }) => POI[]
+  isAreaLoaded: (bounds: {
+    minLat: number
+    maxLat: number
+    minLng: number
+    maxLng: number
+  }) => boolean
   clearCache: () => void
 }
 
@@ -33,32 +46,32 @@ export const usePOIStore = create<POIState>((set, get) => ({
   addPOIs: (pois, bounds) => {
     const state = get()
     const newPOIs = new Map(state.cachedPOIs)
-    
+
     // Add new POIs to cache
-    pois.forEach(poi => {
+    pois.forEach((poi) => {
       newPOIs.set(poi.id, poi)
     })
-    
+
     // Add to loaded areas
     const newArea: LoadedArea = {
       ...bounds,
       pois,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     }
-    
+
     set({
       cachedPOIs: newPOIs,
       loadedAreas: [...state.loadedAreas, newArea],
-      lastRequestTime: Date.now()
+      lastRequestTime: Date.now(),
     })
   },
   getPOIsInBounds: (bounds) => {
     const state = get()
     const result: POI[] = []
     const seenIds = new Set<string>()
-    
+
     // Get POIs from cached areas that overlap with requested bounds
-    state.loadedAreas.forEach(area => {
+    state.loadedAreas.forEach((area) => {
       // Check if areas overlap
       const overlaps = !(
         area.maxLat < bounds.minLat ||
@@ -66,9 +79,9 @@ export const usePOIStore = create<POIState>((set, get) => ({
         area.maxLng < bounds.minLng ||
         area.minLng > bounds.maxLng
       )
-      
+
       if (overlaps) {
-        area.pois.forEach(poi => {
+        area.pois.forEach((poi) => {
           // Check if POI is within requested bounds
           if (
             poi.lat >= bounds.minLat &&
@@ -83,13 +96,13 @@ export const usePOIStore = create<POIState>((set, get) => ({
         })
       }
     })
-    
+
     return result
   },
   isAreaLoaded: (bounds) => {
     const state = get()
     // Check if any loaded area covers the requested bounds (with some tolerance)
-    return state.loadedAreas.some(area => {
+    return state.loadedAreas.some((area) => {
       // Check if loaded area covers the requested bounds
       return (
         area.minLat <= bounds.minLat &&
@@ -103,8 +116,7 @@ export const usePOIStore = create<POIState>((set, get) => ({
     set({
       loadedAreas: [],
       cachedPOIs: new Map(),
-      lastRequestTime: 0
+      lastRequestTime: 0,
     })
-  }
+  },
 }))
-

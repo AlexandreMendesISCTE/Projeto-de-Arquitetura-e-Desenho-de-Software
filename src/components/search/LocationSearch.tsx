@@ -15,24 +15,40 @@ interface LocationSearchFieldProps {
   onClearLocation?: () => void
 }
 
-const LocationSearchField = ({ placeholder, currentLocation, onLocationSelect, onClearLocation, type }: LocationSearchFieldProps) => {
+const LocationSearchField = ({
+  placeholder,
+  currentLocation,
+  onLocationSelect,
+  onClearLocation,
+  type,
+}: LocationSearchFieldProps) => {
   const [inputValue, setInputValue] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
   const { query, setQuery, results, setResults, setIsLoading, clear } = useSearchStore()
   const { setCenter, setZoom, setWaitingForInput } = useMapStore()
-  const { location: currentGeoLocation, getCurrentLocation, isLoading: isGeolocating } = useGeolocation()
+  const {
+    location: currentGeoLocation,
+    getCurrentLocation,
+    isLoading: isGeolocating,
+  } = useGeolocation()
   const hasHandledGeoLocationRef = useRef(false)
 
-  const { data: searchResults, isLoading: isSearching } = useGeocoding(query, query.length > 2 && isExpanded)
+  const { data: searchResults, isLoading: isSearching } = useGeocoding(
+    query,
+    query.length > 2 && isExpanded
+  )
 
-  const handleSearch = useCallback((value: string) => {
-    setInputValue(value)
-    if (value.length > 2) {
-      setQuery(value)
-    } else {
-      clear()
-    }
-  }, [setQuery, clear])
+  const handleSearch = useCallback(
+    (value: string) => {
+      setInputValue(value)
+      if (value.length > 2) {
+        setQuery(value)
+      } else {
+        clear()
+      }
+    },
+    [setQuery, clear]
+  )
 
   // Store onLocationSelect in a ref to avoid dependency issues
   const onLocationSelectRef = useRef(onLocationSelect)
@@ -40,16 +56,19 @@ const LocationSearchField = ({ placeholder, currentLocation, onLocationSelect, o
     onLocationSelectRef.current = onLocationSelect
   }, [onLocationSelect])
 
-  const handleSelectLocation = useCallback((location: Location, shouldPanMap: boolean = true) => {
-    if (shouldPanMap) {
-      setCenter([location.lat, location.lng])
-      setZoom(15)
-    }
-    setInputValue('')
-    setIsExpanded(false)
-    clear()
-    onLocationSelectRef.current(location)
-  }, [setCenter, setZoom, clear])
+  const handleSelectLocation = useCallback(
+    (location: Location, shouldPanMap: boolean = true) => {
+      if (shouldPanMap) {
+        setCenter([location.lat, location.lng])
+        setZoom(15)
+      }
+      setInputValue('')
+      setIsExpanded(false)
+      clear()
+      onLocationSelectRef.current(location)
+    },
+    [setCenter, setZoom, clear]
+  )
 
   const handleUseCurrentLocation = () => {
     hasHandledGeoLocationRef.current = false
@@ -148,22 +167,23 @@ const LocationSearchField = ({ placeholder, currentLocation, onLocationSelect, o
         <div className="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-64 overflow-y-auto">
           {isSearching && (
             <div className="p-2 text-sm text-gray-500 flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              A pesquisar...
+              <Loader2 className="w-4 h-4 animate-spin" />A pesquisar...
             </div>
           )}
-          {displayResults && displayResults.length > 0 && displayResults.map((location, index) => (
-            <button
-              key={index}
-              onClick={() => handleSelectLocation(location, true)}
-              className="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors"
-            >
-              <div className="font-medium text-sm">{location.name || 'Localização'}</div>
-              {location.address && (
-                <div className="text-xs text-gray-500">{location.address}</div>
-              )}
-            </button>
-          ))}
+          {displayResults &&
+            displayResults.length > 0 &&
+            displayResults.map((location, index) => (
+              <button
+                key={index}
+                onClick={() => handleSelectLocation(location, true)}
+                className="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors"
+              >
+                <div className="font-medium text-sm">{location.name || 'Localização'}</div>
+                {location.address && (
+                  <div className="text-xs text-gray-500">{location.address}</div>
+                )}
+              </button>
+            ))}
         </div>
       )}
     </div>
@@ -171,11 +191,23 @@ const LocationSearchField = ({ placeholder, currentLocation, onLocationSelect, o
 }
 
 const LocationSearch = () => {
-  const { origin, destination, waypoints, addWaypoint, removeWaypoint, setOrigin, setDestination, setWaypoints } = useRouteStore()
+  const {
+    origin,
+    destination,
+    waypoints,
+    addWaypoint,
+    removeWaypoint,
+    setOrigin,
+    setDestination,
+    setWaypoints,
+  } = useRouteStore()
   const { waitingForInput } = useMapStore()
 
   return (
-    <div data-location-search-container className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-auto md:w-96 z-[1000] bg-white rounded-lg shadow-lg p-1.5 md:p-4 space-y-1 md:space-y-3 max-h-[calc(100vh-120px)] md:max-h-none overflow-y-auto">
+    <div
+      data-location-search-container
+      className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-auto md:w-96 z-[1000] bg-white rounded-lg shadow-lg p-1.5 md:p-4 space-y-1 md:space-y-3 max-h-[calc(100vh-120px)] md:max-h-none overflow-y-auto"
+    >
       <div>
         <label className="block text-xs font-medium text-gray-700 mb-0 md:mb-1">Origem</label>
         <LocationSearchField
@@ -186,7 +218,7 @@ const LocationSearch = () => {
           onClearLocation={() => setOrigin(null)}
         />
       </div>
-      
+
       {/* Waypoints Section */}
       {origin && (
         <div>
@@ -211,7 +243,7 @@ const LocationSearch = () => {
             if (isEmpty && waitingForInput !== 'waypoint') {
               return null
             }
-            
+
             return (
               <div key={index} className="flex gap-2 mb-2">
                 <div className="flex-1">
@@ -245,26 +277,27 @@ const LocationSearch = () => {
               </div>
             )
           })}
-          
+
           {/* Show empty waypoint field when waiting for input but no empty waypoint exists */}
-          {waitingForInput === 'waypoint' && waypoints.every(wp => wp.lat !== 0 || wp.lng !== 0) && (
-            <div className="flex gap-2 mb-2">
-              <div className="flex-1">
-                <LocationSearchField
-                  type="waypoint"
-                  placeholder="Paragem..."
-                  currentLocation={null}
-                  onLocationSelect={(loc) => {
-                    addWaypoint(loc)
-                    useMapStore.getState().clearWaitingForInput()
-                  }}
-                  onClearLocation={() => {
-                    useMapStore.getState().clearWaitingForInput()
-                  }}
-                />
+          {waitingForInput === 'waypoint' &&
+            waypoints.every((wp) => wp.lat !== 0 || wp.lng !== 0) && (
+              <div className="flex gap-2 mb-2">
+                <div className="flex-1">
+                  <LocationSearchField
+                    type="waypoint"
+                    placeholder="Paragem..."
+                    currentLocation={null}
+                    onLocationSelect={(loc) => {
+                      addWaypoint(loc)
+                      useMapStore.getState().clearWaitingForInput()
+                    }}
+                    onClearLocation={() => {
+                      useMapStore.getState().clearWaitingForInput()
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       )}
 

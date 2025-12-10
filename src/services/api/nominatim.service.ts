@@ -69,7 +69,7 @@ class NominatimService {
   private parseLocation(result: NominatimResult): Location {
     const address = result.address
     const addressParts: string[] = []
-    
+
     if (address?.road) addressParts.push(address.road)
     if (address?.city) addressParts.push(address.city)
     if (address?.country) addressParts.push(address.country)
@@ -84,4 +84,3 @@ class NominatimService {
 }
 
 export default new NominatimService()
-

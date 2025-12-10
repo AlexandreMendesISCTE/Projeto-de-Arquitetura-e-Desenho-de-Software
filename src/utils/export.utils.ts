@@ -5,7 +5,7 @@ import { Route, Location } from '../types/route.types'
  */
 export const exportRouteToGPX = (route: Route, origin: Location, destination: Location): void => {
   const waypoints = route.waypoints.length > 0 ? route.waypoints : [origin, destination]
-  
+
   let gpx = `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Map Route Explorer">
   <metadata>
@@ -84,4 +84,3 @@ export const exportRouteToJSON = (route: Route, origin: Location, destination: L
   document.body.removeChild(link)
   URL.revokeObjectURL(url)
 }
-

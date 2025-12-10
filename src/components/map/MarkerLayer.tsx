@@ -3,6 +3,7 @@ import L from 'leaflet'
 import { useRouteStore } from '../../store/route.store'
 
 // Fix for default marker icons in React Leaflet
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 delete (L.Icon.Default.prototype as any)._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -33,15 +34,15 @@ const MarkerLayer = () => {
           </Popup>
         </Marker>
       )}
-      
+
       {waypoints.map((waypoint, index) => {
         // Only render waypoints that are not empty (not 0,0)
         if (waypoint.lat === 0 && waypoint.lng === 0) return null
-        
+
         return (
-          <Marker 
-            key={`waypoint-${index}`} 
-            position={[waypoint.lat, waypoint.lng]} 
+          <Marker
+            key={`waypoint-${index}`}
+            position={[waypoint.lat, waypoint.lng]}
             icon={createCustomIcon('#3b82f6')}
           >
             <Popup>
@@ -52,13 +53,15 @@ const MarkerLayer = () => {
           </Marker>
         )
       })}
-      
+
       {destination && destination.lat !== 0 && destination.lng !== 0 && (
         <Marker position={[destination.lat, destination.lng]} icon={createCustomIcon('#ef4444')}>
           <Popup>
             <div className="font-semibold">Destino</div>
             {destination.name && <div className="text-sm">{destination.name}</div>}
-            {destination.address && <div className="text-xs text-gray-500">{destination.address}</div>}
+            {destination.address && (
+              <div className="text-xs text-gray-500">{destination.address}</div>
+            )}
           </Popup>
         </Marker>
       )}
@@ -67,4 +70,3 @@ const MarkerLayer = () => {
 }
 
 export default MarkerLayer
-

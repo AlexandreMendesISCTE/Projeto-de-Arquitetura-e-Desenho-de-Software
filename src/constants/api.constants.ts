@@ -1,5 +1,7 @@
-export const OSRM_BASE_URL = import.meta.env.VITE_OSRM_BASE_URL || 'http://router.project-osrm.org/route/v1'
-export const NOMINATIM_BASE_URL = import.meta.env.VITE_NOMINATIM_BASE_URL || 'https://nominatim.openstreetmap.org'
+export const OSRM_BASE_URL =
+  import.meta.env.VITE_OSRM_BASE_URL || 'https://router.project-osrm.org/route/v1'
+export const NOMINATIM_BASE_URL =
+  import.meta.env.VITE_NOMINATIM_BASE_URL || 'https://nominatim.openstreetmap.org'
 export const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
 
 export const MAP_DEFAULT_CENTER: [number, number] = [
@@ -9,4 +11,3 @@ export const MAP_DEFAULT_CENTER: [number, number] = [
 export const MAP_DEFAULT_ZOOM = parseInt(import.meta.env.VITE_MAP_DEFAULT_ZOOM || '13')
 
 export const HTTP_TIMEOUT = 30000 // 30 seconds
-

@@ -37,4 +37,3 @@ export const useGeolocation = () => {
 
   return { location, error, isLoading, getCurrentLocation }
 }
-

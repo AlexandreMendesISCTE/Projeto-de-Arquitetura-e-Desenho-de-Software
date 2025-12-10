@@ -25,15 +25,7 @@ const RouteLayer = () => {
   const coordinates = route.geometry.coordinates.map(([lng, lat]) => [lat, lng] as [number, number])
   const color = getRouteColor(route.transportMode)
 
-  return (
-    <Polyline
-      positions={coordinates}
-      color={color}
-      weight={5}
-      opacity={0.7}
-    />
-  )
+  return <Polyline positions={coordinates} color={color} weight={5} opacity={0.7} />
 }
 
 export default RouteLayer
-

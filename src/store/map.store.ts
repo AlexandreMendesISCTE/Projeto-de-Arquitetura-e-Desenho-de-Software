@@ -13,4 +13,3 @@ export const useMapStore = create<MapState>((set) => ({
   setWaitingForInput: (type) => set({ waitingForInput: type }),
   clearWaitingForInput: () => set({ waitingForInput: null }),
 }))
-

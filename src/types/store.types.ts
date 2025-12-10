@@ -39,4 +39,3 @@ export interface SearchState {
   setIsLoading: (loading: boolean) => void
   clear: () => void
 }
-

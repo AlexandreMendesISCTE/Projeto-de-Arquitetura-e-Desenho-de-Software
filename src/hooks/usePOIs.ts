@@ -15,7 +15,12 @@ export const usePOIs = (center: [number, number], zoom: number) => {
   const [debouncedCenter, setDebouncedCenter] = useState(center)
   const [debouncedZoom, setDebouncedZoom] = useState(zoom)
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const lastRequestedBoundsRef = useRef<{ minLat: number; maxLat: number; minLng: number; maxLng: number } | null>(null)
+  const lastRequestedBoundsRef = useRef<{
+    minLat: number
+    maxLat: number
+    minLng: number
+    maxLng: number
+  } | null>(null)
 
   // Debounce center and zoom changes
   useEffect(() => {
@@ -42,25 +47,30 @@ export const usePOIs = (center: [number, number], zoom: number) => {
     const pixelsPerDegree = (256 * Math.pow(2, zoom)) / worldWidth
     const viewportWidthPx = typeof window !== 'undefined' ? window.innerWidth : 800
     const viewportHeightPx = typeof window !== 'undefined' ? window.innerHeight : 600
-    
-    const latDelta = (viewportHeightPx / pixelsPerDegree) / 2
-    const lngDelta = (viewportWidthPx / pixelsPerDegree) / 2
-    
+
+    const latDelta = viewportHeightPx / pixelsPerDegree / 2
+    const lngDelta = viewportWidthPx / pixelsPerDegree / 2
+
     return {
       minLat: lat - latDelta,
       maxLat: lat + latDelta,
       minLng: lng - lngDelta,
-      maxLng: lng + lngDelta
+      maxLng: lng + lngDelta,
     }
   }
 
   // Check if bounds have changed significantly
-  const hasBoundsChanged = (bounds1: { minLat: number; maxLat: number; minLng: number; maxLng: number } | null, bounds2: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => {
+  const hasBoundsChanged = (
+    bounds1: { minLat: number; maxLat: number; minLng: number; maxLng: number } | null,
+    bounds2: { minLat: number; maxLat: number; minLng: number; maxLng: number }
+  ) => {
     if (!bounds1) return true
-    
-    const latChange = Math.abs(bounds1.minLat - bounds2.minLat) + Math.abs(bounds1.maxLat - bounds2.maxLat)
-    const lngChange = Math.abs(bounds1.minLng - bounds2.minLng) + Math.abs(bounds1.maxLng - bounds2.maxLng)
-    
+
+    const latChange =
+      Math.abs(bounds1.minLat - bounds2.minLat) + Math.abs(bounds1.maxLat - bounds2.maxLat)
+    const lngChange =
+      Math.abs(bounds1.minLng - bounds2.minLng) + Math.abs(bounds1.maxLng - bounds2.maxLng)
+
     return latChange > MIN_DISTANCE_CHANGE || lngChange > MIN_DISTANCE_CHANGE
   }
 
@@ -72,25 +82,22 @@ export const usePOIs = (center: [number, number], zoom: number) => {
       }
 
       const bounds = calculateBounds(debouncedCenter, debouncedZoom)
-      
+
       // Check if we already have POIs for this area
       if (isAreaLoaded(bounds)) {
         // Return cached POIs
         const cachedPOIs = getPOIsInBounds(bounds)
-        // Sort by distance and limit to 30 closest
         const [lat, lng] = debouncedCenter
-        const sortedPOIs = cachedPOIs
-          .map(poi => {
+        return cachedPOIs
+          .map((poi) => {
             const latDiff = poi.lat - lat
             const lngDiff = poi.lng - lng
-            const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
-            return { ...poi, distance }
+            const dist = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
+            return { poi, dist }
           })
-          .sort((a, b) => a.distance - b.distance)
+          .sort((a, b) => a.dist - b.dist)
           .slice(0, 30)
-          .map(({ distance, ...poi }) => poi)
-        
-        return sortedPOIs
+          .map(({ poi }) => poi)
       }
 
       // Check rate limiting - don't request if too soon since last request
@@ -100,17 +107,16 @@ export const usePOIs = (center: [number, number], zoom: number) => {
         const cachedPOIs = getPOIsInBounds(bounds)
         if (cachedPOIs.length > 0) {
           const [lat, lng] = debouncedCenter
-          const sortedPOIs = cachedPOIs
-            .map(poi => {
+          return cachedPOIs
+            .map((poi) => {
               const latDiff = poi.lat - lat
               const lngDiff = poi.lng - lng
-              const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
-              return { ...poi, distance }
+              const dist = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
+              return { poi, dist }
             })
-            .sort((a, b) => a.distance - b.distance)
+            .sort((a, b) => a.dist - b.dist)
             .slice(0, 30)
-            .map(({ distance, ...poi }) => poi)
-          return sortedPOIs
+            .map(({ poi }) => poi)
         }
         return []
       }
@@ -120,80 +126,83 @@ export const usePOIs = (center: [number, number], zoom: number) => {
         // Return cached POIs
         const cachedPOIs = getPOIsInBounds(bounds)
         const [lat, lng] = debouncedCenter
-        const sortedPOIs = cachedPOIs
-          .map(poi => {
+        return cachedPOIs
+          .map((poi) => {
             const latDiff = poi.lat - lat
             const lngDiff = poi.lng - lng
-            const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
-            return { ...poi, distance }
+            const dist = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
+            return { poi, dist }
           })
-          .sort((a, b) => a.distance - b.distance)
+          .sort((a, b) => a.dist - b.dist)
           .slice(0, 30)
-          .map(({ distance, ...poi }) => poi)
-        return sortedPOIs
+          .map(({ poi }) => poi)
       }
 
       // Request new POIs
       try {
-        const allPOIs = await poiService.getPOIsInBounds(bounds.minLat, bounds.minLng, bounds.maxLat, bounds.maxLng)
-        
+        const allPOIs = await poiService.getPOIsInBounds(
+          bounds.minLat,
+          bounds.minLng,
+          bounds.maxLat,
+          bounds.maxLng
+        )
+
         // Only cache if we got results (empty array might indicate timeout/error)
         if (allPOIs.length > 0) {
           addPOIs(allPOIs, bounds)
           lastRequestedBoundsRef.current = bounds
         }
-        
+
         // Sort by distance from center and limit to 30 closest
         const [lat, lng] = debouncedCenter
         const sortedPOIs = allPOIs
-          .map(poi => {
+          .map((poi) => {
             const latDiff = poi.lat - lat
             const lngDiff = poi.lng - lng
-            const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
-            return { ...poi, distance }
+            const dist = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
+            return { poi, dist }
           })
-          .sort((a, b) => a.distance - b.distance)
+          .sort((a, b) => a.dist - b.dist)
           .slice(0, 30)
-          .map(({ distance, ...poi }) => poi)
-        
+          .map(({ poi }) => poi)
+
         // If we got POIs, return them; otherwise try cached
         if (sortedPOIs.length > 0) {
           return sortedPOIs
         }
-        
+
         // Fall back to cached POIs if request returned empty (likely timeout)
         const cachedPOIs = getPOIsInBounds(bounds)
         if (cachedPOIs.length > 0) {
           const sortedCachedPOIs = cachedPOIs
-            .map(poi => {
+            .map((poi) => {
               const latDiff = poi.lat - lat
               const lngDiff = poi.lng - lng
-              const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
-              return { ...poi, distance }
+              const dist = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
+              return { poi, dist }
             })
-            .sort((a, b) => a.distance - b.distance)
+            .sort((a, b) => a.dist - b.dist)
             .slice(0, 30)
-            .map(({ distance, ...poi }) => poi)
+            .map(({ poi }) => poi)
           return sortedCachedPOIs
         }
-        
+
         return []
       } catch (error) {
         // Silently handle errors - use cached POIs instead
         const cachedPOIs = getPOIsInBounds(bounds)
         if (cachedPOIs.length > 0) {
           const [lat, lng] = debouncedCenter
-          const sortedPOIs = cachedPOIs
-            .map(poi => {
+          return cachedPOIs
+            .map((poi) => {
               const latDiff = poi.lat - lat
               const lngDiff = poi.lng - lng
-              const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
-              return { ...poi, distance }
+              const dist = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff)
+              return { poi, dist }
             })
-            .sort((a, b) => a.distance - b.distance)
+            .sort((a, b) => a.dist - b.dist)
             .slice(0, 30)
-            .map(({ distance, ...poi }) => poi)
-          return sortedPOIs
+            .map(({ poi }) => poi)
         }
         return []
       }
@@ -203,4 +212,3 @@ export const usePOIs = (center: [number, number], zoom: number) => {
     gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
   })
 }
-

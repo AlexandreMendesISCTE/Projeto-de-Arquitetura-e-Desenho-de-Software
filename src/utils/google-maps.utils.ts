@@ -11,11 +11,12 @@ export const openRouteInGoogleMaps = (
   waypoints: Location[] = []
 ): void => {
   // Convert transport mode to Google Maps travel mode
-  const googleMode = mode === TransportMode.DRIVING 
-    ? 'driving' 
-    : mode === TransportMode.BICYCLING 
-    ? 'bicycling' 
-    : 'walking'
+  const googleMode =
+    mode === TransportMode.DRIVING
+      ? 'driving'
+      : mode === TransportMode.BICYCLING
+        ? 'bicycling'
+        : 'walking'
 
   // Format coordinates
   const originStr = `${origin.lat},${origin.lng}`
@@ -24,7 +25,7 @@ export const openRouteInGoogleMaps = (
   // Build waypoints parameter if present
   let waypointsParam = ''
   if (waypoints.length > 0) {
-    const waypointsStr = waypoints.map(wp => `${wp.lat},${wp.lng}`).join('|')
+    const waypointsStr = waypoints.map((wp) => `${wp.lat},${wp.lng}`).join('|')
     waypointsParam = `&waypoints=${encodeURIComponent(waypointsStr)}`
   }
 
@@ -35,4 +36,3 @@ export const openRouteInGoogleMaps = (
   // Open in new tab/window
   window.open(url, '_blank')
 }
-
