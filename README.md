@@ -33,6 +33,14 @@ npm run dev
 # A aplicação estará disponível em http://localhost:3000
 ```
 
+### Testes
+
+Para correr a suite de testes unitários (Vitest):
+
+```bash
+npm test
+```
+
 ### Build para Produção
 
 ```bash
