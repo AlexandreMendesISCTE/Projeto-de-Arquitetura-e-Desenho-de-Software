@@ -1,0 +1,252 @@
+requirementDiagram
+
+    requirement Sistema {
+        id: SYS
+        text: "Map Route Explorer v3.0 - Sistema de Planeamento de Rotas"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    %% ============ REQUISITOS FUNCIONAIS ============
+    requirement RF_Core {
+        id: RF
+        text: "Requisitos Funcionais"
+        risk: medium
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Mapa {
+        id: RF01
+        text: "Visualizacao de Mapa Interativo via OpenStreetMap/Leaflet"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    functionalRequirement RF_Pesquisa {
+        id: RF02
+        text: "Pesquisa de Localizacao por Texto via Nominatim API"
+        risk: low
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Geolocalizacao {
+        id: RF03
+        text: "Obtencao de Localizacao GPS do Utilizador via Browser"
+        risk: low
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Rotas {
+        id: RF04
+        text: "Calculo de Rotas entre Origem e Destino via OSRM/Google"
+        risk: medium
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Transportes {
+        id: RF05
+        text: "Suporte a Modos: Carro, Bicicleta, A Pe"
+        risk: medium
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Transit {
+        id: RF06
+        text: "Rotas de Transporte Publico via Google Routes API"
+        risk: high
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Waypoints {
+        id: RF07
+        text: "Adicao de ate 5 Paragens Intermedias"
+        risk: low
+        verifymethod: test
+    }
+
+    functionalRequirement RF_InfoRota {
+        id: RF08
+        text: "Exibicao de Distancia Total e Tempo Estimado"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    functionalRequirement RF_Comparacao {
+        id: RF09
+        text: "Comparacao de Tempos entre Modos de Transporte"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    functionalRequirement RF_POIs {
+        id: RF10
+        text: "Exibicao de POIs via Overpass API"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    functionalRequirement RF_AutoFit {
+        id: RF11
+        text: "Ajuste Automatico de Zoom para Mostrar Rota"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    functionalRequirement RF_GoogleMaps {
+        id: RF12
+        text: "Exportar Rota para Google Maps App"
+        risk: low
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Chatbot {
+        id: RF13
+        text: "Chatbot Assistente via n8n Webhook"
+        risk: medium
+        verifymethod: demonstration
+    }
+
+    %% ============ REQUISITOS NAO FUNCIONAIS ============
+    requirement RNF_Core {
+        id: RNF
+        text: "Requisitos Nao Funcionais"
+        risk: medium
+        verifymethod: analysis
+    }
+
+    performanceRequirement RNF_Desempenho {
+        id: RNF01
+        text: "Calculo de rotas em menos de 3 segundos"
+        risk: medium
+        verifymethod: test
+    }
+
+    interfaceRequirement RNF_Responsividade {
+        id: RNF02
+        text: "Interface responsiva de 320px a 4K"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    performanceRequirement RNF_Disponibilidade {
+        id: RNF03
+        text: "Disponibilidade minima de 99 porcento"
+        risk: high
+        verifymethod: analysis
+    }
+
+    performanceRequirement RNF_Escalabilidade {
+        id: RNF04
+        text: "Suporte a 100 utilizadores concorrentes"
+        risk: medium
+        verifymethod: test
+    }
+
+    interfaceRequirement RNF_Usabilidade {
+        id: RNF05
+        text: "Tracar rota em menos de 30 segundos"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    interfaceRequirement RNF_Compatibilidade {
+        id: RNF06
+        text: "Compativel com Chrome, Firefox, Safari, Edge"
+        risk: low
+        verifymethod: test
+    }
+
+    designConstraint RNF_Seguranca {
+        id: RNF07
+        text: "API Keys protegidas via env e nao expostas"
+        risk: high
+        verifymethod: inspection
+    }
+
+    designConstraint RNF_Manutenibilidade {
+        id: RNF08
+        text: "TypeScript 100 porcento, ESLint sem warnings"
+        risk: low
+        verifymethod: analysis
+    }
+
+    physicalRequirement RNF_Portabilidade {
+        id: RNF09
+        text: "Deploy via Docker em menos de 5 minutos"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    %% ============ ELEMENTOS DE IMPLEMENTACAO ============
+    element ReactLeaflet {
+        type: "Biblioteca"
+        docref: "src/components/map/"
+    }
+
+    element NominatimAPI {
+        type: "API Externa"
+        docref: "nominatim.openstreetmap.org"
+    }
+
+    element GoogleRoutesAPI {
+        type: "API Externa"
+        docref: "routes.googleapis.com"
+    }
+
+    element OSRMAPI {
+        type: "API Externa"
+        docref: "router.project-osrm.org"
+    }
+
+    element N8nWebhook {
+        type: "Servico"
+        docref: "src/services/api/n8n.service.ts"
+    }
+
+    element Docker {
+        type: "Plataforma"
+        docref: "deployment/docker-compose.yml"
+    }
+
+    element TypeScript {
+        type: "Linguagem"
+        docref: "tsconfig.json"
+    }
+
+    %% ============ RELACOES ============
+    Sistema - contains -> RF_Core
+    Sistema - contains -> RNF_Core
+
+    RF_Core - contains -> RF_Mapa
+    RF_Core - contains -> RF_Pesquisa
+    RF_Core - contains -> RF_Geolocalizacao
+    RF_Core - contains -> RF_Rotas
+    RF_Core - contains -> RF_Chatbot
+
+    RF_Rotas - contains -> RF_Transportes
+    RF_Rotas - contains -> RF_Waypoints
+    RF_Rotas - contains -> RF_InfoRota
+    RF_Transportes - contains -> RF_Transit
+    RF_Transportes - derives -> RF_Comparacao
+
+    RF_Mapa - contains -> RF_POIs
+    RF_Mapa - contains -> RF_AutoFit
+    RF_Mapa - derives -> RF_GoogleMaps
+
+    RNF_Core - contains -> RNF_Desempenho
+    RNF_Core - contains -> RNF_Responsividade
+    RNF_Core - contains -> RNF_Disponibilidade
+    RNF_Core - contains -> RNF_Escalabilidade
+    RNF_Core - contains -> RNF_Usabilidade
+    RNF_Core - contains -> RNF_Compatibilidade
+    RNF_Core - contains -> RNF_Seguranca
+    RNF_Core - contains -> RNF_Manutenibilidade
+    RNF_Core - contains -> RNF_Portabilidade
+
+    ReactLeaflet - satisfies -> RF_Mapa
+    NominatimAPI - satisfies -> RF_Pesquisa
+    GoogleRoutesAPI - satisfies -> RF_Transit
+    OSRMAPI - satisfies -> RF_Rotas
+    N8nWebhook - satisfies -> RF_Chatbot
+    Docker - satisfies -> RNF_Portabilidade
+    TypeScript - satisfies -> RNF_Manutenibilidade

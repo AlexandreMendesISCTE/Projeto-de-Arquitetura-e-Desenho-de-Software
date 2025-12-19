@@ -1,0 +1,174 @@
+flowchart TB
+    subgraph Users["👥 Utilizadores"]
+        WebUser["🖥️ Utilizador Web<br/>Desktop Browser"]
+        MobileUser["📱 Utilizador Mobile<br/>Smartphone/Tablet"]
+    end
+
+    subgraph DockerHost["🐳 Docker Host"]
+        subgraph DockerNetwork["Docker Network: map-route-explorer-network"]
+            subgraph NginxContainer["📦 Container: nginx:alpine"]
+                Nginx["🔒 Nginx Web Server<br/>Port 81/8082"]
+                StaticFiles["📁 Static Files<br/>/usr/share/nginx/html"]
+                
+                subgraph NginxFeatures["Nginx Features"]
+                    RateLimiting["⏱️ Rate Limiting"]
+                    GzipComp["🗜️ Gzip Compression"]
+                    SecurityHeaders["🛡️ Security Headers<br/>CORS, CSP, HSTS"]
+                    ProxyPass["🔄 Reverse Proxy"]
+                end
+            end
+        end
+    end
+
+    subgraph ReactSPA["⚛️ React Single Page Application"]
+        subgraph UIComponents["🎨 UI Components Layer"]
+            AppComponent["App.tsx<br/>Root Component"]
+            MapExplorer["MapRouteExplorer.tsx<br/>Main Orchestrator"]
+            
+            subgraph MapComponents["🗺️ Map Components"]
+                MapContainerComp["MapContainer"]
+                RouteLayerComp["RouteLayer"]
+                MarkerLayerComp["MarkerLayer"]
+                POILayerComp["POILayer"]
+                AutoFitComp["AutoFitBounds"]
+            end
+            
+            subgraph UIWidgets["🧩 UI Widgets"]
+                LocationSearchComp["LocationSearch"]
+                TransportSelectorComp["TransportModeSelector"]
+                RouteInfoComp["RouteInfo"]
+                ChatWidgetComp["ChatWidget"]
+            end
+        end
+
+        subgraph StateManagement["🗄️ State Management - Zustand"]
+            RouteStoreState["RouteStore<br/>origin, destination, waypoints, route"]
+            MapStoreState["MapStore<br/>center, zoom, selectedLocation"]
+            POIStoreState["POIStore<br/>enabled, categories, pois"]
+            SearchStoreState["SearchStore<br/>query, results"]
+            TransitStoreState["TransitStore<br/>transitRoute, loading"]
+        end
+
+        subgraph DataLayer["🔄 Data Fetching - React Query"]
+            useRouteHook["useRoute Hook"]
+            useGeocodingHook["useGeocoding Hook"]
+            useGeolocationHook["useGeolocation Hook"]
+            usePOIsHook["usePOIs Hook"]
+            useTransitHook["useTransit Hook"]
+        end
+
+        subgraph Services["🔌 API Services Layer"]
+            NominatimSvc["nominatim.service.ts"]
+            OSRMSvc["osrm.service.ts"]
+            GoogleMapsSvc["googlemaps.service.ts"]
+            POISvc["poi.service.ts"]
+            N8nSvc["n8n.service.ts"]
+        end
+    end
+
+    subgraph ExternalAPIs["🌐 External APIs"]
+        subgraph OpenSourceAPIs["🆓 Open Source APIs"]
+            OSMTiles["🗺️ OpenStreetMap<br/>Tile Server<br/>tile.openstreetmap.org"]
+            NominatimAPI["📍 Nominatim API<br/>Geocoding<br/>nominatim.openstreetmap.org"]
+            OSRMAPI["🛣️ OSRM API<br/>Routing Engine<br/>router.project-osrm.org"]
+            OverpassAPI["🏪 Overpass API<br/>POI Data<br/>overpass-api.de"]
+        end
+        
+        subgraph GoogleAPIs["🔷 Google APIs"]
+            GoogleRoutesAPI["🚇 Google Routes API<br/>Transit Directions<br/>routes.googleapis.com"]
+        end
+        
+        subgraph N8nWorkflow["🤖 n8n Workflow"]
+            N8nWebhook["n8n Webhook<br/>Chat Backend<br/>yocomsn8n.duckdns.org"]
+            GeminiAI["🧠 Google Gemini<br/>AI Processing"]
+        end
+    end
+
+    subgraph BuildTools["🛠️ Build & Dev Tools"]
+        Vite["⚡ Vite 5<br/>Build Tool & Dev Server"]
+        TypeScriptCompiler["📘 TypeScript<br/>Type Checking"]
+        TailwindCSS["🎨 Tailwind CSS<br/>Styling"]
+        ESLint["🔍 ESLint<br/>Code Quality"]
+        Prettier["✨ Prettier<br/>Code Formatting"]
+    end
+
+    subgraph CICD["🔄 CI/CD Pipeline"]
+        GitHubActions["GitHub Actions<br/>ci.yml"]
+        Dependabot["🤖 Dependabot<br/>Dependency Updates"]
+    end
+
+    %% User Connections
+    WebUser -->|"HTTPS :81/8082"| Nginx
+    MobileUser -->|"HTTPS :81/8082"| Nginx
+
+    %% Nginx to SPA
+    Nginx --> StaticFiles
+    StaticFiles --> ReactSPA
+
+    %% Component Hierarchy
+    AppComponent --> MapExplorer
+    AppComponent --> ChatWidgetComp
+    MapExplorer --> MapComponents
+    MapExplorer --> UIWidgets
+    MapContainerComp --> RouteLayerComp
+    MapContainerComp --> MarkerLayerComp
+    MapContainerComp --> POILayerComp
+    MapContainerComp --> AutoFitComp
+
+    %% Components to State
+    MapExplorer --> RouteStoreState
+    MapExplorer --> MapStoreState
+    LocationSearchComp --> SearchStoreState
+    RouteInfoComp --> RouteStoreState
+    RouteInfoComp --> TransitStoreState
+    POILayerComp --> POIStoreState
+
+    %% Hooks to Services
+    useRouteHook --> OSRMSvc
+    useRouteHook --> GoogleMapsSvc
+    useGeocodingHook --> NominatimSvc
+    usePOIsHook --> POISvc
+    useTransitHook --> GoogleMapsSvc
+
+    %% Services to External APIs
+    NominatimSvc -->|"HTTPS"| NominatimAPI
+    OSRMSvc -->|"HTTPS"| OSRMAPI
+    GoogleMapsSvc -->|"HTTPS + API Key"| GoogleRoutesAPI
+    POISvc -->|"HTTPS"| OverpassAPI
+    N8nSvc -->|"HTTPS"| N8nWebhook
+    N8nWebhook --> GeminiAI
+
+    %% Map Tiles
+    MapContainerComp -->|"HTTPS"| OSMTiles
+
+    %% Nginx Proxy
+    ProxyPass -.->|"Proxy"| NominatimAPI
+    ProxyPass -.->|"Proxy"| N8nWebhook
+
+    %% Build Process
+    Vite --> ReactSPA
+    TypeScriptCompiler --> Vite
+    TailwindCSS --> Vite
+    
+    %% CI/CD
+    GitHubActions --> ESLint
+    GitHubActions --> Prettier
+    GitHubActions --> TypeScriptCompiler
+    GitHubActions --> Vite
+
+    %% Styling
+    classDef userStyle fill:#e1f5fe,stroke:#01579b
+    classDef dockerStyle fill:#e3f2fd,stroke:#1565c0
+    classDef reactStyle fill:#e8f5e9,stroke:#2e7d32
+    classDef stateStyle fill:#fff3e0,stroke:#ef6c00
+    classDef serviceStyle fill:#fce4ec,stroke:#c2185b
+    classDef externalStyle fill:#f3e5f5,stroke:#7b1fa2
+    classDef buildStyle fill:#fff8e1,stroke:#f57f17
+    
+    class WebUser,MobileUser userStyle
+    class NginxContainer,DockerNetwork dockerStyle
+    class UIComponents,MapComponents,UIWidgets reactStyle
+    class StateManagement stateStyle
+    class Services serviceStyle
+    class ExternalAPIs,OpenSourceAPIs,GoogleAPIs,N8nWorkflow externalStyle
+    class BuildTools,CICD buildStyle

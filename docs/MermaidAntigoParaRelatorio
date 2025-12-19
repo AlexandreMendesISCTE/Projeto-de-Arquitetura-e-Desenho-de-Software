@@ -1,0 +1,148 @@
+requirementDiagram
+
+    requirement RF_Sistema {
+        id: RF00
+        text: "Map Route Explorer - Sistema de Rotas"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    functionalRequirement RF_Mapa {
+        id: RF01
+        text: "Visualizacao de Mapa Interativo OpenStreetMap"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    functionalRequirement RF_Pesquisa {
+        id: RF02
+        text: "Pesquisa de Localizacao por Texto"
+        risk: low
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Geolocalizacao {
+        id: RF03
+        text: "Obtencao de Localizacao GPS do Utilizador"
+        risk: low
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Rotas {
+        id: RF04
+        text: "Calculo de Rotas entre Origem e Destino"
+        risk: medium
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Transportes {
+        id: RF05
+        text: "Suporte a Multiplos Modos de Transporte"
+        risk: medium
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Transit {
+        id: RF06
+        text: "Rotas de Transporte Publico com Horarios"
+        risk: high
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Waypoints {
+        id: RF07
+        text: "Adicao de ate 5 Paragens Intermedias"
+        risk: low
+        verifymethod: test
+    }
+
+    functionalRequirement RF_InfoRota {
+        id: RF08
+        text: "Exibicao de Distancia e Tempo Estimado"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    functionalRequirement RF_Comparacao {
+        id: RF09
+        text: "Comparacao de Tempos entre Modos"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    functionalRequirement RF_POIs {
+        id: RF10
+        text: "Exibicao de Pontos de Interesse"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    functionalRequirement RF_AutoFit {
+        id: RF11
+        text: "Ajuste Automatico de Zoom do Mapa"
+        risk: low
+        verifymethod: demonstration
+    }
+
+    functionalRequirement RF_GoogleMaps {
+        id: RF12
+        text: "Integracao com Google Maps App"
+        risk: low
+        verifymethod: test
+    }
+
+    functionalRequirement RF_Chatbot {
+        id: RF13
+        text: "Chatbot Assistente via n8n"
+        risk: medium
+        verifymethod: demonstration
+    }
+
+    element Leaflet {
+        type: Biblioteca
+        docref: "react-leaflet"
+    }
+
+    element NominatimAPI {
+        type: API Externa
+        docref: "nominatim.openstreetmap.org"
+    }
+
+    element GoogleRoutesAPI {
+        type: API Externa
+        docref: "routes.googleapis.com"
+    }
+
+    element OSRMAPI {
+        type: API Externa
+        docref: "router.project-osrm.org"
+    }
+
+    element n8nWebhook {
+        type: Servico
+        docref: "n8n workflow"
+    }
+
+    RF_Sistema - contains -> RF_Mapa
+    RF_Sistema - contains -> RF_Pesquisa
+    RF_Sistema - contains -> RF_Geolocalizacao
+    RF_Sistema - contains -> RF_Rotas
+    RF_Sistema - contains -> RF_Chatbot
+
+    RF_Rotas - contains -> RF_Transportes
+    RF_Rotas - contains -> RF_Waypoints
+    RF_Rotas - contains -> RF_InfoRota
+
+    RF_Transportes - contains -> RF_Transit
+    RF_Transportes - derives -> RF_Comparacao
+
+    RF_Mapa - contains -> RF_POIs
+    RF_Mapa - contains -> RF_AutoFit
+    RF_Mapa - derives -> RF_GoogleMaps
+
+    Leaflet - satisfies -> RF_Mapa
+    NominatimAPI - satisfies -> RF_Pesquisa
+    GoogleRoutesAPI - satisfies -> RF_Transit
+    GoogleRoutesAPI - satisfies -> RF_Rotas
+    OSRMAPI - satisfies -> RF_Rotas
+    n8nWebhook - satisfies -> RF_Chatbot

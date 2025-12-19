@@ -1,0 +1,371 @@
+classDiagram
+    direction TB
+
+    %% ============ TIPOS/INTERFACES CORE ============
+    class Coordinates {
+        <<interface>>
+        +number lat
+        +number lng
+    }
+
+    class Location {
+        <<interface>>
+        +Coordinates coordinates
+        +string address
+        +string? name
+    }
+
+    class Waypoint {
+        <<interface>>
+        +string id
+        +Location? location
+        +number order
+    }
+
+    class Route {
+        <<interface>>
+        +Coordinates[] coordinates
+        +number distance
+        +number duration
+        +string polyline
+        +RouteLeg[] legs
+    }
+
+    class RouteLeg {
+        <<interface>>
+        +number distance
+        +number duration
+        +string summary
+    }
+
+    class TransportMode {
+        <<enumeration>>
+        CAR
+        BICYCLE
+        WALKING
+        TRANSIT
+    }
+
+    class POI {
+        <<interface>>
+        +string id
+        +string name
+        +Coordinates coordinates
+        +POICategory category
+        +string? description
+    }
+
+    class POICategory {
+        <<enumeration>>
+        RESTAURANT
+        GAS_STATION
+        PARKING
+        HOTEL
+        PHARMACY
+    }
+
+    class TransitRoute {
+        <<interface>>
+        +TransitLeg[] legs
+        +number totalDuration
+        +number totalDistance
+        +string departureTime
+        +string arrivalTime
+    }
+
+    class TransitLeg {
+        <<interface>>
+        +string mode
+        +string lineName
+        +string? lineColor
+        +string departureStop
+        +string arrivalStop
+        +number duration
+        +number numStops
+    }
+
+    class ChatMessage {
+        <<interface>>
+        +string id
+        +string content
+        +MessageRole role
+        +Date timestamp
+    }
+
+    class MessageRole {
+        <<enumeration>>
+        USER
+        ASSISTANT
+    }
+
+    %% ============ ZUSTAND STORES ============
+    class RouteStore {
+        <<Zustand Store>>
+        -Location? origin
+        -Location? destination
+        -Waypoint[] waypoints
+        -Route? route
+        -TransportMode transportMode
+        -boolean isCalculating
+        +setOrigin(location: Location) void
+        +setDestination(location: Location) void
+        +addWaypoint() void
+        +removeWaypoint(id: string) void
+        +updateWaypoint(id: string, location: Location) void
+        +reorderWaypoints(fromIndex: number, toIndex: number) void
+        +setRoute(route: Route) void
+        +setTransportMode(mode: TransportMode) void
+        +clearRoute() void
+        +reset() void
+    }
+
+    class MapStore {
+        <<Zustand Store>>
+        -Coordinates center
+        -number zoom
+        -Coordinates? selectedLocation
+        +setCenter(coords: Coordinates) void
+        +setZoom(zoom: number) void
+        +setSelectedLocation(coords: Coordinates) void
+        +clearSelectedLocation() void
+    }
+
+    class POIStore {
+        <<Zustand Store>>
+        -boolean enabled
+        -POICategory[] activeCategories
+        -POI[] pois
+        +setEnabled(enabled: boolean) void
+        +toggleCategory(category: POICategory) void
+        +setPOIs(pois: POI[]) void
+        +clearPOIs() void
+    }
+
+    class SearchStore {
+        <<Zustand Store>>
+        -string query
+        -Location[] results
+        -boolean isSearching
+        +setQuery(query: string) void
+        +setResults(results: Location[]) void
+        +clearResults() void
+    }
+
+    class TransitStore {
+        <<Zustand Store>>
+        -TransitRoute? transitRoute
+        -boolean isLoading
+        -string? error
+        +setTransitRoute(route: TransitRoute) void
+        +setLoading(loading: boolean) void
+        +setError(error: string) void
+        +clear() void
+    }
+
+    %% ============ SERVICES ============
+    class NominatimService {
+        <<Service>>
+        +search(query: string) Promise~Location[]~
+        +reverse(coords: Coordinates) Promise~Location~
+    }
+
+    class OSRMService {
+        <<Service>>
+        +calculateRoute(origin: Coordinates, destination: Coordinates, waypoints: Coordinates[], mode: TransportMode) Promise~Route~
+    }
+
+    class GoogleMapsService {
+        <<Service>>
+        +calculateTransitRoute(origin: Coordinates, destination: Coordinates) Promise~TransitRoute~
+        +generateGoogleMapsUrl(origin: Coordinates, destination: Coordinates, waypoints: Coordinates[]) string
+    }
+
+    class POIService {
+        <<Service>>
+        +fetchPOIsAlongRoute(routeCoordinates: Coordinates[], categories: POICategory[], radius: number) Promise~POI[]~
+    }
+
+    class N8nService {
+        <<Service>>
+        +sendMessage(message: string, context: ChatContext) Promise~ChatResponse~
+    }
+
+    class ChatContext {
+        <<interface>>
+        +Location? origin
+        +Location? destination
+        +Waypoint[] waypoints
+        +TransportMode mode
+    }
+
+    class ChatResponse {
+        <<interface>>
+        +string message
+        +Location? suggestedOrigin
+        +Location? suggestedDestination
+        +Location[]? suggestedWaypoints
+    }
+
+    %% ============ REACT HOOKS ============
+    class useRoute {
+        <<React Query Hook>>
+        +Route? data
+        +boolean isLoading
+        +Error? error
+        +refetch() void
+    }
+
+    class useGeocoding {
+        <<React Query Hook>>
+        +search(query: string) void
+        +Location[] results
+        +boolean isSearching
+    }
+
+    class useGeolocation {
+        <<Custom Hook>>
+        +Coordinates? position
+        +boolean isLoading
+        +string? error
+        +getCurrentPosition() void
+    }
+
+    class usePOIs {
+        <<React Query Hook>>
+        +POI[] data
+        +boolean isLoading
+        +refetch() void
+    }
+
+    class useTransit {
+        <<React Query Hook>>
+        +TransitRoute? data
+        +boolean isLoading
+        +Error? error
+    }
+
+    %% ============ COMPONENTES REACT ============
+    class App {
+        <<React Component>>
+        +render() JSX
+    }
+
+    class MapRouteExplorer {
+        <<React Component>>
+        +render() JSX
+    }
+
+    class MapContainer {
+        <<React Leaflet Component>>
+        +Coordinates center
+        +number zoom
+        +render() JSX
+    }
+
+    class RouteLayer {
+        <<React Component>>
+        +Route route
+        +render() JSX
+    }
+
+    class MarkerLayer {
+        <<React Component>>
+        +Location? origin
+        +Location? destination
+        +Waypoint[] waypoints
+        +render() JSX
+    }
+
+    class POILayer {
+        <<React Component>>
+        +POI[] pois
+        +render() JSX
+    }
+
+    class AutoFitBounds {
+        <<React Component>>
+        +Route? route
+        +Location? origin
+        +Location? destination
+    }
+
+    class LocationSearch {
+        <<React Component>>
+        +string placeholder
+        +onSelect(location: Location) void
+        +render() JSX
+    }
+
+    class TransportModeSelector {
+        <<React Component>>
+        +TransportMode selected
+        +onSelect(mode: TransportMode) void
+        +render() JSX
+    }
+
+    class RouteInfo {
+        <<React Component>>
+        +Route? route
+        +TransitRoute? transitRoute
+        +render() JSX
+    }
+
+    class ChatWidget {
+        <<React Component>>
+        -ChatMessage[] messages
+        -boolean isOpen
+        +render() JSX
+    }
+
+    %% ============ RELACOES ============
+    Location --> Coordinates : contains
+    Waypoint --> Location : has optional
+    Route --> Coordinates : contains array
+    Route --> RouteLeg : contains array
+    POI --> Coordinates : has
+    POI --> POICategory : categorized by
+    TransitRoute --> TransitLeg : contains array
+    ChatMessage --> MessageRole : has
+
+    RouteStore --> Location : stores origin/destination
+    RouteStore --> Waypoint : manages array
+    RouteStore --> Route : stores current
+    RouteStore --> TransportMode : tracks selected
+    MapStore --> Coordinates : stores center/selected
+    POIStore --> POI : stores array
+    POIStore --> POICategory : filters by
+    SearchStore --> Location : stores results
+    TransitStore --> TransitRoute : stores current
+
+    NominatimService --> Location : returns
+    OSRMService --> Route : returns
+    GoogleMapsService --> TransitRoute : returns
+    POIService --> POI : returns array
+    N8nService --> ChatContext : receives
+    N8nService --> ChatResponse : returns
+
+    useRoute --> OSRMService : uses
+    useRoute --> GoogleMapsService : uses
+    useGeocoding --> NominatimService : uses
+    usePOIs --> POIService : uses
+    useTransit --> GoogleMapsService : uses
+
+    App --> MapRouteExplorer : renders
+    App --> ChatWidget : renders
+    MapRouteExplorer --> MapContainer : contains
+    MapRouteExplorer --> LocationSearch : contains
+    MapRouteExplorer --> TransportModeSelector : contains
+    MapRouteExplorer --> RouteInfo : contains
+    MapContainer --> RouteLayer : renders
+    MapContainer --> MarkerLayer : renders
+    MapContainer --> POILayer : renders
+    MapContainer --> AutoFitBounds : uses
+
+    MapRouteExplorer --> RouteStore : uses
+    MapRouteExplorer --> MapStore : uses
+    LocationSearch --> SearchStore : uses
+    LocationSearch --> useGeocoding : uses
+    RouteInfo --> RouteStore : reads
+    RouteInfo --> TransitStore : reads
+    POILayer --> POIStore : reads
+    ChatWidget --> N8nService : uses
