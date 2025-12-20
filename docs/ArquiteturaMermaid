@@ -22,5 +22,3 @@ C4Context
     Rel(mre, google_routes, "Rotas transit", "HTTPS")
     Rel(mre, n8n, "Envia mensagens", "HTTPS")
     Rel(mre, overpass, "Consulta POIs", "HTTPS")
-
-    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")

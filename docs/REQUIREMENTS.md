@@ -1,6 +1,7 @@
 # 📋 Requisitos do Sistema - Map Route Explorer
 
 ## Índice
+
 1. [Requisitos Funcionais](#requisitos-funcionais)
 2. [Requisitos Não Funcionais](#requisitos-não-funcionais)
 3. [Diagrama de Requisitos](#diagrama-de-requisitos)
@@ -10,79 +11,94 @@
 ## Requisitos Funcionais
 
 ### RF01 - Visualização de Mapa
+
 - **Descrição**: O sistema deve permitir visualizar um mapa interativo baseado em OpenStreetMap
 - **Prioridade**: Alta
 - **Status**: ✅ Implementado
 
 ### RF02 - Pesquisa de Localização
+
 - **Descrição**: O sistema deve permitir pesquisar endereços e locais através de texto
 - **Prioridade**: Alta
 - **Status**: ✅ Implementado
 - **Detalhes**: Integração com API Nominatim para geocodificação
 
 ### RF03 - Geolocalização
+
 - **Descrição**: O sistema deve obter a localização atual do utilizador via GPS/navegador
 - **Prioridade**: Alta
 - **Status**: ✅ Implementado
 
 ### RF04 - Cálculo de Rotas
+
 - **Descrição**: O sistema deve calcular rotas entre origem e destino
 - **Prioridade**: Alta
 - **Status**: ✅ Implementado
 - **Detalhes**: Integração com Google Maps Directions API e OSRM
 
 ### RF05 - Múltiplos Modos de Transporte
+
 - **Descrição**: O sistema deve suportar diferentes modos de transporte (carro, bicicleta, a pé, transporte público)
 - **Prioridade**: Alta
 - **Status**: ✅ Implementado
 
 ### RF06 - Transporte Público (Transit)
+
 - **Descrição**: O sistema deve calcular rotas de transporte público com horários em tempo real
 - **Prioridade**: Alta
 - **Status**: ✅ Implementado
 - **Detalhes**: Google Routes API para Transit
 
 ### RF07 - Waypoints (Paragens Intermédias)
+
 - **Descrição**: O sistema deve permitir adicionar até 5 paragens intermédias na rota
 - **Prioridade**: Média
 - **Status**: ✅ Implementado
 
 ### RF08 - Informações de Rota
+
 - **Descrição**: O sistema deve exibir distância total e tempo estimado da rota
 - **Prioridade**: Alta
 - **Status**: ✅ Implementado
 
 ### RF09 - Comparação de Tempos
+
 - **Descrição**: O sistema deve comparar tempos de viagem entre diferentes modos de transporte
 - **Prioridade**: Média
 - **Status**: ✅ Implementado
 
 ### RF10 - Pontos de Interesse (POIs)
+
 - **Descrição**: O sistema deve exibir POIs ao longo da rota (restaurantes, postos de combustível, etc.)
 - **Prioridade**: Média
 - **Status**: ✅ Implementado
 
 ### RF11 - Auto-fit de Mapa
+
 - **Descrição**: O sistema deve ajustar automaticamente o zoom para mostrar toda a rota
 - **Prioridade**: Baixa
 - **Status**: ✅ Implementado
 
 ### RF12 - Integração Google Maps
+
 - **Descrição**: O sistema deve permitir abrir a rota diretamente no Google Maps
 - **Prioridade**: Baixa
 - **Status**: ✅ Implementado
 
 ### RF13 - Chatbot Assistente
+
 - **Descrição**: O sistema deve ter um chatbot para assistência de roteamento via n8n
 - **Prioridade**: Baixa
 - **Status**: ✅ Implementado
 
 ### RF14 - Exportação de Rotas
+
 - **Descrição**: O sistema deve permitir exportar rotas em diferentes formatos
 - **Prioridade**: Baixa
 - **Status**: 🔜 Planeado
 
 ### RF15 - Histórico de Rotas
+
 - **Descrição**: O sistema deve guardar histórico de rotas pesquisadas
 - **Prioridade**: Baixa
 - **Status**: 🔜 Planeado
@@ -92,51 +108,61 @@
 ## Requisitos Não Funcionais
 
 ### RNF01 - Desempenho
+
 - **Descrição**: O cálculo de rotas deve ser concluído em menos de 3 segundos
 - **Métrica**: Tempo de resposta < 3s para 95% das requisições
 - **Prioridade**: Alta
 
 ### RNF02 - Responsividade
+
 - **Descrição**: A interface deve ser responsiva e funcionar em dispositivos móveis
 - **Métrica**: Compatível com ecrãs de 320px a 4K
 - **Prioridade**: Alta
 
 ### RNF03 - Disponibilidade
+
 - **Descrição**: O sistema deve estar disponível 99% do tempo
 - **Métrica**: Uptime >= 99%
 - **Prioridade**: Alta
 
 ### RNF04 - Escalabilidade
+
 - **Descrição**: O sistema deve suportar múltiplos utilizadores simultâneos
 - **Métrica**: Suporte a pelo menos 100 utilizadores concorrentes
 - **Prioridade**: Média
 
 ### RNF05 - Usabilidade
+
 - **Descrição**: A interface deve ser intuitiva e fácil de usar
 - **Métrica**: Utilizador consegue traçar rota em menos de 30 segundos
 - **Prioridade**: Alta
 
 ### RNF06 - Compatibilidade
+
 - **Descrição**: O sistema deve funcionar nos principais navegadores
 - **Métrica**: Chrome, Firefox, Safari, Edge (últimas 2 versões)
 - **Prioridade**: Alta
 
 ### RNF07 - Segurança
+
 - **Descrição**: As chaves de API devem ser protegidas e não expostas no código cliente
 - **Métrica**: Nenhuma chave exposta em repositório público
 - **Prioridade**: Alta
 
 ### RNF08 - Manutenibilidade
+
 - **Descrição**: O código deve seguir padrões de qualidade e ser bem documentado
 - **Métrica**: Cobertura de TypeScript 100%, ESLint sem warnings
 - **Prioridade**: Média
 
 ### RNF09 - Portabilidade
+
 - **Descrição**: O sistema deve ser facilmente deployável via Docker
 - **Métrica**: Deploy em menos de 5 minutos com Docker Compose
 - **Prioridade**: Média
 
 ### RNF10 - Internacionalização
+
 - **Descrição**: O sistema deve suportar múltiplos idiomas (PT/EN)
 - **Métrica**: Suporte a Português e Inglês
 - **Prioridade**: Baixa
@@ -545,26 +571,26 @@ requirementDiagram
 
 ## Matriz de Rastreabilidade
 
-| Requisito | Componente/Serviço | Ficheiro |
-|-----------|-------------------|----------|
-| RF01 - Mapa | MapContainer | `src/components/map/MapContainer.tsx` |
-| RF02 - Pesquisa | LocationSearch | `src/components/search/LocationSearch.tsx` |
-| RF03 - Geolocalização | useGeolocation | `src/hooks/useGeolocation.ts` |
-| RF04 - Rotas | RouteLayer, osrm.service | `src/components/map/RouteLayer.tsx` |
-| RF05 - Transportes | TransportModeSelector | `src/components/route/TransportModeSelector.tsx` |
-| RF06 - Transit | transit.service | `src/services/api/transit.service.ts` |
-| RF07 - Waypoints | MapRouteExplorer | `src/components/MapRouteExplorer.tsx` |
-| RF08 - Info Rota | RouteInfo | `src/components/route/RouteInfo.tsx` |
-| RF09 - Comparação | RouteInfo | `src/components/route/RouteInfo.tsx` |
-| RF10 - POIs | POILayer, poi.service | `src/components/map/POILayer.tsx` |
-| RF11 - AutoFit | AutoFitBounds | `src/components/map/AutoFitBounds.tsx` |
-| RF12 - Google Maps | export.utils | `src/utils/export.utils.ts` |
-| RF13 - Chatbot | ChatWidget | `src/components/ChatWidget.tsx` |
+| Requisito             | Componente/Serviço       | Ficheiro                                         |
+| --------------------- | ------------------------ | ------------------------------------------------ |
+| RF01 - Mapa           | MapContainer             | `src/components/map/MapContainer.tsx`            |
+| RF02 - Pesquisa       | LocationSearch           | `src/components/search/LocationSearch.tsx`       |
+| RF03 - Geolocalização | useGeolocation           | `src/hooks/useGeolocation.ts`                    |
+| RF04 - Rotas          | RouteLayer, osrm.service | `src/components/map/RouteLayer.tsx`              |
+| RF05 - Transportes    | TransportModeSelector    | `src/components/route/TransportModeSelector.tsx` |
+| RF06 - Transit        | transit.service          | `src/services/api/transit.service.ts`            |
+| RF07 - Waypoints      | MapRouteExplorer         | `src/components/MapRouteExplorer.tsx`            |
+| RF08 - Info Rota      | RouteInfo                | `src/components/route/RouteInfo.tsx`             |
+| RF09 - Comparação     | RouteInfo                | `src/components/route/RouteInfo.tsx`             |
+| RF10 - POIs           | POILayer, poi.service    | `src/components/map/POILayer.tsx`                |
+| RF11 - AutoFit        | AutoFitBounds            | `src/components/map/AutoFitBounds.tsx`           |
+| RF12 - Google Maps    | export.utils             | `src/utils/export.utils.ts`                      |
+| RF13 - Chatbot        | ChatWidget               | `src/components/ChatWidget.tsx`                  |
 
 ---
 
 ## Histórico de Versões
 
-| Versão | Data | Alterações |
-|--------|------|------------|
-| 1.0 | 2025-12-10 | Documento inicial com requisitos funcionais e não funcionais |
+| Versão | Data       | Alterações                                                   |
+| ------ | ---------- | ------------------------------------------------------------ |
+| 1.0    | 2025-12-10 | Documento inicial com requisitos funcionais e não funcionais |

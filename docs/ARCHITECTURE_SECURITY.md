@@ -1,6 +1,7 @@
 # 🏗️ Arquitetura e Segurança - Map Route Explorer
 
 ## Índice
+
 1. [Visão Geral da Arquitetura](#visão-geral-da-arquitetura)
 2. [Diagrama de Contexto (C4 Level 1)](#diagrama-de-contexto-c4-level-1)
 3. [Diagrama de Containers (C4 Level 2)](#diagrama-de-containers-c4-level-2)
@@ -23,16 +24,16 @@ O Map Route Explorer é uma aplicação web moderna baseada em arquitetura **SPA
 
 ### Stack Tecnológico
 
-| Camada | Tecnologia | Propósito |
-|--------|------------|-----------|
-| Frontend | React 18 + TypeScript | Interface do utilizador |
-| Build Tool | Vite 5 | Bundling e dev server |
-| State Management | Zustand | Estado global da aplicação |
-| Data Fetching | React Query | Cache e sincronização |
-| Styling | Tailwind CSS | UI responsiva |
-| Maps | Leaflet + React Leaflet | Renderização de mapas |
-| Web Server | Nginx Alpine | Servir assets e proxy |
-| Container | Docker | Deployment e isolamento |
+| Camada           | Tecnologia              | Propósito                  |
+| ---------------- | ----------------------- | -------------------------- |
+| Frontend         | React 18 + TypeScript   | Interface do utilizador    |
+| Build Tool       | Vite 5                  | Bundling e dev server      |
+| State Management | Zustand                 | Estado global da aplicação |
+| Data Fetching    | React Query             | Cache e sincronização      |
+| Styling          | Tailwind CSS            | UI responsiva              |
+| Maps             | Leaflet + React Leaflet | Renderização de mapas      |
+| Web Server       | Nginx Alpine            | Servir assets e proxy      |
+| Container        | Docker                  | Deployment e isolamento    |
 
 ---
 
@@ -46,27 +47,25 @@ C4Context
 
     Person(user, "Utilizador", "Pessoa que quer planear rotas e explorar mapas")
     Person(mobile_user, "Utilizador Mobile", "Acede via smartphone ou tablet")
-    
+
     System(mre, "Map Route Explorer", "Aplicacao web para planeamento de rotas com multiplos modos de transporte")
-    
+
     System_Ext(osm, "OpenStreetMap", "Fornece tiles de mapa e dados geograficos")
     System_Ext(google_places, "Google Places API", "Servico primario de geocodificacao e pesquisa")
     System_Ext(nominatim, "Nominatim API", "Servico de geocodificacao fallback")
     System_Ext(google_maps, "Google Maps Directions API", "Calculo de rotas para todos os modos de transporte")
     System_Ext(n8n, "n8n Webhook", "Chatbot assistente para ajuda com rotas")
     System_Ext(overpass, "Overpass API", "Consulta de POIs do OpenStreetMap")
-    
+
     Rel(user, mre, "Utiliza", "HTTPS")
     Rel(mobile_user, mre, "Utiliza", "HTTPS")
-    
+
     Rel(mre, osm, "Carrega tiles", "HTTPS")
     Rel(mre, google_places, "Pesquisa enderecos", "HTTPS")
     Rel(mre, nominatim, "Pesquisa enderecos fallback", "HTTPS")
     Rel(mre, google_maps, "Calcula rotas", "HTTPS")
     Rel(mre, n8n, "Envia mensagens", "HTTPS")
     Rel(mre, overpass, "Consulta POIs", "HTTPS")
-
-    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
 ```
 
 ---
@@ -94,16 +93,14 @@ C4Container
 
     Rel(user, nginx, "Acede", "HTTPS:8082")
     Rel(nginx, spa, "Serve", "HTTP")
-    
+
     Rel(spa, osm_tiles, "Carrega tiles", "HTTPS")
     Rel(spa, google_places_api, "Pesquisa enderecos", "HTTPS")
-    Rel(spa, nginx, "Proxy Nominatim fallback", "HTTP /nominatim")
+    Rel(spa, nginx, "Proxy Nominatim fallback", "HTTP")
     Rel(nginx, nominatim_api, "Proxy", "HTTPS")
     Rel(spa, google_maps_api, "Calcula rotas", "HTTPS")
-    Rel(spa, nginx, "Proxy n8n", "HTTP /n8n")
+    Rel(spa, nginx, "Proxy n8n", "HTTP")
     Rel(nginx, n8n_webhook, "Proxy", "HTTPS")
-
-    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
 ```
 
 ---
@@ -117,25 +114,25 @@ C4Component
     title Diagrama de Componentes - Frontend React
 
     Container_Boundary(spa, "Single Page Application") {
-        
+
         Component(app, "App.tsx", "React Component", "Componente raiz com providers")
         Component(map_explorer, "MapRouteExplorer", "React Component", "Orchestrador principal da aplicacao")
-        
+
         Component(map_container, "MapContainer", "React Leaflet", "Renderiza mapa interativo")
         Component(route_layer, "RouteLayer", "React Component", "Desenha polylines das rotas")
         Component(marker_layer, "MarkerLayer", "React Component", "Marcadores de origem destino waypoints")
         Component(poi_layer, "POILayer", "React Component", "Pontos de interesse no mapa")
-        
+
         Component(location_search, "LocationSearch", "React Component", "Campo de pesquisa com autocomplete")
         Component(transport_selector, "TransportModeSelector", "React Component", "Seleccao do modo de transporte")
         Component(route_info, "RouteInfo", "React Component", "Informacoes de distancia e tempo")
         Component(chat_widget, "ChatWidget", "React Component", "Interface do chatbot")
-        
+
         Component(route_store, "RouteStore", "Zustand Store", "Estado global de rotas")
         Component(map_store, "MapStore", "Zustand Store", "Estado do mapa")
         Component(search_store, "SearchStore", "Zustand Store", "Estado de pesquisa")
         Component(poi_store, "POIStore", "Zustand Store", "Estado de pontos de interesse")
-        
+
         Component(google_places_svc, "GooglePlacesService", "Service", "Cliente API Google Places primario")
         Component(nominatim_svc, "NominatimService", "Service", "Cliente API Nominatim fallback")
         Component(google_maps_svc, "GoogleMapsService", "Service", "Cliente Google Maps Directions API")
@@ -147,22 +144,20 @@ C4Component
     Rel(map_explorer, location_search, "Contem")
     Rel(map_explorer, transport_selector, "Contem")
     Rel(map_explorer, route_info, "Contem")
-    
+
     Rel(map_container, route_layer, "Renderiza")
     Rel(map_container, marker_layer, "Renderiza")
     Rel(map_container, poi_layer, "Renderiza")
-    
+
     Rel(location_search, google_places_svc, "Usa primario")
     Rel(location_search, nominatim_svc, "Usa fallback")
     Rel(route_info, google_maps_svc, "Usa")
     Rel(chat_widget, n8n_svc, "Usa")
-    
+
     Rel(map_explorer, route_store, "Le e escreve")
     Rel(map_explorer, map_store, "Le e escreve")
     Rel(location_search, search_store, "Le e escreve")
     Rel(poi_layer, poi_store, "Le e escreve")
-
-    UpdateLayoutConfig($c4ShapeInRow="4", $c4BoundaryInRow="1")
 ```
 
 ---
@@ -173,30 +168,30 @@ C4Component
 C4Deployment
     title Diagrama de Deployment - Producao
 
-    Deployment_Node(browser, "Browser do Utilizador", "Chrome, Firefox, Safari, Edge") {
-        Container(client_spa, "SPA React", "JavaScript Bundle", "Aplicacao cliente executada no browser")
+    Deployment_Node(browser, "Browser", "Chrome Firefox Safari Edge") {
+        Container(client_spa, "SPA React", "JavaScript Bundle", "Aplicacao cliente")
     }
 
-    Deployment_Node(docker_host, "Docker Host", "Linux/Windows com Docker") {
+    Deployment_Node(docker_host, "Docker Host", "Linux Windows") {
         Deployment_Node(docker_network, "Docker Network", "map-route-explorer-network") {
-            Deployment_Node(container, "Container Docker", "nginx:alpine") {
-                Container(nginx_server, "Nginx", "Web Server", "Serve ficheiros estaticos e proxy reverso")
-                Container(static_files, "Static Files", "/usr/share/nginx/html", "Bundle React compilado")
+            Deployment_Node(container, "Container", "nginx alpine") {
+                Container(nginx_server, "Nginx", "Web Server", "Serve ficheiros e proxy")
+                Container(static_files, "Static Files", "/usr/share/nginx/html", "Bundle React")
             }
         }
     }
 
     Deployment_Node(external_apis, "APIs Externas", "Internet") {
-        Container(google_places_ext, "Google Places", "places.googleapis.com", "Geocoding service primario")
-        Container(nominatim_ext, "Nominatim", "nominatim.openstreetmap.org", "Geocoding service fallback")
-        Container(google_maps_ext, "Google Maps Directions", "maps.googleapis.com", "Routing API")
+        Container(google_places_ext, "Google Places", "places.googleapis.com", "Geocoding primario")
+        Container(nominatim_ext, "Nominatim", "nominatim.openstreetmap.org", "Geocoding fallback")
+        Container(google_maps_ext, "Google Maps", "maps.googleapis.com", "Routing API")
         Container(n8n_ext, "n8n", "yocomsn8n.duckdns.org", "Chatbot webhook")
     }
 
     Rel(browser, docker_host, "HTTPS", "8082")
-    Rel(client_spa, nginx_server, "HTTP Requests")
+    Rel(client_spa, nginx_server, "HTTP")
     Rel(nginx_server, static_files, "Serve")
-    Rel(nginx_server, nominatim_ext, "Proxy fallback", "HTTPS")
+    Rel(nginx_server, nominatim_ext, "Proxy", "HTTPS")
     Rel(nginx_server, n8n_ext, "Proxy", "HTTPS")
     Rel(client_spa, google_places_ext, "Direct", "HTTPS")
     Rel(client_spa, google_maps_ext, "Direct", "HTTPS")
@@ -236,14 +231,14 @@ flowchart TB
 
     User -->|"HTTPS:8082"| Nginx
     Attacker -.->|"❌ Bloqueado"| Nginx
-    
+
     Nginx -->|"Serve"| SPA
     Nginx -->|"Proxy fallback"| Nominatim
     Nginx -->|"Proxy + Auth"| N8N
-    
+
     SPA -->|"API Key Header"| GooglePlaces
     SPA -->|"API Key Header"| GoogleMaps
-    
+
     EnvFile -->|"Docker Build Args"| BuildTime
     BuildTime -->|"Embedded"| SPA
 
@@ -299,14 +294,14 @@ sequenceDiagram
     U->>SPA: Define origem e destino
     SPA->>Store: updateOrigin() / updateDestination()
     Store-->>SPA: Estado atualizado
-    
+
     U->>SPA: Seleciona modo transporte
-    
+
     Note over SPA,Google: Todos os modos usam Google Maps Directions API
     SPA->>Google: DirectionsService.route()
     Note over SPA,Google: Modo: DRIVING, BICYCLING, WALKING, TRANSIT
     Google-->>SPA: Route com geometria, distância, tempo
-    
+
     SPA->>Store: setRoute(routeData)
     Store-->>SPA: Notifica componentes
     SPA->>Map: Renderiza polyline
@@ -326,7 +321,7 @@ sequenceDiagram
 
     U->>Search: Digita endereço
     Note over Search: Debounce 500ms
-    
+
     Search->>GooglePlaces: AutocompleteService.getPlacePredictions()
     alt Google Places sucesso
         GooglePlaces-->>Search: Predictions
@@ -337,7 +332,7 @@ sequenceDiagram
         Nominatim-->>Nginx: JSON results
         Nginx-->>Search: Passa resposta + CORS headers
     end
-    
+
     Search-->>U: Mostra sugestões autocomplete
     U->>Search: Seleciona resultado
     Search->>Search: updateLocation(coords)
@@ -374,11 +369,11 @@ flowchart TB
     GitIgnore -.->|"Previne commit"| EnvLocal
     DockerBuild --> ViteBuild
     ViteBuild --> Bundle
-    
+
     Bundle --> Browser
     Browser --> APICall
     APICall --> Google
-    
+
     Restrict --> Google
     Quota --> Google
     Monitor --> Google
@@ -495,30 +490,30 @@ flowchart TB
 
 ### Controlos Implementados ✅
 
-| Controlo | Status | Descrição |
-|----------|--------|-----------|
-| HTTPS para APIs | ✅ | Todas as comunicações encriptadas |
-| CORS configurado | ✅ | Nginx adiciona headers apropriados |
-| API Keys em .env | ✅ | Não commitadas no repositório |
-| .gitignore | ✅ | Exclui ficheiros sensíveis |
-| Rate Limiting | ✅ | Nginx limita requests |
-| Health Check | ✅ | Docker health check configurado |
-| Gzip Compression | ✅ | Reduz bandwidth |
-| Cache Headers | ✅ | Assets com cache longo |
-| No Server Version | ✅ | Nginx não expõe versão |
-| DNS Resolver | ✅ | Usa Google DNS (8.8.8.8) |
+| Controlo          | Status | Descrição                          |
+| ----------------- | ------ | ---------------------------------- |
+| HTTPS para APIs   | ✅     | Todas as comunicações encriptadas  |
+| CORS configurado  | ✅     | Nginx adiciona headers apropriados |
+| API Keys em .env  | ✅     | Não commitadas no repositório      |
+| .gitignore        | ✅     | Exclui ficheiros sensíveis         |
+| Rate Limiting     | ✅     | Nginx limita requests              |
+| Health Check      | ✅     | Docker health check configurado    |
+| Gzip Compression  | ✅     | Reduz bandwidth                    |
+| Cache Headers     | ✅     | Assets com cache longo             |
+| No Server Version | ✅     | Nginx não expõe versão             |
+| DNS Resolver      | ✅     | Usa Google DNS (8.8.8.8)           |
 
 ### Controlos Recomendados 🔜
 
-| Controlo | Prioridade | Descrição |
-|----------|------------|-----------|
-| Rate Limiting | Alta | Limitação de requests no Nginx |
-| CSP Headers | Alta | Content Security Policy |
-| HSTS Header | Alta | Strict-Transport-Security |
-| WAF | Média | Web Application Firewall |
-| API Key Rotation | Média | Rotação periódica de keys |
-| Audit Logs | Média | Centralização de logs |
-| Penetration Testing | Baixa | Testes de segurança |
+| Controlo            | Prioridade | Descrição                      |
+| ------------------- | ---------- | ------------------------------ |
+| Rate Limiting       | Alta       | Limitação de requests no Nginx |
+| CSP Headers         | Alta       | Content Security Policy        |
+| HSTS Header         | Alta       | Strict-Transport-Security      |
+| WAF                 | Média      | Web Application Firewall       |
+| API Key Rotation    | Média      | Rotação periódica de keys      |
+| Audit Logs          | Média      | Centralização de logs          |
+| Penetration Testing | Baixa      | Testes de segurança            |
 
 ---
 
@@ -528,20 +523,20 @@ flowchart TB
 flowchart TB
     subgraph Summary["📊 Resumo Arquitetural"]
         direction LR
-        
+
         subgraph Frontend["Frontend"]
             React["⚛️ React 18"]
             TS["📘 TypeScript"]
             Zustand["🐻 Zustand"]
             RQ["🔄 React Query"]
         end
-        
+
         subgraph Infra["Infraestrutura"]
             Docker["🐳 Docker"]
             Nginx["🔒 Nginx"]
             Vite["⚡ Vite"]
         end
-        
+
         subgraph APIs["APIs Externas"]
             OSM["🗺️ OpenStreetMap"]
             GooglePlaces2["📍 Google Places"]
@@ -561,5 +556,5 @@ flowchart TB
 
 ---
 
-*Documento de Arquitetura e Segurança - Map Route Explorer v3.0*  
-*Gerado em 10/12/2025*
+_Documento de Arquitetura e Segurança - Map Route Explorer v3.0_  
+_Gerado em 10/12/2025_

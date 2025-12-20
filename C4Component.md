@@ -78,6 +78,4 @@ C4Component
     Rel(chat_widget, n8n_service, "Utiliza")
 
     Rel(route_store, local_storage, "Persiste", "Web Storage API")
-
-    UpdateLayoutConfig($c4ShapeInRow="4", $c4BoundaryInRow="1")
 ```

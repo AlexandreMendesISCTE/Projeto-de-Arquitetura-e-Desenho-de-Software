@@ -25,6 +25,4 @@ C4Container
     Rel(web_app, n8n, "Envia mensagens", "HTTPS")
     Rel(web_app, overpass, "Consulta POIs", "HTTPS")
     Rel(web_app, local_storage, "Persiste historico", "Web Storage API")
-
-    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
 ```

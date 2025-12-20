@@ -18,6 +18,4 @@ C4Code
     Rel(route_store_instance, route_actions, "Implementa")
     Rel(map_store_instance, map_state, "Contem")
     Rel(map_store_instance, map_actions, "Implementa")
-
-    UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
 ```
