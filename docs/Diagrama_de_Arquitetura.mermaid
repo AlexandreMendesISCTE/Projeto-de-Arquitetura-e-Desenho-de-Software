@@ -46,7 +46,6 @@ flowchart TB
             MapStoreState["MapStore<br/>center, zoom, selectedLocation"]
             POIStoreState["POIStore<br/>enabled, categories, pois"]
             SearchStoreState["SearchStore<br/>query, results"]
-            TransitStoreState["TransitStore<br/>transitRoute, loading"]
         end
 
         subgraph DataLayer["🔄 Data Fetching - React Query"]
@@ -54,13 +53,12 @@ flowchart TB
             useGeocodingHook["useGeocoding Hook"]
             useGeolocationHook["useGeolocation Hook"]
             usePOIsHook["usePOIs Hook"]
-            useTransitHook["useTransit Hook"]
         end
 
         subgraph Services["🔌 API Services Layer"]
+            GooglePlacesSvc["google-places.service.ts"]
             NominatimSvc["nominatim.service.ts"]
-            OSRMSvc["osrm.service.ts"]
-            GoogleMapsSvc["googlemaps.service.ts"]
+            GoogleMapsSvc["google-maps.service.ts"]
             POISvc["poi.service.ts"]
             N8nSvc["n8n.service.ts"]
         end
@@ -103,13 +101,14 @@ flowchart TB
 
     %% Nginx to SPA
     Nginx --> StaticFiles
-    StaticFiles --> ReactSPA
 
     %% Component Hierarchy
     AppComponent --> MapExplorer
     AppComponent --> ChatWidgetComp
-    MapExplorer --> MapComponents
-    MapExplorer --> UIWidgets
+    MapExplorer --> MapContainerComp
+    MapExplorer --> LocationSearchComp
+    MapExplorer --> TransportSelectorComp
+    MapExplorer --> RouteInfoComp
     MapContainerComp --> RouteLayerComp
     MapContainerComp --> MarkerLayerComp
     MapContainerComp --> POILayerComp
@@ -120,15 +119,12 @@ flowchart TB
     MapExplorer --> MapStoreState
     LocationSearchComp --> SearchStoreState
     RouteInfoComp --> RouteStoreState
-    RouteInfoComp --> TransitStoreState
     POILayerComp --> POIStoreState
 
     %% Hooks to Services
-    useRouteHook --> OSRMSvc
     useRouteHook --> GoogleMapsSvc
     useGeocodingHook --> NominatimSvc
     usePOIsHook --> POISvc
-    useTransitHook --> GoogleMapsSvc
 
     %% Services to External APIs
     NominatimSvc -->|"HTTPS"| NominatimAPI

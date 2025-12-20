@@ -165,36 +165,74 @@ C4Component
 ## Diagrama de Deployment
 
 ```mermaid
-C4Deployment
-    title Diagrama de Deployment - Producao
+flowchart TB
+    subgraph Build["🔨 Build Process"]
+        DockerBuild["Docker Build<br/>Multi-stage"]
+        ViteBuild["Vite Build<br/>npm run build"]
+        EnvVars["Environment Variables<br/>API Keys injected"]
+        Bundle["React Bundle<br/>Minified & Optimized"]
+    end
 
-    Deployment_Node(browser, "Browser", "Chrome Firefox Safari Edge") {
-        Container(client_spa, "SPA React", "JavaScript Bundle", "Aplicacao cliente")
-    }
+    subgraph Browser["🌐 Browser do Utilizador"]
+        ClientSPA["SPA React<br/>JavaScript Bundle"]
+    end
 
-    Deployment_Node(docker_host, "Docker Host", "Linux Windows") {
-        Deployment_Node(docker_network, "Docker Network", "map-route-explorer-network") {
-            Deployment_Node(container, "Container", "nginx alpine") {
-                Container(nginx_server, "Nginx", "Web Server", "Serve ficheiros e proxy")
-                Container(static_files, "Static Files", "/usr/share/nginx/html", "Bundle React")
-            }
-        }
-    }
+    subgraph DockerHost["🐳 Docker Host - Linux/Windows"]
+        subgraph DockerNetwork["Docker Network<br/>map-route-explorer-network"]
+            subgraph Container["Container: nginx:alpine"]
+                NginxServer["Nginx Web Server<br/>Port 80 → 8082"]
+                StaticFiles["Static Files<br/>/usr/share/nginx/html"]
+                HealthCheck["Health Check<br/>/health endpoint"]
+                NginxFeatures["Nginx Features<br/>Gzip, Cache, Security Headers"]
+            end
+        end
+        DNSResolver["DNS Resolver<br/>8.8.8.8, 8.8.4.4"]
+    end
 
-    Deployment_Node(external_apis, "APIs Externas", "Internet") {
-        Container(google_places_ext, "Google Places", "places.googleapis.com", "Geocoding primario")
-        Container(nominatim_ext, "Nominatim", "nominatim.openstreetmap.org", "Geocoding fallback")
-        Container(google_maps_ext, "Google Maps", "maps.googleapis.com", "Routing API")
-        Container(n8n_ext, "n8n", "yocomsn8n.duckdns.org", "Chatbot webhook")
-    }
+    subgraph ExternalAPIs["🌍 APIs Externas - Internet"]
+        OSMTiles["OpenStreetMap<br/>Tile Server<br/>tile.openstreetmap.org"]
+        GooglePlaces["Google Places<br/>places.googleapis.com"]
+        Nominatim["Nominatim<br/>nominatim.openstreetmap.org"]
+        GoogleMaps["Google Maps<br/>maps.googleapis.com"]
+        N8N["n8n<br/>yocomsn8n.duckdns.org"]
+    end
 
-    Rel(browser, docker_host, "HTTPS", "8082")
-    Rel(client_spa, nginx_server, "HTTP")
-    Rel(nginx_server, static_files, "Serve")
-    Rel(nginx_server, nominatim_ext, "Proxy", "HTTPS")
-    Rel(nginx_server, n8n_ext, "Proxy", "HTTPS")
-    Rel(client_spa, google_places_ext, "Direct", "HTTPS")
-    Rel(client_spa, google_maps_ext, "Direct", "HTTPS")
+    %% Build Process
+    EnvVars --> DockerBuild
+    DockerBuild --> ViteBuild
+    ViteBuild --> Bundle
+    Bundle --> StaticFiles
+
+    %% User Access
+    Browser -->|"HTTPS:8082"| DockerHost
+    ClientSPA -->|"HTTP"| NginxServer
+    NginxServer --> StaticFiles
+    NginxServer --> HealthCheck
+    NginxServer --> NginxFeatures
+
+    %% Proxy Connections
+    NginxServer -->|"Proxy /nominatim"| Nominatim
+    NginxServer -->|"Proxy /n8n"| N8N
+
+    %% Direct API Connections
+    ClientSPA -->|"HTTPS + API Key"| GooglePlaces
+    ClientSPA -->|"HTTPS + API Key"| GoogleMaps
+    ClientSPA -->|"HTTPS"| OSMTiles
+
+    %% DNS Resolution
+    Container --> DNSResolver
+    DNSResolver --> ExternalAPIs
+
+    %% Styling
+    classDef buildStyle fill:#fff8e1,stroke:#f57f17
+    classDef browserStyle fill:#e1f5fe,stroke:#01579b
+    classDef dockerStyle fill:#e3f2fd,stroke:#1565c0
+    classDef apiStyle fill:#f3e5f5,stroke:#7b1fa2
+
+    class DockerBuild,ViteBuild,EnvVars,Bundle buildStyle
+    class Browser,ClientSPA browserStyle
+    class DockerHost,DockerNetwork,Container,NginxServer,StaticFiles,HealthCheck,NginxFeatures,DNSResolver dockerStyle
+    class ExternalAPIs,OSMTiles,GooglePlaces,Nominatim,GoogleMaps,N8N apiStyle
 ```
 
 ---

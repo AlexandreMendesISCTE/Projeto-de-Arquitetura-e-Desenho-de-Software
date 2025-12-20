@@ -24,7 +24,7 @@ requirementDiagram
 
     functionalRequirement RF_Pesquisa {
         id: RF02
-        text: "Pesquisa de Localizacao por Texto via Nominatim API"
+        text: "Pesquisa de Localizacao por Texto via Google Places API com fallback Nominatim"
         risk: low
         verifymethod: test
     }
@@ -38,7 +38,7 @@ requirementDiagram
 
     functionalRequirement RF_Rotas {
         id: RF04
-        text: "Calculo de Rotas entre Origem e Destino via OSRM/Google"
+        text: "Calculo de Rotas entre Origem e Destino via Google Maps Directions API"
         risk: medium
         verifymethod: test
     }
@@ -52,7 +52,7 @@ requirementDiagram
 
     functionalRequirement RF_Transit {
         id: RF06
-        text: "Rotas de Transporte Publico via Google Routes API"
+        text: "Rotas de Transporte Publico via Google Maps Directions API"
         risk: high
         verifymethod: test
     }
@@ -183,19 +183,19 @@ requirementDiagram
         docref: "src/components/map/"
     }
 
+    element GooglePlacesAPI {
+        type: "API Externa"
+        docref: "places.googleapis.com"
+    }
+
     element NominatimAPI {
         type: "API Externa"
         docref: "nominatim.openstreetmap.org"
     }
 
-    element GoogleRoutesAPI {
+    element GoogleMapsDirectionsAPI {
         type: "API Externa"
-        docref: "routes.googleapis.com"
-    }
-
-    element OSRMAPI {
-        type: "API Externa"
-        docref: "router.project-osrm.org"
+        docref: "maps.googleapis.com"
     }
 
     element N8nWebhook {
@@ -244,9 +244,10 @@ requirementDiagram
     RNF_Core - contains -> RNF_Portabilidade
 
     ReactLeaflet - satisfies -> RF_Mapa
+    GooglePlacesAPI - satisfies -> RF_Pesquisa
     NominatimAPI - satisfies -> RF_Pesquisa
-    GoogleRoutesAPI - satisfies -> RF_Transit
-    OSRMAPI - satisfies -> RF_Rotas
+    GoogleMapsDirectionsAPI - satisfies -> RF_Rotas
+    GoogleMapsDirectionsAPI - satisfies -> RF_Transit
     N8nWebhook - satisfies -> RF_Chatbot
     Docker - satisfies -> RNF_Portabilidade
     TypeScript - satisfies -> RNF_Manutenibilidade

@@ -151,16 +151,6 @@ classDiagram
         +clearResults() void
     }
 
-    class TransitStore {
-        <<Zustand Store>>
-        -TransitRoute? transitRoute
-        -boolean isLoading
-        -string? error
-        +setTransitRoute(route: TransitRoute) void
-        +setLoading(loading: boolean) void
-        +setError(error: string) void
-        +clear() void
-    }
 
     %% ============ SERVICES ============
     class NominatimService {
@@ -176,8 +166,14 @@ classDiagram
 
     class GoogleMapsService {
         <<Service>>
-        +calculateTransitRoute(origin: Coordinates, destination: Coordinates) Promise~TransitRoute~
-        +generateGoogleMapsUrl(origin: Coordinates, destination: Coordinates, waypoints: Coordinates[]) string
+        +calculateRoute(origin: Location, destination: Location, mode: TransportMode, waypoints: Location[]) Promise~Route~
+        +generateGoogleMapsUrl(origin: Location, destination: Location, waypoints: Location[], mode: TransportMode) string
+    }
+
+    class GooglePlacesService {
+        <<Service>>
+        +search(query: string, limit: number) Promise~Location[]~
+        +reverseGeocode(lat: number, lng: number) Promise~Location~
     }
 
     class POIService {
@@ -237,12 +233,6 @@ classDiagram
         +refetch() void
     }
 
-    class useTransit {
-        <<React Query Hook>>
-        +TransitRoute? data
-        +boolean isLoading
-        +Error? error
-    }
 
     %% ============ COMPONENTES REACT ============
     class App {
@@ -335,20 +325,18 @@ classDiagram
     POIStore --> POI : stores array
     POIStore --> POICategory : filters by
     SearchStore --> Location : stores results
-    TransitStore --> TransitRoute : stores current
 
+    GooglePlacesService --> Location : returns
     NominatimService --> Location : returns
-    OSRMService --> Route : returns
-    GoogleMapsService --> TransitRoute : returns
+    GoogleMapsService --> Route : returns
     POIService --> POI : returns array
     N8nService --> ChatContext : receives
     N8nService --> ChatResponse : returns
 
-    useRoute --> OSRMService : uses
     useRoute --> GoogleMapsService : uses
+    useGeocoding --> GooglePlacesService : uses
     useGeocoding --> NominatimService : uses
     usePOIs --> POIService : uses
-    useTransit --> GoogleMapsService : uses
 
     App --> MapRouteExplorer : renders
     App --> ChatWidget : renders
@@ -366,6 +354,5 @@ classDiagram
     LocationSearch --> SearchStore : uses
     LocationSearch --> useGeocoding : uses
     RouteInfo --> RouteStore : reads
-    RouteInfo --> TransitStore : reads
     POILayer --> POIStore : reads
     ChatWidget --> N8nService : uses
