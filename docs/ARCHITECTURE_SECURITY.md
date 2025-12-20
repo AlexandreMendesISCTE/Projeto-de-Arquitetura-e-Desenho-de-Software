@@ -296,12 +296,12 @@ flowchart LR
 
     subgraph Layer2["Camada 2: Transporte"]
         TLS["🔒 HTTPS/TLS<br/>Todas as APIs"]
-        HSTS["📜 HSTS Header<br/>🔜 Recomendado"]
+        HSTS["📜 HSTS Header<br/>✅ Implementado"]
     end
 
     subgraph Layer3["Camada 3: Aplicação"]
         CORS["🚫 CORS<br/>Whitelist Origins"]
-        CSP["🛡️ CSP Headers<br/>🔜 Recomendado"]
+        CSP["🛡️ CSP Headers<br/>✅ Implementado"]
         APIQuotas["⏱️ API Quotas<br/>Google Cloud"]
     end
 
@@ -540,14 +540,21 @@ flowchart TB
 | Cache Headers     | ✅     | Assets com cache longo             |
 | No Server Version | ✅     | Nginx não expõe versão             |
 | DNS Resolver      | ✅     | Usa Google DNS (8.8.8.8)           |
+| HSTS Header       | ✅     | Strict-Transport-Security          |
+| CSP Headers       | ✅     | Content Security Policy            |
+
+### Controlos Implementados Adicionalmente ✅
+
+| Controlo    | Status | Descrição                 |
+| ----------- | ------ | ------------------------- |
+| CSP Headers | ✅     | Content Security Policy   |
+| HSTS Header | ✅     | Strict-Transport-Security |
 
 ### Controlos Recomendados 🔜
 
 | Controlo            | Prioridade | Descrição                      |
 | ------------------- | ---------- | ------------------------------ |
 | Rate Limiting       | Alta       | Limitação de requests no Nginx |
-| CSP Headers         | Alta       | Content Security Policy        |
-| HSTS Header         | Alta       | Strict-Transport-Security      |
 | WAF                 | Média      | Web Application Firewall       |
 | API Key Rotation    | Média      | Rotação periódica de keys      |
 | Audit Logs          | Média      | Centralização de logs          |
