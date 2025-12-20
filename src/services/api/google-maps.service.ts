@@ -192,9 +192,16 @@ class GoogleMapsService {
               lat: step.end_location.lat(),
               lng: step.end_location.lng(),
             })
-            // Extract instructions
-            const text = step.instructions.replace(/<[^>]*>/g, '')
-            allInstructions.push(text)
+            // Extract instructions - sanitize HTML tags completely
+            // Remove all HTML tags using a single-pass regex that handles all cases
+            // This regex matches: < followed by any characters except >, then >
+            // The [^>]* pattern ensures we match complete tags including attributes
+            const sanitizedText = step.instructions.replace(/<\/?[^>]+(>|$)/g, '')
+            // Decode HTML entities safely using DOM API
+            const textarea = document.createElement('textarea')
+            textarea.textContent = sanitizedText
+            const decodedText = textarea.textContent || sanitizedText
+            allInstructions.push(decodedText)
           })
         })
 

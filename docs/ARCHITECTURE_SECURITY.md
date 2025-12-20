@@ -50,9 +50,9 @@ C4Context
     System(mre, "Map Route Explorer", "Aplicacao web para planeamento de rotas com multiplos modos de transporte")
     
     System_Ext(osm, "OpenStreetMap", "Fornece tiles de mapa e dados geograficos")
-    System_Ext(nominatim, "Nominatim API", "Servico de geocodificacao e pesquisa de enderecos")
-    System_Ext(osrm, "OSRM API", "Calculo de rotas para carro bicicleta e a pe")
-    System_Ext(google_routes, "Google Routes API", "Rotas de transporte publico com horarios")
+    System_Ext(google_places, "Google Places API", "Servico primario de geocodificacao e pesquisa")
+    System_Ext(nominatim, "Nominatim API", "Servico de geocodificacao fallback")
+    System_Ext(google_maps, "Google Maps Directions API", "Calculo de rotas para todos os modos de transporte")
     System_Ext(n8n, "n8n Webhook", "Chatbot assistente para ajuda com rotas")
     System_Ext(overpass, "Overpass API", "Consulta de POIs do OpenStreetMap")
     
@@ -60,9 +60,9 @@ C4Context
     Rel(mobile_user, mre, "Utiliza", "HTTPS")
     
     Rel(mre, osm, "Carrega tiles", "HTTPS")
-    Rel(mre, nominatim, "Pesquisa enderecos", "HTTPS")
-    Rel(mre, osrm, "Calcula rotas", "HTTPS")
-    Rel(mre, google_routes, "Rotas transit", "HTTPS")
+    Rel(mre, google_places, "Pesquisa enderecos", "HTTPS")
+    Rel(mre, nominatim, "Pesquisa enderecos fallback", "HTTPS")
+    Rel(mre, google_maps, "Calcula rotas", "HTTPS")
     Rel(mre, n8n, "Envia mensagens", "HTTPS")
     Rel(mre, overpass, "Consulta POIs", "HTTPS")
 
@@ -87,19 +87,19 @@ C4Container
     }
 
     System_Ext(osm_tiles, "OSM Tile Server", "Fornece tiles de mapa rasterizados")
-    System_Ext(nominatim_api, "Nominatim API", "Geocodificacao e pesquisa")
-    System_Ext(osrm_api, "OSRM Router", "Routing engine open source")
-    System_Ext(google_api, "Google Routes API", "Transit directions")
+    System_Ext(google_places_api, "Google Places API", "Geocodificacao primaria")
+    System_Ext(nominatim_api, "Nominatim API", "Geocodificacao fallback")
+    System_Ext(google_maps_api, "Google Maps Directions API", "Calculo de rotas para todos os modos")
     System_Ext(n8n_webhook, "n8n Workflow", "Chatbot backend")
 
     Rel(user, nginx, "Acede", "HTTPS:8082")
     Rel(nginx, spa, "Serve", "HTTP")
     
     Rel(spa, osm_tiles, "Carrega tiles", "HTTPS")
-    Rel(spa, nginx, "Proxy Nominatim", "HTTP /nominatim")
+    Rel(spa, google_places_api, "Pesquisa enderecos", "HTTPS")
+    Rel(spa, nginx, "Proxy Nominatim fallback", "HTTP /nominatim")
     Rel(nginx, nominatim_api, "Proxy", "HTTPS")
-    Rel(spa, osrm_api, "Calcula rotas", "HTTPS")
-    Rel(spa, google_api, "Transit routes", "HTTPS")
+    Rel(spa, google_maps_api, "Calcula rotas", "HTTPS")
     Rel(spa, nginx, "Proxy n8n", "HTTP /n8n")
     Rel(nginx, n8n_webhook, "Proxy", "HTTPS")
 
@@ -133,11 +133,12 @@ C4Component
         
         Component(route_store, "RouteStore", "Zustand Store", "Estado global de rotas")
         Component(map_store, "MapStore", "Zustand Store", "Estado do mapa")
-        Component(transit_store, "TransitStore", "Zustand Store", "Estado de transporte publico")
+        Component(search_store, "SearchStore", "Zustand Store", "Estado de pesquisa")
+        Component(poi_store, "POIStore", "Zustand Store", "Estado de pontos de interesse")
         
-        Component(nominatim_svc, "NominatimService", "Service", "Cliente API Nominatim")
-        Component(osrm_svc, "OSRMService", "Service", "Cliente API OSRM")
-        Component(transit_svc, "TransitService", "Service", "Cliente Google Routes API")
+        Component(google_places_svc, "GooglePlacesService", "Service", "Cliente API Google Places primario")
+        Component(nominatim_svc, "NominatimService", "Service", "Cliente API Nominatim fallback")
+        Component(google_maps_svc, "GoogleMapsService", "Service", "Cliente Google Maps Directions API")
         Component(n8n_svc, "N8nService", "Service", "Cliente webhook n8n")
     }
 
@@ -151,14 +152,15 @@ C4Component
     Rel(map_container, marker_layer, "Renderiza")
     Rel(map_container, poi_layer, "Renderiza")
     
-    Rel(location_search, nominatim_svc, "Usa")
-    Rel(route_info, osrm_svc, "Usa")
-    Rel(route_info, transit_svc, "Usa")
+    Rel(location_search, google_places_svc, "Usa primario")
+    Rel(location_search, nominatim_svc, "Usa fallback")
+    Rel(route_info, google_maps_svc, "Usa")
     Rel(chat_widget, n8n_svc, "Usa")
     
     Rel(map_explorer, route_store, "Le e escreve")
     Rel(map_explorer, map_store, "Le e escreve")
-    Rel(route_info, transit_store, "Le e escreve")
+    Rel(location_search, search_store, "Le e escreve")
+    Rel(poi_layer, poi_store, "Le e escreve")
 
     UpdateLayoutConfig($c4ShapeInRow="4", $c4BoundaryInRow="1")
 ```
@@ -185,19 +187,19 @@ C4Deployment
     }
 
     Deployment_Node(external_apis, "APIs Externas", "Internet") {
-        Container(nominatim_ext, "Nominatim", "nominatim.openstreetmap.org", "Geocoding service")
-        Container(osrm_ext, "OSRM", "router.project-osrm.org", "Routing service")
-        Container(google_ext, "Google Routes", "routes.googleapis.com", "Transit API")
+        Container(google_places_ext, "Google Places", "places.googleapis.com", "Geocoding service primario")
+        Container(nominatim_ext, "Nominatim", "nominatim.openstreetmap.org", "Geocoding service fallback")
+        Container(google_maps_ext, "Google Maps Directions", "maps.googleapis.com", "Routing API")
         Container(n8n_ext, "n8n", "yocomsn8n.duckdns.org", "Chatbot webhook")
     }
 
     Rel(browser, docker_host, "HTTPS", "8082")
     Rel(client_spa, nginx_server, "HTTP Requests")
     Rel(nginx_server, static_files, "Serve")
-    Rel(nginx_server, nominatim_ext, "Proxy", "HTTPS")
+    Rel(nginx_server, nominatim_ext, "Proxy fallback", "HTTPS")
     Rel(nginx_server, n8n_ext, "Proxy", "HTTPS")
-    Rel(client_spa, osrm_ext, "Direct", "HTTPS")
-    Rel(client_spa, google_ext, "Direct", "HTTPS")
+    Rel(client_spa, google_places_ext, "Direct", "HTTPS")
+    Rel(client_spa, google_maps_ext, "Direct", "HTTPS")
 ```
 
 ---
@@ -215,15 +217,15 @@ flowchart TB
 
     subgraph DMZ["🛡️ DMZ - Zona Desmilitarizada"]
         subgraph Docker["🐳 Container Docker"]
-            Nginx["🔒 Nginx Proxy<br/>Rate Limiting<br/>CORS Headers<br/>Security Headers"]
+            Nginx["🔒 Nginx Proxy<br/>CORS Headers<br/>Security Headers"]
             SPA["📦 SPA Bundle<br/>Minificado<br/>Sem Secrets"]
         end
     end
 
     subgraph External["🌍 APIs Externas"]
-        Nominatim["Nominatim<br/>🔓 Público"]
-        OSRM["OSRM<br/>🔓 Público"]
-        Google["Google Routes<br/>🔐 API Key"]
+        GooglePlaces["Google Places<br/>🔐 API Key"]
+        Nominatim["Nominatim<br/>🔓 Público (Fallback)"]
+        GoogleMaps["Google Maps Directions<br/>🔐 API Key"]
         N8N["n8n Webhook<br/>🔐 Autenticado"]
     end
 
@@ -236,11 +238,11 @@ flowchart TB
     Attacker -.->|"❌ Bloqueado"| Nginx
     
     Nginx -->|"Serve"| SPA
-    Nginx -->|"Proxy + Rate Limit"| Nominatim
+    Nginx -->|"Proxy fallback"| Nominatim
     Nginx -->|"Proxy + Auth"| N8N
     
-    SPA -->|"Direct HTTPS"| OSRM
-    SPA -->|"API Key Header"| Google
+    SPA -->|"API Key Header"| GooglePlaces
+    SPA -->|"API Key Header"| GoogleMaps
     
     EnvFile -->|"Docker Build Args"| BuildTime
     BuildTime -->|"Embedded"| SPA
@@ -261,13 +263,13 @@ flowchart LR
 
     subgraph Layer2["Camada 2: Transporte"]
         TLS["🔒 HTTPS/TLS<br/>Todas as APIs"]
-        HSTS["📜 HSTS Header<br/>Força HTTPS"]
+        HSTS["📜 HSTS Header<br/>🔜 Recomendado"]
     end
 
     subgraph Layer3["Camada 3: Aplicação"]
         CORS["🚫 CORS<br/>Whitelist Origins"]
-        CSP["🛡️ CSP Headers<br/>Previne XSS"]
-        RL["⏱️ Rate Limiting<br/>Previne DoS"]
+        CSP["🛡️ CSP Headers<br/>🔜 Recomendado"]
+        APIQuotas["⏱️ API Quotas<br/>Google Cloud"]
     end
 
     subgraph Layer4["Camada 4: Dados"]
@@ -291,8 +293,7 @@ sequenceDiagram
     participant U as 👤 Utilizador
     participant SPA as 📱 React SPA
     participant Store as 🗄️ Zustand Store
-    participant OSRM as 🛣️ OSRM API
-    participant Google as 🚇 Google Routes
+    participant Google as 🗺️ Google Maps Directions API
     participant Map as 🗺️ Leaflet Map
 
     U->>SPA: Define origem e destino
@@ -301,14 +302,10 @@ sequenceDiagram
     
     U->>SPA: Seleciona modo transporte
     
-    alt Carro / Bicicleta / A pé
-        SPA->>OSRM: GET /route/v1/{profile}
-        OSRM-->>SPA: GeoJSON + distância + tempo
-    else Transporte Público
-        SPA->>Google: POST /directions/v2:computeRoutes
-        Note over SPA,Google: Header: X-Goog-Api-Key
-        Google-->>SPA: Transit routes + horários
-    end
+    Note over SPA,Google: Todos os modos usam Google Maps Directions API
+    SPA->>Google: DirectionsService.route()
+    Note over SPA,Google: Modo: DRIVING, BICYCLING, WALKING, TRANSIT
+    Google-->>SPA: Route com geometria, distância, tempo
     
     SPA->>Store: setRoute(routeData)
     Store-->>SPA: Notifica componentes
@@ -323,17 +320,23 @@ sequenceDiagram
     autonumber
     participant U as 👤 Utilizador
     participant Search as 🔍 LocationSearch
+    participant GooglePlaces as 🗺️ Google Places API
     participant Nginx as 🔒 Nginx Proxy
     participant Nominatim as 🌍 Nominatim API
 
     U->>Search: Digita endereço
-    Note over Search: Debounce 300ms
+    Note over Search: Debounce 500ms
     
-    Search->>Nginx: GET /nominatim/search?q=...
-    Note over Nginx: Adiciona User-Agent<br/>Rate limiting
-    Nginx->>Nominatim: GET /search?q=...
-    Nominatim-->>Nginx: JSON results
-    Nginx-->>Search: Passa resposta + CORS headers
+    Search->>GooglePlaces: AutocompleteService.getPlacePredictions()
+    alt Google Places sucesso
+        GooglePlaces-->>Search: Predictions
+    else Google Places falha
+        Search->>Nginx: GET /nominatim/search?q=...
+        Note over Nginx: Adiciona User-Agent<br/>Proxy fallback
+        Nginx->>Nominatim: GET /search?q=...
+        Nominatim-->>Nginx: JSON results
+        Nginx-->>Search: Passa resposta + CORS headers
+    end
     
     Search-->>U: Mostra sugestões autocomplete
     U->>Search: Seleciona resultado
@@ -407,7 +410,7 @@ flowchart TB
         M2["Input Validation<br/>Previne Injection"]
         M3["Logs do Nginx<br/>Auditoria"]
         M4["API Keys Protegidas<br/>Não expostas em repo"]
-        M5["Rate Limiting<br/>Nginx + API Quotas"]
+        M5["API Quotas<br/>Google Cloud Console"]
         M6["Stateless + No Auth<br/>Sem escalada possível"]
     end
 
@@ -446,9 +449,9 @@ flowchart LR
     end
 
     subgraph Controls["🛡️ Controlos"]
-        C1["Rate Limit: 100 req/min<br/>Health Check"]
-        C2["Fallback OSRM<br/>Cache React Query"]
-        C3["CSP Headers<br/>No eval()"]
+        C1["Health Check<br/>API Quotas"]
+        C2["Google Places Fallback<br/>Cache React Query"]
+        C3["Security Headers<br/>X-Frame-Options, etc"]
         C4["Domain Restriction<br/>Rotation Policy"]
     end
 
@@ -509,8 +512,10 @@ flowchart TB
 
 | Controlo | Prioridade | Descrição |
 |----------|------------|-----------|
-| WAF | Alta | Web Application Firewall |
+| Rate Limiting | Alta | Limitação de requests no Nginx |
 | CSP Headers | Alta | Content Security Policy |
+| HSTS Header | Alta | Strict-Transport-Security |
+| WAF | Média | Web Application Firewall |
 | API Key Rotation | Média | Rotação periódica de keys |
 | Audit Logs | Média | Centralização de logs |
 | Penetration Testing | Baixa | Testes de segurança |
@@ -539,9 +544,9 @@ flowchart TB
         
         subgraph APIs["APIs Externas"]
             OSM["🗺️ OpenStreetMap"]
-            Nom["📍 Nominatim"]
-            OSRM2["🛣️ OSRM"]
-            Goog["🚇 Google Routes"]
+            GooglePlaces2["📍 Google Places"]
+            Nom["📍 Nominatim (Fallback)"]
+            GoogleMaps2["🗺️ Google Maps Directions"]
             N8N2["🤖 n8n"]
         end
     end
