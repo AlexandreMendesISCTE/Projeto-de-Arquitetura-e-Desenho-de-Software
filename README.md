@@ -8,9 +8,11 @@ Uma aplicação web moderna desenvolvida em React + Vite que permite aos utiliza
 
 Documentação detalhada foi movida para `docs/`:
 
-- `docs/DEPLOY.md`, `docs/DEPLOY_PORTAINER.md`
-- `docs/DEPLOYMENT_CHECKLIST.md`, `docs/SPRINT_PLANNING.md`
-- `docs/IMPLEMENTATION_SUMMARY.md`, `docs/N8N_WORKFLOW_GUIDE.md`
+- `docs/DEPLOY.md` - Guia de deployment
+- `docs/ARCHITECTURE_SECURITY.md` - Arquitetura e segurança
+- `docs/IMPLEMENTATION_SUMMARY.md` - Resumo de implementação
+- `docs/N8N_WORKFLOW_GUIDE.md` - Guia do workflow n8n
+- `docs/REQUIREMENTS.md` - Requisitos do projeto
 
 **Versão**: 3.0.0 | **Status**: Em desenvolvimento
 
@@ -35,11 +37,46 @@ npm run dev
 
 ### Testes
 
-Para correr a suite de testes unitários (Vitest):
+O projeto inclui uma suite completa de testes unitários implementada com Vitest:
 
 ```bash
+# Executar todos os testes
 npm test
+
+# Executar testes em modo watch
+npm test -- --watch
+
+# Executar testes com cobertura
+npm test -- --coverage
 ```
+
+#### Cobertura de Testes
+
+O projeto inclui testes para:
+
+- **Serviços de API** (Fase 1):
+  - `google-maps.service.test.ts` - Integração com Google Maps Directions API
+  - `google-places.service.test.ts` - Integração com Google Places API
+  - `nominatim.service.test.ts` - Integração com Nominatim (fallback)
+  - `osrm.service.test.ts` - Integração com OSRM (fallback de routing)
+  - `poi.service.test.ts` - Integração com Overpass API para POIs
+  - `n8n.service.test.ts` - Integração com chatbot n8n
+
+- **Utilitários** (Fase 4):
+  - `route.utils.test.ts` - Cálculo e formatação de rotas
+  - `export.utils.test.ts` - Exportação GPX e JSON
+  - `google-maps.utils.test.ts` - Construção de URLs do Google Maps
+  - `bounds.utils.test.ts` - Cálculo de bounds geográficos
+  - `geolocation.utils.test.ts` - Obtenção de localização atual
+
+- **Stores (Zustand)**:
+  - `stores.test.ts` - Gestão de estado (RouteStore, MapStore, SearchStore)
+  - `poi.store.test.ts` - Cache e gestão de POIs
+
+- **Performance** (Fase 6):
+  - `performance.test.ts` - Validação de performance de operações críticas
+
+**Total**: 14 arquivos de teste, 133 testes passando ✅
 
 ### Build para Produção
 
@@ -317,9 +354,11 @@ sequenceDiagram
 │   └── deploy.sh        # Script de deployment automatizado
 ├── docs/                 # Documentação do projeto
 │   ├── DEPLOY.md        # Guia de deployment
-│   ├── DEPLOY_PORTAINER.md
-│   ├── N8N_WORKFLOW_GUIDE.md
-│   └── ...
+│   ├── ARCHITECTURE_SECURITY.md  # Arquitetura e segurança
+│   ├── IMPLEMENTATION_SUMMARY.md # Resumo de implementação
+│   ├── N8N_WORKFLOW_GUIDE.md     # Guia do workflow n8n
+│   ├── REQUIREMENTS.md           # Requisitos do projeto
+│   └── *.mermaid                 # Diagramas Mermaid
 └── logs/                 # Logs (gitignored)
     └── nginx/           # Logs do nginx
 ```

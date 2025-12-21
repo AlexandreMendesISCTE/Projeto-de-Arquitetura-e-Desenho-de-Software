@@ -38,7 +38,7 @@ Projeto-de-Arquitetura-e-Desenho-de-Software/
 ├── Dockerfile                       # Build da aplicação
 ├── docker-compose.yml              # Orquestração Docker
 ├── nginx.conf                       # Configuração nginx interno
-├── nginx-proxy.conf                 # Configuração proxy reverso
+├── nginx.conf                       # Configuração nginx (proxy, rate limiting, security headers)
 ├── .dockerignore                    # Ficheiros ignorados no build
 ├── .env.example                     # Exemplo de variáveis de ambiente
 ├── DEPLOY.md                        # Guia de deploy

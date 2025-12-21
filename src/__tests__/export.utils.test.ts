@@ -73,9 +73,17 @@ describe('export.utils', () => {
 
     const calls = createObjectURL.mock.calls as unknown[][]
     expect(calls.length).toBeGreaterThan(0)
-    const blob = calls[0][0] as unknown
+    const blob = calls[0][0] as Blob
     expect(blob).toBeInstanceOf(Blob)
-    const text = await (blob as Blob).text()
+
+    // Use FileReader to read blob content (Blob.text() not available in jsdom)
+    const text = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsText(blob)
+    })
+
     expect(text).toContain('"origin"')
     expect(text).toContain('"destination"')
     expect(text).toContain('"transportMode"')
@@ -89,9 +97,17 @@ describe('export.utils', () => {
 
     const calls = createObjectURL.mock.calls as unknown[][]
     expect(calls.length).toBeGreaterThan(0)
-    const blob = calls[0][0] as unknown
+    const blob = calls[0][0] as Blob
     expect(blob).toBeInstanceOf(Blob)
-    const text = await (blob as Blob).text()
+
+    // Use FileReader to read blob content (Blob.text() not available in jsdom)
+    const text = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsText(blob)
+    })
+
     expect(text).toContain('<?xml version="1.0" encoding="UTF-8"?>')
     expect(text).toContain('<gpx')
     expect(text).toContain('<rtept lat="38.7223" lon="-9.1393">')

@@ -498,25 +498,30 @@ flowchart LR
 
 ## Configuração de Segurança do Nginx
 
-### Headers de Segurança Recomendados
+### Headers de Segurança Implementados ✅
 
 ```mermaid
 flowchart TB
     subgraph Headers["📜 Security Headers"]
-        H1["X-Frame-Options: DENY<br/>Previne Clickjacking"]
+        H1["X-Frame-Options: SAMEORIGIN<br/>Previne Clickjacking"]
         H2["X-Content-Type-Options: nosniff<br/>Previne MIME Sniffing"]
         H3["X-XSS-Protection: 1; mode=block<br/>Filtro XSS Browser"]
-        H4["Referrer-Policy: strict-origin<br/>Controla Referrer"]
+        H4["Referrer-Policy: no-referrer-when-downgrade<br/>Controla Referrer"]
         H5["Content-Security-Policy<br/>Whitelist de recursos"]
-        H6["Strict-Transport-Security<br/>Força HTTPS"]
+        H6["Strict-Transport-Security<br/>max-age=31536000; includeSubDomains"]
     end
 
     subgraph CSP["🔐 Content Security Policy"]
         CSP1["default-src 'self'"]
-        CSP2["script-src 'self'"]
-        CSP3["style-src 'self' 'unsafe-inline'"]
-        CSP4["img-src 'self' data: https://*.tile.openstreetmap.org"]
-        CSP5["connect-src 'self' https://*.googleapis.com https://*.openstreetmap.org"]
+        CSP2["script-src 'self' 'unsafe-inline' 'unsafe-eval'<br/>https://maps.googleapis.com https://*.googleapis.com"]
+        CSP3["style-src 'self' 'unsafe-inline'<br/>https://fonts.googleapis.com"]
+        CSP4["img-src 'self' data: blob:<br/>https://*.tile.openstreetmap.org<br/>https://*.googleapis.com https://*.googleusercontent.com"]
+        CSP5["connect-src 'self'<br/>https://*.googleapis.com<br/>https://*.openstreetmap.org<br/>https://nominatim.openstreetmap.org<br/>https://yocomsn8n.duckdns.org<br/>https://router.project-osrm.org"]
+        CSP6["font-src 'self' data: https://fonts.gstatic.com"]
+        CSP7["frame-src 'self' https://*.googleapis.com"]
+        CSP8["object-src 'none'"]
+        CSP9["base-uri 'self'"]
+        CSP10["form-action 'self'"]
     end
 
     Headers --> CSP
