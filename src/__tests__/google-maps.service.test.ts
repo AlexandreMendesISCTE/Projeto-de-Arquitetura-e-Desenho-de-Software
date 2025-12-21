@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { TransportMode } from '../types/route.types'
 
 // Use vi.hoisted() for mocks
-const { mockDirectionsService, mockLatLng, mockTextarea } = vi.hoisted(() => {
+const { mockDirectionsService, mockTextarea } = vi.hoisted(() => {
   const directionsService = {
     route: vi.fn(),
   }
@@ -120,7 +120,7 @@ describe('google-maps.service', () => {
       }
 
       mockDirectionsService.route.mockImplementation(
-        (request: any, callback: (result: any, status: string) => void) => {
+        (_request: any, callback: (result: any, status: string) => void) => {
           callback(mockRouteResult, 'OK')
         }
       )
@@ -179,7 +179,7 @@ describe('google-maps.service', () => {
       }
 
       mockDirectionsService.route.mockImplementation(
-        (request: any, callback: (result: any, status: string) => void) => {
+        (_request: any, callback: (result: any, status: string) => void) => {
           callback(mockRouteResult, 'OK')
         }
       )
@@ -228,7 +228,7 @@ describe('google-maps.service', () => {
       }
 
       mockDirectionsService.route.mockImplementation(
-        (request: any, callback: (result: any, status: string) => void) => {
+        (_request: any, callback: (result: any, status: string) => void) => {
           callback(mockRouteResult, 'OK')
         }
       )
@@ -284,7 +284,7 @@ describe('google-maps.service', () => {
       }
 
       mockDirectionsService.route.mockImplementation(
-        (request: any, callback: (result: any, status: string) => void) => {
+        (_request: any, callback: (result: any, status: string) => void) => {
           callback(mockRouteResult, 'OK')
         }
       )
@@ -310,7 +310,7 @@ describe('google-maps.service', () => {
 
     it('throws error when DirectionsService returns error status', async () => {
       mockDirectionsService.route.mockImplementation(
-        (request: any, callback: (result: any, status: string) => void) => {
+        (_request: any, callback: (result: any, status: string) => void) => {
           callback(null, 'ZERO_RESULTS')
         }
       )
@@ -322,7 +322,7 @@ describe('google-maps.service', () => {
 
     it('throws error when no routes returned', async () => {
       mockDirectionsService.route.mockImplementation(
-        (request: any, callback: (result: any, status: string) => void) => {
+        (_request: any, callback: (result: any, status: string) => void) => {
           callback({ routes: [] }, 'OK')
         }
       )
@@ -351,7 +351,7 @@ describe('google-maps.service', () => {
       }
 
       mockDirectionsService.route.mockImplementation(
-        (request: any, callback: (result: any, status: string) => void) => {
+        (_request: any, callback: (result: any, status: string) => void) => {
           callback(mockRouteResult, 'OK')
         }
       )
@@ -389,7 +389,7 @@ describe('google-maps.service', () => {
       }
 
       mockDirectionsService.route.mockImplementation(
-        (request: any, callback: (result: any, status: string) => void) => {
+        (_request: any, callback: (result: any, status: string) => void) => {
           callback(mockRouteResult, 'OK')
         }
       )
@@ -425,7 +425,7 @@ describe('google-maps.service', () => {
       }
 
       mockDirectionsService.route.mockImplementation(
-        (request: any, callback: (result: any, status: string) => void) => {
+        (_request: any, callback: (result: any, status: string) => void) => {
           callback(mockRouteResult, 'OK')
         }
       )
@@ -459,7 +459,7 @@ describe('google-maps.service', () => {
       }
 
       mockDirectionsService.route.mockImplementation(
-        (request: any, callback: (result: any, status: string) => void) => {
+        (_request: any, callback: (result: any, status: string) => void) => {
           callback(mockRouteResult, 'OK')
         }
       )

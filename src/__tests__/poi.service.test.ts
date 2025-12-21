@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { POI } from '../services/api/poi.service'
 
 // Use vi.hoisted() to create mocks that can be accessed in both mock factory and tests
 const { mockPost, mockIsAxiosError } = vi.hoisted(() => {

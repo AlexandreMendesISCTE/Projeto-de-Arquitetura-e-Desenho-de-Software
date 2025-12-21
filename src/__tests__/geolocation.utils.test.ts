@@ -138,9 +138,9 @@ describe('geolocation.utils (useGeolocation hook)', () => {
     })
 
     it('sets loading state during geolocation request', async () => {
-      let resolvePosition: ((pos: any) => void) | null = null
+      let resolvePosition: ((pos: GeolocationPosition) => void) | null = null
 
-      mockGetCurrentPosition.mockImplementation((success: (pos: any) => void) => {
+      mockGetCurrentPosition.mockImplementation((success: (pos: GeolocationPosition) => void) => {
         resolvePosition = success
       })
 
@@ -154,12 +154,19 @@ describe('geolocation.utils (useGeolocation hook)', () => {
 
       // Resolve the position
       if (resolvePosition) {
-        resolvePosition({
+        const mockPosition = {
           coords: {
             latitude: 38.7223,
             longitude: -9.1393,
+            accuracy: 10,
+            altitude: null,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: null,
           },
-        })
+          timestamp: Date.now(),
+        } as GeolocationPosition
+        ;(resolvePosition as (pos: GeolocationPosition) => void)(mockPosition)
       }
 
       await waitFor(() => {

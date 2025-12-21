@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // Use vi.hoisted() for mocks
-const { mockAutocompleteService, mockPlacesService, mockGeocoder, mockMap } = vi.hoisted(() => {
+const { mockAutocompleteService, mockPlacesService, mockGeocoder } = vi.hoisted(() => {
   const autocompleteService = {
     getPlacePredictions: vi.fn(),
   }
@@ -120,7 +120,7 @@ describe('google-places.service', () => {
 
       // Mock AutocompleteService.getPlacePredictions
       mockAutocompleteService.getPlacePredictions.mockImplementation(
-        (request: any, callback: (predictions: any[], status: string) => void) => {
+        (_request: any, callback: (predictions: any[], status: string) => void) => {
           callback(mockPredictions, 'OK')
         }
       )
@@ -155,7 +155,7 @@ describe('google-places.service', () => {
       }))
 
       mockAutocompleteService.getPlacePredictions.mockImplementation(
-        (request: any, callback: (predictions: any[], status: string) => void) => {
+        (_request: any, callback: (predictions: any[], status: string) => void) => {
           callback(mockPredictions, 'OK')
         }
       )
@@ -194,7 +194,7 @@ describe('google-places.service', () => {
 
     it('throws error when AutocompleteService returns error status', async () => {
       mockAutocompleteService.getPlacePredictions.mockImplementation(
-        (request: any, callback: (predictions: any[], status: string) => void) => {
+        (_request: any, callback: (predictions: any[], status: string) => void) => {
           callback([], 'ZERO_RESULTS')
         }
       )
@@ -213,13 +213,13 @@ describe('google-places.service', () => {
       ]
 
       mockAutocompleteService.getPlacePredictions.mockImplementation(
-        (request: any, callback: (predictions: any[], status: string) => void) => {
+        (_request: any, callback: (predictions: any[], status: string) => void) => {
           callback(mockPredictions, 'OK')
         }
       )
 
       mockPlacesService.getDetails.mockImplementation(
-        (request: any, callback: (place: any, status: string) => void) => {
+        (_request: any, callback: (place: any, status: string) => void) => {
           callback(null, 'NOT_FOUND')
         }
       )
@@ -249,13 +249,13 @@ describe('google-places.service', () => {
       }
 
       mockAutocompleteService.getPlacePredictions.mockImplementation(
-        (request: any, callback: (predictions: any[], status: string) => void) => {
+        (_request: any, callback: (predictions: any[], status: string) => void) => {
           callback(mockPredictions, 'OK')
         }
       )
 
       mockPlacesService.getDetails.mockImplementation(
-        (request: any, callback: (place: any, status: string) => void) => {
+        (_request: any, callback: (place: any, status: string) => void) => {
           callback(mockPlace, 'OK')
         }
       )
@@ -281,7 +281,7 @@ describe('google-places.service', () => {
       }
 
       mockGeocoder.geocode.mockImplementation(
-        (request: any, callback: (results: any[], status: string) => void) => {
+        (_request: any, callback: (results: any[], status: string) => void) => {
           callback([mockResult], 'OK')
         }
       )
@@ -308,7 +308,7 @@ describe('google-places.service', () => {
 
     it('throws error when geocoder returns error status', async () => {
       mockGeocoder.geocode.mockImplementation(
-        (request: any, callback: (results: any[], status: string) => void) => {
+        (_request: any, callback: (results: any[], status: string) => void) => {
           callback([], 'ZERO_RESULTS')
         }
       )
@@ -325,7 +325,7 @@ describe('google-places.service', () => {
       }
 
       mockGeocoder.geocode.mockImplementation(
-        (request: any, callback: (results: any[], status: string) => void) => {
+        (_request: any, callback: (results: any[], status: string) => void) => {
           callback([mockResult], 'OK')
         }
       )
